@@ -10,8 +10,20 @@
 D:\workbuddy\养护看板\
   ├── data.json          ← 所有任务数据（核心文件）
   ├── index.html         ← 看板页面（不要修改）
-  └── images\            ← 图片存储目录
+  ├── images\            ← 图片存储目录
+  └── .git\              ← Git 仓库（用于同步到 GitHub Pages）
 ```
+
+每个任务完成后，必须运行以下命令将数据同步到云端看板：
+
+```bash
+cd D:\workbuddy\养护看板
+git add -A
+git commit -m "update: 任务更新 YYYY-MM-DD HH:MM"
+git push
+```
+
+**云端看板地址（群公告用）**：https://yanghu-admin.github.io/yanghu-task-board/
 
 ---
 
@@ -213,11 +225,18 @@ TASK-001 已完成 [图片]
 ## 五、关键规则总结
 
 1. **每次修改 data.json 后，必须重新计算 statistics 和 is_overdue**
-2. **图片文件名必须规范**：`task-XXX_阶段.jpg`
+2. **图片文件名必须规范**：`task-XXX_阶段_序号.jpg`
 3. **id 自动递增**，不要手动指定
 4. **不要修改 index.html**
 5. **催办清单文件格式**：`催办清单_YYYY-MM-DD.md`
 6. **时间格式统一用 ISO 8601**：`2026-07-19T09:00:00+08:00`
+7. **每次修改 data.json 或 images/ 后必须 git push 同步到云端**，命令：
+   ```bash
+   cd D:\workbuddy\养护看板
+   git add -A
+   git commit -m "update: 任务更新 YYYY-MM-DD HH:MM"
+   git push
+   ```
 
 ---
 
