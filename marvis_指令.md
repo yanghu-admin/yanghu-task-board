@@ -41,10 +41,11 @@ git push
 | assignee | 文本 | 经办人 | 张三（养护组） |
 | dispatched_at | 时间 | 交办时间 | 2026-07-19T09:00:00+08:00 |
 | deadline | 时间（可选） | 限定完成时间 | 2026-07-20T18:00:00+08:00 |
-| status | 枚举 | pending / processing / completed | pending |
-| completed_at | 时间（可选） | 完成时间 | 2026-07-19T15:20:00+08:00 |
+| status | 枚举 | pending / processing / pending_review / completed | pending |
+| completed_at | 时间（可选） | 完成时间（二级核验通过时设置） | 2026-07-19T15:20:00+08:00 |
 | is_overdue | 布尔 | 是否超时 | false |
 | images | 对象 | 包含 before/during/after 三个数组 | `{"before":[...],"during":[...],"after":[...]}` |
+| reviews | 对象 | 核验记录（两级） | 见下方说明 |
 | notes | 文本 | 备注 | 需更换新护栏板 |
 
 ### 状态定义
@@ -52,7 +53,38 @@ git push
 | 值 | 含义 | 何时设置 |
 |----|------|---------|
 | pending | 待处理 | 新建任务时默认 |
-| processing | 处理中 | 经办人上传维修中照片时 |
+| processing | 处理中 | 经办人上传维修中照片 |
+| pending_review | 待核验 | 经办人上传维修后照片，等待核验 |
+| rejected | 需整改 | 核验不通过，退回整改 |
+| completed | 已完成 | 二级核验（邹佳飞）通过 |
+
+### 两级核验结构
+
+每条任务增加 `reviews` 字段：
+
+```json
+"reviews": {
+  "level1": {
+    "reviewer": "黄瑾文",
+    "result": "approved",        // approved / rejected
+    "reviewed_at": "2026-07-20T10:00:00+08:00",
+    "comment": "维修质量合格",
+    "reject_images": []           // 退回整改时附的照片
+  },
+  "level2": {
+    "reviewer": "邹佳飞",
+    "result": null,              // null=待核验 / approved / rejected
+    "reviewed_at": null,
+    "comment": "",
+    "reject_images": []
+  }
+}
+```
+
+核验流程：
+1. 经办人上传维修后照片 → status = `pending_review`
+2. 黄瑾文核验 → 通过则 level1.result = `approved`；退回则 status = `rejected`
+3. 邹佳飞核验 → 通过则 status = `completed` + 记录 completed_at；退回则 status = `rejected`
 | completed | 已完成 | 经办人完成维修+上传维修后照片时 |
 
 ### is_overdue 计算规则
@@ -69,6 +101,7 @@ git push
   "total": 总数,
   "pending": status为pending的数量,
   "processing": status为processing的数量,
+  "pending_review": status为pending_review的数量,
   "completed": status为completed的数量,
   "overdue": is_overdue为true的数量
 }
