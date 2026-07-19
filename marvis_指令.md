@@ -85,7 +85,16 @@ git push
 1. 经办人上传维修后照片 → status = `pending_review`
 2. 黄瑾文核验 → 通过则 level1.result = `approved`；退回则 status = `rejected`
 3. 邹佳飞核验 → 通过则 status = `completed` + 记录 completed_at；退回则 status = `rejected`
-| completed | 已完成 | 经办人完成维修+上传维修后照片时 |
+
+### 状态定义
+
+| 值 | 含义 | 何时设置 |
+|----|------|---------|
+| pending | 待处理 | 新建任务时默认 |
+| processing | 处理中 | 经办人上传维修中照片 |
+| pending_review | 待核验 | 经办人上传维修后照片，等待核验 |
+| rejected | 需整改 | 核验不通过，退回整改 |
+| completed | 已完成 | 二级核验（邹佳飞）通过 |
 
 ### is_overdue 计算规则
 
