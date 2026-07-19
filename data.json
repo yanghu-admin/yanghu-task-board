@@ -1,0 +1,104 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-07-19T19:24:44.924783+08:00",
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "piles": "K12+300",
+      "location": "右侧护栏",
+      "description": "波形护栏被撞变形，约3米长",
+      "dispatcher": "你",
+      "assignee": "张三（养护组）",
+      "dispatched_at": "2026-07-19T09:00:00+08:00",
+      "deadline": "2026-07-20T18:00:00+08:00",
+      "status": "processing",
+      "completed_at": null,
+      "is_overdue": false,
+      "images": {
+        "before": [
+          "images/task-001_维修前.jpg"
+        ],
+        "during": [
+          "images/task-001_维修中.jpg"
+        ],
+        "after": [
+          "images/task-001_维修后.jpg"
+        ]
+      },
+      "notes": "需更换新护栏板"
+    },
+    {
+      "id": "TASK-002",
+      "piles": "K15+200",
+      "location": "左侧排水沟",
+      "description": "排水沟被泥沙堵塞，暴雨后积水严重",
+      "dispatcher": "你",
+      "assignee": "李四（养护组）",
+      "dispatched_at": "2026-07-19T10:30:00+08:00",
+      "deadline": "2026-07-19T16:00:00+08:00",
+      "status": "completed",
+      "completed_at": "2026-07-19T15:20:00+08:00",
+      "is_overdue": false,
+      "images": {
+        "before": [
+          "images/task-002_维修前.jpg"
+        ],
+        "during": [],
+        "after": [
+          "images/task-002_维修后.jpg"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "TASK-003",
+      "piles": "K08+500",
+      "location": "中央分隔带",
+      "description": "防眩板缺失5块，夜间行车安全隐患",
+      "dispatcher": "你",
+      "assignee": "王五（养护组）",
+      "dispatched_at": "2026-07-19T08:00:00+08:00",
+      "deadline": "2026-07-19T12:00:00+08:00",
+      "status": "pending",
+      "completed_at": null,
+      "is_overdue": true,
+      "images": {
+        "before": [
+          "images/task-003_维修前.jpg",
+          "images/task-003_维修前_2.jpg"
+        ],
+        "during": [],
+        "after": []
+      },
+      "notes": "已超时6小时，需尽快处理"
+    },
+    {
+      "id": "TASK-004",
+      "piles": "BK31+500",
+      "location": "水沟沟底",
+      "description": "水沟沟底破损，需要维修",
+      "dispatcher": "你",
+      "assignee": "黄瑾文",
+      "dispatched_at": "2026-07-19T19:24:44.924783+08:00",
+      "deadline": null,
+      "status": "pending",
+      "completed_at": null,
+      "is_overdue": false,
+      "images": {
+        "before": [
+          "images/task-004_维修前.jpg"
+        ],
+        "during": [],
+        "after": []
+      },
+      "notes": ""
+    }
+  ],
+  "statistics": {
+    "total": 4,
+    "pending": 2,
+    "processing": 1,
+    "completed": 1,
+    "overdue": 1
+  }
+}
