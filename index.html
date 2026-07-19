@@ -23,6 +23,18 @@
   }
   .header h1 { font-size: 20px; font-weight: 600; }
   .header p { font-size: 13px; color: #aaa; margin-top: 2px; }
+  
+  .submit-entry { margin: 12px 16px 0; }
+  .submit-entry a {
+    display: block; text-align: center; padding: 10px 16px;
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 600;
+    border-radius: 10px; box-shadow: 0 2px 6px rgba(41,128,185,0.25);
+    transition: box-shadow 0.2s, transform 0.1s;
+  }
+  .submit-entry a:hover { box-shadow: 0 4px 12px rgba(41,128,185,0.35); }
+  .submit-entry a:active { transform: scale(0.98); }
+  
   .stats-bar { display: flex; justify-content: space-around; background: #fff; margin: 12px 16px; border-radius: 12px; padding: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-item { text-align: center; flex: 1; }
   .stat-num { font-size: 22px; font-weight: 700; }
@@ -47,7 +59,13 @@
   
   .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .task-id { font-size: 12px; color: #999; font-weight: 600; }
+  .task-number { font-size: 12px; color: #999; font-weight: 600; }
   .task-status { font-size: 11px; padding: 2px 10px; border-radius: 10px; font-weight: 500; }
+  
+  .submit-photo-btn { display: inline-block; padding: 5px 12px; background: #3498db; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
+  .submit-photo-btn:hover { background: #2980b9; }
+  .submit-photo-btn:active { background: #1c6ea4; }
+  .task-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
   .status-pending { background: #fef3e2; color: #e67e22; }
   .status-processing { background: #e8f4fd; color: #2980b9; }
   .status-review { background: #f0e6f6; color: #8e44ad; }
@@ -70,13 +88,6 @@
   .image-thumb .placeholder .icon { font-size: 20px; }
   .image-thumb .placeholder .text { font-size: 10px; color: #ccc; }
   
-  /* 任务操作按钮 */
-  .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .action-btn { padding: 6px 14px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .action-btn.upload { background: #3498db; color: #fff; }
-  .action-btn.review { background: #9b59b6; color: #fff; }
-  .action-btn:active { opacity: 0.7; }
-  
   .review-status { font-size: 12px; color: #888; margin-top: 6px; padding: 6px 10px; background: #f9f9f9; border-radius: 6px; }
   .review-status .approved { color: #27ae60; }
   .review-status .rejected { color: #e74c3c; }
@@ -85,31 +96,6 @@
   .no-data { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
   .last-update { text-align: center; font-size: 11px; color: #bbb; padding: 20px 16px; }
   .footer-note { text-align: center; font-size: 12px; color: #ccc; padding: 8px 16px 20px; }
-  
-  /* 弹窗通用 */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-  .modal-overlay.show { display: flex; }
-  .modal-content { background: #fff; border-radius: 16px; width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; }
-  .modal-header h3 { font-size: 17px; margin: 0; }
-  .modal-close { font-size: 20px; color: #999; cursor: pointer; padding: 4px 8px; }
-  .modal-close:hover { color: #333; }
-  .modal-body { padding: 20px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; }
-  .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
-  .form-group select:focus, .form-group input:focus, .form-group textarea:focus { border-color: #3498db; }
-  .form-group textarea { resize: vertical; min-height: 48px; }
-  .form-tip { font-size: 11px; color: #aaa; margin-top: 4px; }
-  .submit-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .submit-btn.reject-btn { background: linear-gradient(135deg, #e67e22, #d35400); }
-  .submit-btn.approve-btn { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-  .submit-btn:active:not(:disabled) { opacity: 0.8; }
-  .submit-status { margin-top: 10px; font-size: 13px; text-align: center; padding: 8px; border-radius: 6px; }
-  .submit-status.success { background: #e8f8f0; color: #27ae60; }
-  .submit-status.error { background: #fde8e8; color: #e74c3c; }
-  .submit-status.loading { background: #e8f4fd; color: #2980b9; }
   
   /* 图片预览 */
   .preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
@@ -134,12 +120,6 @@
     .last-update { color: #666; }
     .footer-note { color: #555; }
     .no-data { color: #666; }
-    .modal-content { background: #2a2a3e; }
-    .modal-header { border-color: #444; }
-    .modal-header h3 { color: #eee; }
-    .modal-close { color: #888; }
-    .form-group label { color: #aaa; }
-    .form-group select, .form-group input, .form-group textarea { background: #3a3a4e; border-color: #555; color: #eee; }
     .review-status { background: #3a3a4e; }
   }
 </style>
@@ -147,8 +127,8 @@
 <body>
 
 <div class="header">
-  <h1>🛣️ 养护任务跟踪看板</h1>
-  <p>南平联络线高速土建养护 · 任务闭环管理</p>
+  <h1>养护任务跟踪看板</h1>
+  <p>南平联络线高速土建养护</p>
 </div>
 
 <div class="stats-bar" id="statsBar">
@@ -181,23 +161,9 @@
   <div class="preview-back" onclick="closePreview()">← 返回看板</div>
 </div>
 
-<!-- 上传反馈/核验表单弹窗 -->
-<div class="modal-overlay" id="feedbackModal" onclick="closeModal(event)">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3 id="modalTitle">📸 上传反馈</h3>
-      <span class="modal-close" onclick="closeModal()">✕</span>
-    </div>
-    <div class="modal-body" id="modalBody">
-      <!-- 由脚本动态填充 -->
-    </div>
-  </div>
-</div>
 
 <script>
 const DATA_URL = 'data.json';
-const REPO_OWNER = 'yanghu-admin';
-const REPO_NAME = 'yanghu-task-board';
 let allTasks = [];
 
 const STATUS_MAP = {
@@ -270,29 +236,17 @@ function renderTasks(tasks) {
   container.innerHTML = tasks.map(task => {
     const statusInfo = getStatusInfo(task);
     const borderCls = getStatusBorder(task);
+    const taskNo = task.number || task.id;
     const overdueTag = task.is_overdue && task.status !== 'completed' ? '<span class="overdue-tag">⚠️ 已超时</span>' : '';
     const deadlineStr = task.deadline ? `限时：${formatTime(task.deadline)}` : '';
     const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
     const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
-
-    // 操作按钮
-    let actions = '';
-    if (task.status === 'pending' || task.status === 'processing' || task.status === 'rejected') {
-      actions += `<button class="action-btn upload" onclick="openUploadForm('${task.id}')">📸 上传反馈</button>`;
-    }
-    if (task.status === 'pending_review') {
-      const r = task.reviews || {};
-      if (!r.level1 || r.level1.result === null) {
-        actions += `<button class="action-btn review" onclick="openReviewForm('${task.id}','level1')">🔍 黄瑾文核验</button>`;
-      } else if (r.level1.result === 'approved' && (!r.level2 || r.level2.result === null)) {
-        actions += `<button class="action-btn review" onclick="openReviewForm('${task.id}','level2')">🔍 邹佳飞核验</button>`;
-      }
-    }
+    const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
 
     return `
       <div class="task-card ${borderCls}">
         <div class="task-header">
-          <span class="task-id">${task.id}</span>
+          <span class="task-number">${taskNo}</span>
           <span class="task-status ${statusInfo.cls}">${statusInfo.label}</span>
         </div>
         <div class="task-location">${task.piles ? task.piles : ''} ${task.location || ''}</div>
@@ -313,7 +267,9 @@ function renderTasks(tasks) {
           </div>
         </div>
         ${renderReviewStatus(task)}
-        ${actions ? `<div class="action-row">${actions}</div>` : ''}
+        <div class="task-card-footer">
+          <a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>
+        </div>
       </div>
     `;
   }).join('');
@@ -376,166 +332,5 @@ function closePreview(e) {
   document.body.style.overflow = '';
 }
 
-// ========== 弹窗通用 ==========
-let currentTaskId = '';
-let currentReviewLevel = '';
-
-function closeModal(e) {
-  if (e && e.target !== e.currentTarget) return;
-  document.getElementById('feedbackModal').classList.remove('show');
-}
-
-// ========== 上传反馈表单 ==========
-function openUploadForm(taskId) {
-  currentTaskId = taskId;
-  currentReviewLevel = '';
-  document.getElementById('modalTitle').textContent = `📸 上传反馈 - ${taskId}`;
-  
-  const task = allTasks.find(t => t.id === taskId);
-  const showDuring = task && task.status !== 'processing';
-  
-  document.getElementById('modalBody').innerHTML = `
-    <div class="form-group">
-      <label>反馈类型</label>
-      <select id="formType">
-        ${showDuring ? '<option value="during">上传维修中照片（开始处理）</option>' : ''}
-        <option value="after">上传维修后照片（默认已完成）</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>上传照片（可多选）</label>
-      <input type="file" id="formImages" accept="image/*" multiple>
-      <div class="form-tip">至少一张，建议多角度拍摄</div>
-    </div>
-    <div class="form-group">
-      <label>备注（选填）</label>
-      <textarea id="formNotes" placeholder="处理情况说明" rows="2"></textarea>
-    </div>
-    <div class="form-group">
-      <label>提交人姓名</label>
-      <input type="text" id="formReporter" placeholder="请输入你的名字">
-    </div>
-    <button class="submit-btn" onclick="submitFeedback()">提交反馈</button>
-    <div id="submitStatus" class="submit-status"></div>
-  `;
-  
-  document.getElementById('feedbackModal').classList.add('show');
-}
-
-function submitFeedback() {
-  const type = document.getElementById('formType').value;
-  const files = document.getElementById('formImages').files;
-  const notes = document.getElementById('formNotes').value;
-  const reporter = document.getElementById('formReporter').value;
-  const statusEl = document.getElementById('submitStatus');
-  const btn = document.querySelector('#modalBody .submit-btn');
-  
-  if (!reporter) { showStatus('请填写提交人姓名', 'error'); return; }
-  if (files.length === 0) { showStatus('请至少上传一张照片', 'error'); return; }
-  
-  btn.disabled = true;
-  btn.textContent = '提交中...';
-  showStatus('正在跳转到提交页面...', 'loading');
-  
-  const typeLabel = type === 'during' ? '维修中' : '维修后';
-  const newStatus = type === 'during' ? 'processing' : 'pending_review';
-  const fileNames = Array.from(files).map((f,i) => `${currentTaskId}_${typeLabel}_${i+1}.jpg`);
-  
-  const issueTitle = `[反馈] ${currentTaskId} - ${typeLabel} - ${reporter}`;
-  const issueBody = `## 维修反馈\n\n- **任务编号**: ${currentTaskId}\n- **反馈类型**: ${typeLabel}\n- **提交人**: ${reporter}\n- **备注**: ${notes || '无'}\n- **更新状态**: ${newStatus}\n- **照片文件**: ${fileNames.join(', ')}\n\n> ⚠️ 请将照片拖拽到本页面后提交`;
-  
-  const issueUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
-  
-  setTimeout(() => {
-    window.open(issueUrl, '_blank');
-    btn.disabled = false;
-    btn.textContent = '提交反馈';
-    showStatus('✅ 请在打开的页面中上传照片，然后点 "Submit new issue"', 'success');
-  }, 500);
-}
-
-// ========== 核验表单 ==========
-function openReviewForm(taskId, level) {
-  currentTaskId = taskId;
-  currentReviewLevel = level;
-  const reviewerName = level === 'level1' ? '黄瑾文' : '邹佳飞';
-  document.getElementById('modalTitle').textContent = `🔍 ${reviewerName} 核验 - ${taskId}`;
-  
-  document.getElementById('modalBody').innerHTML = `
-    <div class="form-group">
-      <label>核验结果</label>
-      <select id="reviewResult">
-        <option value="approved">✅ 通过</option>
-        <option value="rejected">❌ 退回整改</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>核验意见</label>
-      <textarea id="reviewComment" placeholder="填写核验意见，退回时请说明原因" rows="3"></textarea>
-    </div>
-    <div class="form-group" id="rejectPhotoGroup" style="display:none">
-      <label>整改要求照片（退回时选填）</label>
-      <input type="file" id="reviewImages" accept="image/*" multiple>
-      <div class="form-tip">如需要经办人继续整改，可附照片说明</div>
-    </div>
-    <div class="form-group">
-      <label>核验人</label>
-      <input type="text" id="reviewer" value="${reviewerName}" readonly>
-    </div>
-    <button class="submit-btn approve-btn" onclick="submitReview()">提交核验</button>
-    <div id="submitStatus" class="submit-status"></div>
-  `;
-  
-  // 切换核验结果时显示/隐藏整改照片
-  document.getElementById('feedbackModal').classList.add('show');
-  setTimeout(() => {
-    const sel = document.getElementById('reviewResult');
-    if (sel) {
-      sel.onchange = function() {
-        document.getElementById('rejectPhotoGroup').style.display = this.value === 'rejected' ? 'block' : 'none';
-        const btn = document.querySelector('#modalBody .submit-btn');
-        btn.className = this.value === 'rejected' ? 'submit-btn reject-btn' : 'submit-btn approve-btn';
-        btn.textContent = this.value === 'rejected' ? '提交（退回整改）' : '提交（通过）';
-      };
-    }
-  }, 100);
-}
-
-function submitReview() {
-  const result = document.getElementById('reviewResult').value;
-  const comment = document.getElementById('reviewComment').value;
-  const reviewer = document.getElementById('reviewer').value;
-  const statusEl = document.getElementById('submitStatus');
-  const btn = document.querySelector('#modalBody .submit-btn');
-  
-  if (!comment) { showStatus('请填写核验意见', 'error'); return; }
-  
-  btn.disabled = true;
-  btn.textContent = '提交中...';
-  showStatus('正在跳转到提交页面...', 'loading');
-  
-  const newStatus = result === 'approved' ? (currentReviewLevel === 'level2' ? 'completed' : 'pending_review') : 'rejected';
-  const resultLabel = result === 'approved' ? '通过' : '退回整改';
-  
-  const issueTitle = `[核验] ${currentTaskId} - ${reviewer} - ${resultLabel}`;
-  const issueBody = `## 核验反馈\n\n- **任务编号**: ${currentTaskId}\n- **核验级别**: ${currentReviewLevel}\n- **核验人**: ${reviewer}\n- **结果**: ${resultLabel}\n- **意见**: ${comment}\n- **更新状态**: ${newStatus}`;
-  
-  const issueUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
-  
-  setTimeout(() => {
-    window.open(issueUrl, '_blank');
-    btn.disabled = false;
-    btn.textContent = '提交核验';
-    showStatus('✅ 请在打开的页面中点击 "Submit new issue"', 'success');
-  }, 500);
-}
-
-function showStatus(msg, type) {
-  const el = document.getElementById('submitStatus');
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'submit-status ' + type;
-}
-</script>
 </body>
 </html>
