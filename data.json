@@ -32,16 +32,17 @@
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         },
         "level2": {
           "reviewer": "邹佳飞",
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         }
-      }
+      },
+      "accepted_at": null
     },
     {
       "id": "TASK-002",
@@ -71,16 +72,17 @@
           "result": "approved",
           "reviewed_at": "2026-07-19T15:20:00+08:00",
           "comment": "（历史任务补录）",
-          "reject_images": []
+          "images": []
         },
         "level2": {
           "reviewer": "邹佳飞",
           "result": "approved",
           "reviewed_at": "2026-07-19T15:20:00+08:00",
           "comment": "（历史任务补录）",
-          "reject_images": []
+          "images": []
         }
-      }
+      },
+      "accepted_at": null
     },
     {
       "id": "TASK-003",
@@ -109,16 +111,17 @@
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         },
         "level2": {
           "reviewer": "邹佳飞",
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         }
-      }
+      },
+      "accepted_at": null
     },
     {
       "id": "TASK-004",
@@ -150,16 +153,17 @@
           "result": "approved",
           "reviewed_at": "2026-07-19T21:36:14.949621+08:00",
           "comment": "（历史任务补录）",
-          "reject_images": []
+          "images": []
         },
         "level2": {
           "reviewer": "邹佳飞",
           "result": "approved",
           "reviewed_at": "2026-07-19T21:36:14.949621+08:00",
           "comment": "（历史任务补录）",
-          "reject_images": []
+          "images": []
         }
-      }
+      },
+      "accepted_at": null
     },
     {
       "id": "TASK-005",
@@ -188,16 +192,17 @@
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         },
         "level2": {
           "reviewer": "邹佳飞",
           "result": null,
           "reviewed_at": null,
           "comment": "",
-          "reject_images": []
+          "images": []
         }
-      }
+      },
+      "accepted_at": null
     }
   ],
   "statistics": {
