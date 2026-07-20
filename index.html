@@ -65,6 +65,16 @@
   .submit-photo-btn { display: inline-block; padding: 5px 12px; background: #3498db; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
   .submit-photo-btn:hover { background: #2980b9; }
   .submit-photo-btn:active { background: #1c6ea4; }
+  .accept-btn { display: inline-block; padding: 5px 12px; background: #27ae60; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
+  .accept-btn:hover { background: #219a52; }
+  .accept-btn:active { background: #1e8449; }
+  .review-btn { display: inline-block; padding: 5px 12px; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
+  .review-btn.level1 { background: #e67e22; }
+  .review-btn.level1:hover { background: #d35400; }
+  .review-btn.level2 { background: #8e44ad; }
+  .review-btn.level2:hover { background: #7d3c98; }
+  .review-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
+  .review-images { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
   .task-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
   .status-pending { background: #fef3e2; color: #e67e22; }
   .status-processing { background: #e8f4fd; color: #2980b9; }
@@ -213,15 +223,19 @@ function renderReviewStatus(task) {
   let html = '<div class="review-status">';
   if (r.level1) {
     const s = r.level1.result === 'approved' ? '<span class="approved">✅ 已通过</span>' : r.level1.result === 'rejected' ? '<span class="rejected">❌ 退回</span>' : '<span class="pending-text">⏳ 待核验</span>';
-    html += `<div>一级核验（黄瑾文）：${s}`;
-    if (r.level1.comment) html += ` · ${r.level1.comment}`;
-    html += '</div>';
+    html += `<div>一级核验（黄瑾文）：${s}</div>`;
+    if (r.level1.images && r.level1.images.length > 0) {
+      html += '<div class="review-images">' + r.level1.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
+    }
   }
   if (r.level2) {
     const s = r.level2.result === 'approved' ? '<span class="approved">✅ 已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">❌ 退回</span>' : '<span class="pending-text">⏳ 待核验</span>';
     html += `<div>二级核验（邹佳飞）：${s}`;
     if (r.level2.comment) html += ` · ${r.level2.comment}`;
     html += '</div>';
+    if (r.level2.images && r.level2.images.length > 0) {
+      html += '<div class="review-images">' + r.level2.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
+    }
   }
   html += '</div>';
   return html;
@@ -241,7 +255,26 @@ function renderTasks(tasks) {
     const deadlineStr = task.deadline ? `限时：${formatTime(task.deadline)}` : '';
     const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
     const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
+    const acceptedStr = task.accepted_at ? `受理：${formatTime(task.accepted_at)}` : '';
     const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
+    const reviewUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblBh8mjI3BiDLmh&view=vewGUjc8Gh&field_fld2YuOhjx=${encodeURIComponent(taskNo)}`;
+
+    // 根据状态显示不同按钮
+    let actionBtn = '';
+    if (task.status === 'pending') {
+      actionBtn = `<a class="accept-btn" href="${feishuUrl}" target="_blank">确认受理</a>`;
+    } else if (task.status === 'processing') {
+      actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
+    } else if (task.status === 'pending_review') {
+      const r = task.reviews || {};
+      const l1 = r.level1;
+      const l2 = r.level2;
+      if (!l1 || (l1.result !== 'approved' && l1.result !== 'rejected')) {
+        actionBtn = `<a class="review-btn level1" href="${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('一级核验')}" target="_blank">一级核验</a>`;
+      } else if (l1.result === 'approved' && (!l2 || (l2.result !== 'approved' && l2.result !== 'rejected'))) {
+        actionBtn = `<a class="review-btn level2" href="${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('二级核验')}" target="_blank">二级核验</a>`;
+      }
+    }
 
     return `
       <div class="task-card ${borderCls}">
@@ -254,6 +287,7 @@ function renderTasks(tasks) {
         <div class="task-meta">
           <span>👤 ${task.dispatcher || '你'} ${assigneeStr}</span>
           <span>📅 ${formatTime(task.dispatched_at)}</span>
+          ${acceptedStr ? `<span>📥 ${acceptedStr}</span>` : ''}
           ${deadlineStr ? `<span>⏰ ${deadlineStr}</span>` : ''}
           ${completedStr ? `<span>✅ ${completedStr}</span>` : ''}
           ${overdueTag}
@@ -267,9 +301,7 @@ function renderTasks(tasks) {
           </div>
         </div>
         ${renderReviewStatus(task)}
-        <div class="task-card-footer">
-          <a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>
-        </div>
+        ${actionBtn ? `<div class="task-card-footer">${actionBtn}</div>` : ''}
       </div>
     `;
   }).join('');
@@ -331,6 +363,7 @@ function closePreview(e) {
   document.getElementById('previewOverlay').classList.remove('show');
   document.body.style.overflow = '';
 }
+function openLightbox(src) { openPreview(src, '验收照片'); }
 </script>
 
 </body>
