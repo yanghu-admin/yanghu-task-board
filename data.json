@@ -14,6 +14,7 @@
       "status": "processing",
       "completed_at": null,
       "is_overdue": false,
+      "category": "交安",
       "images": {
         "before": [
           "images/task-001_维修前.jpg"
@@ -42,10 +43,12 @@
           "images": []
         }
       },
-      "accepted_at": null
+      "accepted_at": null,
+      "creator": "邹佳飞"
     },
     {
       "id": "TASK-002",
+      "category": "边坡",
       "piles": "K15+200",
       "location": "左侧排水沟",
       "description": "排水沟被泥沙堵塞，暴雨后积水严重",
@@ -82,10 +85,12 @@
           "images": []
         }
       },
-      "accepted_at": null
+      "accepted_at": null,
+      "creator": "邹佳飞"
     },
     {
       "id": "TASK-003",
+      "category": "路面",
       "piles": "K08+500",
       "location": "中央分隔带",
       "description": "防眩板缺失5块，夜间行车安全隐患",
@@ -121,10 +126,12 @@
           "images": []
         }
       },
-      "accepted_at": null
+      "accepted_at": null,
+      "creator": "邹佳飞"
     },
     {
       "id": "TASK-004",
+      "category": "水沟",
       "piles": "BK31+500",
       "location": "水沟沟底",
       "description": "水沟沟底破损，需要维修",
@@ -163,7 +170,8 @@
           "images": []
         }
       },
-      "accepted_at": null
+      "accepted_at": null,
+      "creator": "邹佳飞"
     },
     {
       "id": "TASK-005",
@@ -178,6 +186,7 @@
       "status": "pending",
       "completed_at": null,
       "is_overdue": false,
+      "category": "检修道",
       "images": {
         "before": [
           "images/task-260719-01_维修前.jpg"
@@ -202,7 +211,8 @@
           "images": []
         }
       },
-      "accepted_at": null
+      "accepted_at": null,
+      "creator": "邹佳飞"
     }
   ],
   "statistics": {
@@ -212,5 +222,43 @@
     "pending_review": 0,
     "completed": 2,
     "overdue": 1
-  }
+  },
+  "circular_tasks": [
+    {
+      "id": "CIRC-001",
+      "title": "每周桥梁检查",
+      "interval": "weekly",
+      "day_of_week": 1,
+      "category": "桥梁",
+      "location": "全线桥梁",
+      "description": "按周巡查全线桥梁结构安全，重点检查伸缩缝、支座、桥面铺装",
+      "assignee": "张三（养护组）",
+      "enabled": true,
+      "last_generated": "2026-07-14T08:00:00+08:00"
+    },
+    {
+      "id": "CIRC-002",
+      "title": "每周隧道检查",
+      "interval": "weekly",
+      "day_of_week": 3,
+      "category": "隧道",
+      "location": "全线隧道",
+      "description": "按周巡查全线隧道照明、通风、消防设施",
+      "assignee": "李四（养护组）",
+      "enabled": true,
+      "last_generated": "2026-07-16T08:00:00+08:00"
+    },
+    {
+      "id": "CIRC-003",
+      "title": "月度边坡巡查",
+      "interval": "monthly",
+      "day_of_month": 1,
+      "category": "边坡",
+      "location": "高边坡路段",
+      "description": "每月首日巡查全线高边坡稳定情况",
+      "assignee": "王五（养护组）",
+      "enabled": true,
+      "last_generated": "2026-07-01T08:00:00+08:00"
+    }
+  ]
 }
