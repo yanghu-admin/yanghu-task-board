@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>养护任务跟踪看板</title>
+<!-- CDN 依赖 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -20,10 +26,100 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
-  .header h1 { font-size: 20px; font-weight: 600; }
-  .header p { font-size: 13px; color: #aaa; margin-top: 2px; }
-  
+  .header-left h1 { font-size: 20px; font-weight: 600; }
+  .header-left p { font-size: 13px; color: #aaa; margin-top: 2px; }
+  .header-right { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; align-items: flex-start; }
+  .btn-new-task {
+    padding: 8px 18px;
+    background: #27ae60;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-new-task:hover { background: #219a52; }
+  .btn-export {
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-export:hover { background: rgba(255,255,255,0.25); }
+  .btn-share {
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-share:hover { background: rgba(255,255,255,0.25); }
+  .btn-logout {
+    display: inline-block;
+    padding: 8px 14px;
+    background: none;
+    color: rgba(255,255,255,0.6);
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .btn-logout:hover { color: #e74c3c; }
+
+  /* 只读模式提示条 */
+  .readonly-banner {
+    display: none;
+    background: #fff3cd;
+    color: #856404;
+    text-align: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid #ffeeba;
+  }
+  .readonly-banner.show { display: block; }
+
+  /* 管理员登录弹窗 */
+  .admin-login-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); z-index: 5000;
+    justify-content: center; align-items: center;
+  }
+  .admin-login-overlay.show { display: flex; }
+  .admin-login-box {
+    background: #fff; border-radius: 14px; padding: 30px 24px;
+    width: 90%; max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .admin-login-box h2 { font-size: 18px; margin-bottom: 8px; }
+  .admin-login-box p { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .admin-login-box input {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; margin-bottom: 12px; text-align: center;
+  }
+  .admin-login-box .btn-skip {
+    background: none; border: none; color: #999;
+    font-size: 13px; cursor: pointer; margin-top: 8px;
+  }
+
   .submit-entry { margin: 12px 16px 0; }
   .submit-entry a {
     display: block; text-align: center; padding: 10px 16px;
@@ -34,7 +130,7 @@
   }
   .submit-entry a:hover { box-shadow: 0 4px 12px rgba(41,128,185,0.35); }
   .submit-entry a:active { transform: scale(0.98); }
-  
+
   .stats-bar { display: flex; justify-content: space-around; background: #fff; margin: 12px 16px; border-radius: 12px; padding: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-item { text-align: center; flex: 1; }
   .stat-num { font-size: 22px; font-weight: 700; }
@@ -45,10 +141,23 @@
   .stat-num.review { color: #9b59b6; }
   .stat-num.completed { color: #27ae60; }
   .stat-num.overdue { color: #e74c3c; }
+
+  .chart-section {
+    display: flex; gap: 12px; margin: 12px 16px; flex-wrap: wrap;
+  }
+  .chart-card {
+    background: #fff; border-radius: 12px; padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    flex: 1 1 300px; min-width: 280px; max-width: 100%;
+  }
+  .chart-card h3 { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 12px; text-align: center; }
+  .chart-wrap { position: relative; width: 100%; max-height: 260px; }
+  .chart-wrap canvas { width: 100% !important; height: auto !important; }
+
   .filter-bar { display: flex; gap: 8px; margin: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   .filter-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; color: #666; cursor: pointer; transition: all 0.2s; }
   .filter-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
-  
+
   .task-card { background: #fff; margin: 0 16px 10px; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
   .task-card.overdue { border-left: 4px solid #e74c3c; }
   .task-card.review { border-left: 4px solid #9b59b6; }
@@ -56,18 +165,25 @@
   .task-card.processing { border-left: 4px solid #3498db; }
   .task-card.pending { border-left: 4px solid #f39c12; }
   .task-card.rejected { border-left: 4px solid #e67e22; }
-  
+
   .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .task-header-left { display: flex; align-items: center; gap: 8px; }
   .task-id { font-size: 12px; color: #999; font-weight: 600; }
   .task-number { font-size: 12px; color: #999; font-weight: 600; }
+  .task-header-right { display: flex; align-items: center; gap: 6px; }
   .task-status { font-size: 11px; padding: 2px 10px; border-radius: 10px; font-weight: 500; }
-  
+  .qr-icon {
+    width: 28px; height: 28px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; transition: background 0.15s;
+  }
+  .qr-icon:hover { background: rgba(0,0,0,0.05); }
+  .qr-icon svg { width: 20px; height: 20px; fill: #999; }
+
   .submit-photo-btn { display: inline-block; padding: 5px 12px; background: #3498db; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
   .submit-photo-btn:hover { background: #2980b9; }
-  .submit-photo-btn:active { background: #1c6ea4; }
   .accept-btn { display: inline-block; padding: 5px 12px; background: #27ae60; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
   .accept-btn:hover { background: #219a52; }
-  .accept-btn:active { background: #1e8449; }
   .review-btn { display: inline-block; padding: 5px 12px; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background 0.15s; }
   .review-btn.level1 { background: #e67e22; }
   .review-btn.level1:hover { background: #d35400; }
@@ -75,20 +191,20 @@
   .review-btn.level2:hover { background: #7d3c98; }
   .review-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
   .review-images { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-  .task-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .task-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; gap: 6px; }
   .status-pending { background: #fef3e2; color: #e67e22; }
   .status-processing { background: #e8f4fd; color: #2980b9; }
   .status-review { background: #f0e6f6; color: #8e44ad; }
   .status-completed { background: #e8f8f0; color: #27ae60; }
   .status-overdue { background: #fde8e8; color: #e74c3c; }
   .status-rejected { background: #fef0e6; color: #d35400; }
-  
+
   .task-location { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
   .task-desc { font-size: 13px; color: #666; margin-bottom: 8px; line-height: 1.5; }
   .task-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: #888; margin-bottom: 8px; }
   .task-meta span { white-space: nowrap; }
   .task-meta .overdue-tag { color: #e74c3c; font-weight: 600; }
-  
+
   .image-section { margin-top: 8px; }
   .image-label { font-size: 11px; color: #999; margin-bottom: 6px; }
   .image-row { display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
@@ -97,24 +213,236 @@
   .image-thumb .placeholder { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .image-thumb .placeholder .icon { font-size: 20px; }
   .image-thumb .placeholder .text { font-size: 10px; color: #ccc; }
-  
+
   .review-status { font-size: 12px; color: #888; margin-top: 6px; padding: 6px 10px; background: #f9f9f9; border-radius: 6px; }
   .review-status .approved { color: #27ae60; }
   .review-status .rejected { color: #e74c3c; }
   .review-status .pending-text { color: #9b59b6; }
-  
+
   .no-data { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
   .last-update { text-align: center; font-size: 11px; color: #bbb; padding: 20px 16px; }
   .footer-note { text-align: center; font-size: 12px; color: #ccc; padding: 8px 16px 20px; }
-  
-  /* 图片预览 */
+
   .preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
   .preview-overlay.show { display: flex; }
   .preview-overlay img { max-width: 95%; max-height: 85vh; object-fit: contain; border-radius: 4px; }
   .preview-close { position: absolute; top: 16px; right: 20px; color: #fff; font-size: 28px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 50%; }
   .preview-label { color: #ccc; font-size: 14px; margin-top: 12px; }
   .preview-back { color: #fff; font-size: 14px; margin-top: 8px; padding: 8px 24px; background: rgba(255,255,255,0.15); border-radius: 20px; cursor: pointer; }
-  
+
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 3000;
+    justify-content: center; align-items: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 14px; padding: 24px 20px;
+    width: 90%; max-width: 560px; max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .modal-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; text-align: center; }
+  .modal-box h3 {
+    font-size: 14px; font-weight: 600; color: #555;
+    margin: 16px 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid #eee;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 16px;
+    font-size: 24px; color: #999; cursor: pointer;
+    background: none; border: none;
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+  }
+  .modal-close:hover { background: #f0f0f0; color: #333; }
+
+  /* 导出模态框 */
+  .format-options, .photo-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .format-opt {
+    flex: 1; min-width: 120px;
+    padding: 10px 8px; text-align: center;
+    border: 2px solid #e0e0e0; border-radius: 10px;
+    cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;
+  }
+  .format-opt:hover { border-color: #3498db; }
+  .format-opt.selected { border-color: #3498db; background: #e8f4fd; color: #2980b9; }
+  .field-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 6px 4px; margin-bottom: 8px;
+  }
+  .field-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: #555; cursor: pointer;
+  }
+  .field-item input { margin: 0; }
+  .preset-row { margin-bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .preset-btn {
+    display: inline-block; padding: 4px 12px;
+    background: #f0f0f0; border: 1px solid #ddd; border-radius: 14px;
+    font-size: 12px; cursor: pointer; color: #555; transition: all 0.15s;
+  }
+  .preset-btn:hover { background: #e0e0e0; }
+  .preset-btn.save-template { background: #e8f4fd; color: #2980b9; border-color: #3498db; }
+  .template-row { margin-bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .template-chip {
+    padding: 4px 12px; background: #f0f0f0;
+    border: 1px solid #ddd; border-radius: 14px;
+    font-size: 12px; cursor: pointer; color: #555;
+    transition: all 0.15s;
+  }
+  .template-chip:hover { background: #e0e0e0; }
+  .template-chip .del-tpl {
+    margin-left: 4px; color: #c0392b; font-weight: 700; cursor: pointer;
+  }
+
+  /* 照片勾选面板 */
+  .photo-check-panel { margin-bottom: 12px; }
+  .photo-collapse {
+    border: 1px solid #eee; border-radius: 8px;
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .photo-collapse-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: #f9f9f9;
+    cursor: pointer; font-size: 13px; font-weight: 600; color: #555;
+    user-select: none;
+  }
+  .photo-collapse-header:hover { background: #f0f0f0; }
+  .photo-collapse-header .arrow { transition: transform 0.2s; font-size: 11px; }
+  .photo-collapse.open .photo-collapse-header .arrow { transform: rotate(90deg); }
+  .photo-collapse-body {
+    display: none; padding: 10px 14px;
+  }
+  .photo-collapse.open .photo-collapse-body { display: block; }
+  .photo-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .photo-grid-item {
+    width: 72px; position: relative;
+  }
+  .photo-grid-item img {
+    width: 72px; height: 72px; object-fit: cover;
+    border-radius: 6px; border: 2px solid transparent;
+  }
+  .photo-grid-item.selected img { border-color: #3498db; }
+  .photo-grid-item .photo-check {
+    position: absolute; top: -4px; left: -4px;
+    width: 18px; height: 18px; accent-color: #3498db;
+    cursor: pointer;
+  }
+  .photo-grid-item .star-btn {
+    position: absolute; top: -2px; right: -2px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.5); border: none; border-radius: 50%;
+    color: #ccc; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .photo-grid-item .star-btn.pinned { color: #f39c12; background: rgba(0,0,0,0.7); }
+  .photo-grid-item .star-btn:hover { background: rgba(0,0,0,0.7); }
+  .photo-collapse-header .select-all {
+    font-size: 11px; font-weight: 400; color: #3498db; cursor: pointer;
+    margin-left: auto; margin-right: 10px;
+  }
+  .photo-collapse-header .select-all:hover { text-decoration: underline; }
+
+  /* 新建任务表单 */
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: #555; margin-bottom: 4px;
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 8px 12px;
+    border: 1px solid #ddd; border-radius: 8px;
+    font-size: 13px; color: #333;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    outline: none; border-color: #3498db;
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+  .form-group .hint { font-size: 11px; color: #999; margin-top: 2px; }
+  .photo-upload-zone {
+    border: 2px dashed #ddd; border-radius: 10px;
+    padding: 20px; text-align: center; cursor: pointer;
+    transition: border-color 0.15s; color: #888; font-size: 13px;
+  }
+  .photo-upload-zone:hover { border-color: #3498db; color: #3498db; }
+  .photo-upload-zone.has-files { padding: 10px; }
+  .upload-preview-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .upload-preview-item {
+    width: 64px; height: 64px; border-radius: 6px;
+    overflow: hidden; position: relative; border: 1px solid #eee;
+  }
+  .upload-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+  .upload-preview-item .remove-upload {
+    position: absolute; top: -2px; right: -2px;
+    width: 18px; height: 18px; background: #e74c3c; color: #fff;
+    border-radius: 50%; font-size: 10px; line-height: 18px;
+    text-align: center; cursor: pointer;
+  }
+
+  /* 分享面板 */
+  .share-panel { }
+  .share-panel .share-url-box {
+    display: flex; gap: 6px; margin-top: 10px;
+  }
+  .share-panel .share-url-box input {
+    flex: 1; padding: 8px 12px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: 12px; color: #333;
+     background: #f9f9f9;
+  }
+  .share-panel .btn-copy {
+    padding: 8px 14px; background: #3498db; color: #fff;
+    border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
+  }
+  .share-panel .btn-copy:hover { background: #2980b9; }
+
+  .btn-row {
+    display: flex; gap: 10px; margin-top: 20px; justify-content: center;
+  }
+  .btn-primary, .btn-cancel, .btn-danger {
+    padding: 10px 28px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: all 0.15s;
+  }
+  .btn-primary { background: #3498db; color: #fff; }
+  .btn-primary:hover { background: #2980b9; }
+  .btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+  .btn-cancel { background: #f0f0f0; color: #666; }
+  .btn-cancel:hover { background: #e0e0e0; }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-danger:hover { background: #c0392b; }
+
+  .qr-modal-content { text-align: center; }
+  .qr-modal-content .qr-wrap {
+    display: inline-block; padding: 12px;
+    background: #fff; border: 1px solid #eee;
+    border-radius: 8px; margin-bottom: 12px;
+  }
+  .qr-modal-content .qr-task-id { font-size: 14px; font-weight: 600; color: #333; margin-top: 8px; }
+
+  /* 失效页 */
+  .expired-page {
+    display: none; text-align: center; padding: 100px 20px;
+  }
+  .expired-page.show { display: block; }
+  .expired-page h2 { font-size: 24px; color: #e74c3c; margin-bottom: 12px; }
+  .expired-page p { color: #888; font-size: 14px; }
+
+  .app-container.show { display: block; }
+
+  @media (max-width: 640px) {
+    .chart-section { flex-direction: column; }
+    .chart-card { flex: 1 1 auto; }
+    .field-grid { grid-template-columns: repeat(2, 1fr); }
+    .format-opt { font-size: 12px; padding: 8px 6px; }
+  }
   @media (prefers-color-scheme: dark) {
     body { background: #1a1a2e; color: #eee; }
     .stats-bar { background: #2a2a3e; }
@@ -131,64 +459,986 @@
     .footer-note { color: #555; }
     .no-data { color: #666; }
     .review-status { background: #3a3a4e; }
+    .chart-card { background: #2a2a3e; }
+    .chart-card h3 { color: #aaa; }
+    .modal-box { background: #2a2a3e; color: #eee; }
+    .modal-box h3 { color: #aaa; border-color: #444; }
+    .format-opt { border-color: #555; color: #aaa; }
+    .format-opt.selected { border-color: #3498db; background: #1a3a5e; color: #5dade2; }
+    .field-item { color: #aaa; }
+    .btn-cancel { background: #3a3a4e; color: #aaa; }
+    .btn-cancel:hover { background: #4a4a5e; }
+    .photo-group { color: #aaa; }
+    .photo-group select { background: #3a3a4e; color: #ccc; border-color: #555; }
+    .form-group input, .form-group textarea, .form-group select { background: #3a3a4e; color: #eee; border-color: #555; }
+    .photo-collapse-header { background: #3a3a4e; color: #bbb; }
+    .photo-upload-zone { border-color: #555; color: #888; }
+    .photo-upload-zone:hover { border-color: #3498db; color: #3498db; }
+    .admin-login-box { background: #2a2a3e; color: #eee; }
+    .admin-login-box p { color: #888; }
+    .admin-login-box input { background: #3a3a4e; color: #eee; border-color: #555; }
+  }
+
+  /* ========== 导入功能样式 ========== */
+  .btn-import {
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-import:hover { background: rgba(255,255,255,0.25); }
+
+  .import-steps {
+    display: flex; justify-content: center; gap: 0;
+    margin-bottom: 20px; position: relative;
+  }
+  .import-step {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: #bbb; font-weight: 500;
+    padding: 6px 14px; position: relative;
+  }
+  .import-step .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e0e0e0; color: #999;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    transition: all 0.2s;
+  }
+  .import-step.active { color: #3498db; }
+  .import-step.active .step-num { background: #3498db; color: #fff; }
+  .import-step.done { color: #27ae60; }
+  .import-step.done .step-num { background: #27ae60; color: #fff; }
+  .import-step-connector {
+    width: 24px; height: 2px; background: #e0e0e0;
+    align-self: center; margin: 0 -2px;
+  }
+  .import-step-connector.done { background: #27ae60; }
+
+  .import-step-content { display: none; }
+  .import-step-content.active { display: block; }
+
+  .import-upload-zone {
+    border: 2px dashed #ccc; border-radius: 12px;
+    padding: 40px 20px; text-align: center; cursor: pointer;
+    transition: all 0.2s; color: #999;
+    background: #fafafa;
+  }
+  .import-upload-zone:hover, .import-upload-zone.dragover {
+    border-color: #3498db; color: #3498db; background: #f0f7ff;
+  }
+  .import-upload-zone .upload-icon { font-size: 36px; margin-bottom: 8px; }
+  .import-upload-zone .upload-text { font-size: 14px; font-weight: 600; }
+  .import-upload-zone .upload-hint { font-size: 12px; color: #bbb; margin-top: 4px; }
+
+  .import-zip-contents {
+    margin-top: 16px; max-height: 240px; overflow-y: auto;
+  }
+  .import-zip-contents .zip-section {
+    margin-bottom: 10px;
+  }
+  .import-zip-contents .zip-section-title {
+    font-size: 12px; font-weight: 600; color: #555;
+    margin-bottom: 4px; padding: 2px 6px;
+    background: #f5f5f5; border-radius: 4px; display: inline-block;
+  }
+  .import-zip-contents .zip-file-item {
+    font-size: 12px; color: #666; padding: 3px 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .import-zip-contents .zip-file-item .icon { font-size: 14px; }
+
+  .import-excel-preview {
+    max-height: 280px; overflow: auto; margin-bottom: 16px;
+    border: 1px solid #eee; border-radius: 8px;
+  }
+  .import-excel-preview table {
+    width: 100%; border-collapse: collapse; font-size: 11px;
+  }
+  .import-excel-preview th {
+    background: #f9f9f9; padding: 6px 8px; text-align: left;
+    border-bottom: 2px solid #eee; font-weight: 600; color: #555;
+    position: sticky; top: 0; z-index: 1;
+  }
+  .import-excel-preview td {
+    padding: 5px 8px; border-bottom: 1px solid #f0f0f0;
+    color: #666; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .import-field-mapping {
+    margin-bottom: 16px;
+  }
+  .import-field-mapping .mapping-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px; font-size: 13px;
+  }
+  .import-field-mapping .mapping-label {
+    width: 100px; font-weight: 600; color: #555; flex-shrink: 0;
+  }
+  .import-field-mapping .mapping-select {
+    flex: 1; padding: 6px 10px; border: 1px solid #ddd;
+    border-radius: 6px; font-size: 13px; color: #333;
+    background: #fff;
+  }
+  .import-field-mapping .mapping-select.matched { border-color: #27ae60; background: #f0faf4; }
+  .import-field-mapping .mapping-select.unmatched { border-color: #e74c3c; }
+  .import-field-mapping .mapping-auto-tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: #e8f8f0; color: #27ae60; flex-shrink: 0;
+  }
+
+  .import-photo-match {
+    max-height: 350px; overflow-y: auto; margin-bottom: 16px;
+  }
+  .import-photo-match .match-record {
+    border: 1px solid #eee; border-radius: 8px;
+    margin-bottom: 8px; padding: 10px 12px;
+    background: #fafafa;
+  }
+  .import-photo-match .match-record-header {
+    font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .import-photo-match .match-photo-tags {
+    display: flex; gap: 8px; font-size: 11px;
+  }
+  .import-photo-match .match-photo-tag {
+    padding: 2px 8px; border-radius: 10px; font-weight: 500;
+  }
+  .import-photo-match .match-photo-tag.before { background: #fef3e2; color: #e67e22; }
+  .import-photo-match .match-photo-tag.during { background: #e8f4fd; color: #2980b9; }
+  .import-photo-match .match-photo-tag.after { background: #e8f8f0; color: #27ae60; }
+  .import-photo-match .match-photo-thumbs {
+    display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .import-photo-match .match-thumb {
+    width: 48px; height: 48px; object-fit: cover;
+    border-radius: 4px; border: 1px solid #ddd;
+  }
+  .import-unmatched-photos {
+    margin-top: 12px; padding: 10px 12px;
+    border: 1px dashed #e74c3c; border-radius: 8px;
+    background: #fff5f5;
+  }
+  .import-unmatched-photos .unmatched-title {
+    font-size: 12px; font-weight: 600; color: #e74c3c; margin-bottom: 6px;
+  }
+  .import-unmatched-photos .unmatched-thumbs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .import-unmatched-photos .unmatched-thumb-wrap {
+    position: relative; cursor: grab;
+  }
+  .import-unmatched-photos .unmatched-thumb-wrap img {
+    width: 56px; height: 56px; object-fit: cover;
+    border-radius: 6px; border: 1px solid #ddd;
+  }
+  .import-unmatched-photos .unmatched-fname {
+    font-size: 9px; color: #999; text-align: center; margin-top: 2px;
+    max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .import-summary {
+    text-align: center; padding: 20px 0;
+  }
+  .import-summary .summary-num {
+    font-size: 36px; font-weight: 700; color: #3498db;
+  }
+  .import-summary .summary-label {
+    font-size: 14px; color: #888; margin-top: 4px;
+  }
+  .import-summary .summary-detail {
+    font-size: 13px; color: #666; margin-top: 12px;
+    text-align: left; padding: 12px 16px;
+    background: #f9f9f9; border-radius: 8px;
+    line-height: 1.8;
+  }
+
+  /* ========== 循环任务样式 ========== */
+  .circular-section {
+    margin: 12px 16px;
+  }
+  .circular-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .circular-header h3 {
+    font-size: 14px; font-weight: 600; color: #555; margin: 0;
+  }
+  .btn-add-circular {
+    padding: 5px 14px; background: #8e44ad; color: #fff;
+    border: none; border-radius: 16px; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-add-circular:hover { background: #7d3c98; }
+  .circular-card {
+    background: #fff; border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    border-left: 4px solid #8e44ad; transition: opacity 0.2s;
+  }
+  .circular-card.disabled { opacity: 0.5; border-left-color: #bbb; }
+  .circular-info { flex: 1; min-width: 0; }
+  .circular-title { font-size: 14px; font-weight: 600; color: #333; }
+  .circular-detail { font-size: 12px; color: #888; margin-top: 2px; }
+  .circular-actions { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+  .circular-toggle {
+    position: relative; width: 44px; height: 24px;
+    background: #ccc; border-radius: 12px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .circular-toggle.enabled { background: #8e44ad; }
+  .circular-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; background: #fff;
+    border-radius: 50%; transition: transform 0.2s;
+  }
+  .circular-toggle.enabled::after { transform: translateX(20px); }
+  .circular-delete {
+    width: 28px; height: 28px; border: none; background: none;
+    color: #c0392b; font-size: 14px; cursor: pointer; border-radius: 50%;
+    transition: background 0.15s;
+  }
+  .circular-delete:hover { background: #fde8e8; }
+
+  @media (prefers-color-scheme: dark) {
+    .circular-card { background: #2a2a3e; }
+    .circular-title { color: #eee; }
+    .circular-detail { color: #888; }
+    .circular-header h3 { color: #aaa; }
+  }
+
+  /* ========== 照片滑动浏览器 ========== */
+  .photo-browser-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92); z-index: 5000;
+    flex-direction: column; touch-action: none;
+  }
+  .photo-browser-overlay.show { display: flex; }
+  .photo-browser-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; color: #fff;
+    flex-shrink: 0;
+  }
+  .photo-browser-topbar .group-label { font-size: 16px; font-weight: 600; }
+  .photo-browser-topbar .photo-counter { font-size: 13px; color: #aaa; }
+  .photo-browser-close {
+    width: 36px; height: 36px; border: none; background: rgba(255,255,255,0.15);
+    color: #fff; font-size: 18px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .photo-browser-main {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .photo-browser-main img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    transition: opacity 0.2s;
+    user-select: none; -webkit-user-select: none; pointer-events: none;
+  }
+  /* 方向箭头 - 悬浮闪烁 */
+  @keyframes pbPulse {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255,255,255,0.1); }
+    50% { opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+  }
+  @keyframes pbFloatH {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(4px); }
+  }
+  @keyframes pbFloatHL {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(-4px); }
+  }
+  @keyframes pbFloatUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes pbFloatDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+  .pb-arrow {
+    position: absolute; z-index: 2;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.18); border: none;
+    color: #fff; font-size: 22px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    animation: pbPulse 1.8s ease-in-out infinite;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pb-arrow:active { background: rgba(255,255,255,0.4); }
+  .pb-arrow.hidden { display: none; }
+  .pb-arrow-left { left: 8px; top: 50%; animation: pbPulse 1.8s ease-in-out infinite, pbFloatHL 2.2s ease-in-out infinite; }
+  .pb-arrow-right { right: 8px; top: 50%; animation: pbPulse 1.8s ease-in-out infinite, pbFloatH 2.2s ease-in-out infinite; }
+  .pb-arrow-up { top: 60px; left: 50%; transform: translateX(-50%); animation: pbPulse 1.8s ease-in-out infinite, pbFloatUp 2.2s ease-in-out infinite; }
+  .pb-arrow-down { bottom: 70px; left: 50%; transform: translateX(-50%); animation: pbPulse 1.8s ease-in-out infinite, pbFloatDown 2.2s ease-in-out infinite; }
+  .photo-browser-bottom {
+    display: flex; justify-content: center; gap: 12px;
+    padding: 12px 16px 24px; flex-shrink: 0;
+  }
+  .photo-browser-group-btn {
+    padding: 6px 16px; background: rgba(255,255,255,0.1); color: #aaa;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 16px;
+    font-size: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .photo-browser-group-btn.active { background: #3498db; color: #fff; border-color: #3498db; }
+  .photo-browser-indicator {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 8px 0 0;
+  }
+  .photo-browser-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3);
+    transition: background 0.15s;
+  }
+  .photo-browser-dot.active { background: #fff; }
+
+  @media (prefers-color-scheme: dark) {
+    .import-upload-zone { background: #2a2a3e; border-color: #555; color: #888; }
+    .import-upload-zone:hover, .import-upload-zone.dragover { background: #1a3a5e; color: #5dade2; }
+    .import-zip-contents .zip-section-title { background: #3a3a4e; color: #aaa; }
+    .import-zip-contents .zip-file-item { color: #bbb; }
+    .import-excel-preview th { background: #3a3a4e; color: #bbb; }
+    .import-excel-preview td { color: #aaa; }
+    .import-field-mapping .mapping-select { background: #3a3a4e; color: #eee; border-color: #555; }
+    .import-photo-match .match-record { background: #2a2a3e; border-color: #444; }
+    .import-photo-match .match-record-header { color: #eee; }
+    .import-unmatched-photos { background: #3a2020; border-color: #e74c3c; }
+    .import-summary .summary-detail { background: #2a2a3e; color: #aaa; }
+    .import-excel-preview { border-color: #444; }
+    .import-excel-preview td { border-color: #333; }
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>养护任务跟踪看板</h1>
-  <p>南平联络线高速土建养护</p>
+<div class="app-container" id="appContainer">
+  <div class="readonly-banner" id="readonlyBanner"></div>
+
+  <div class="header">
+    <div class="header-left">
+      <h1>养护任务跟踪看板</h1>
+      <p>南平联络线高速土建养护</p>
+    </div>
+    <div class="header-right" id="headerRight">
+      <button class="btn-new-task" id="btnNewTask" onclick="openNewTaskModal()">+ 新建任务</button>
+      <button class="btn-import" id="btnImport" onclick="openImportModal()">导入</button>
+      <button class="btn-export" id="btnExport" onclick="openExportModal()">导出</button>
+      <button class="btn-share" id="btnShare" onclick="openShareModal()">分享</button>
+      <a class="btn-logout" id="btnLogout" onclick="logout()" style="display:none;">退出</a>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">待响应</div></div>
+    <div class="stat-item"><div class="stat-num overdue" id="statOverdue">0</div><div class="stat-label">超时</div></div>
+    <div class="stat-item"><div class="stat-num processing" id="statProcessing">0</div><div class="stat-label">处理中</div></div>
+    <div class="stat-item"><div class="stat-num review" id="statReview">0</div><div class="stat-label">待核验</div></div>
+    <div class="stat-item"><div class="stat-num completed" id="statCompleted">0</div><div class="stat-label">已完成</div></div>
+    <div class="stat-item"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">总任务数</div></div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-card">
+      <h3>病害分类分布</h3>
+      <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>各状态数量</h3>
+      <div class="chart-wrap"><canvas id="chartBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>月度趋势</h3>
+      <div class="chart-wrap"><canvas id="chartLine"></canvas></div>
+    </div>
+  </div>
+
+  <div class="circular-section">
+    <div class="circular-header">
+      <h3>定期巡查任务</h3>
+      <button class="btn-add-circular" onclick="openCircularModal()">+ 添加定期巡查</button>
+    </div>
+    <div id="circularList"></div>
+  </div>
+
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="pending">待响应</button>
+    <button class="filter-btn" data-filter="overdue">超时</button>
+    <button class="filter-btn" data-filter="processing">处理中</button>
+    <button class="filter-btn" data-filter="pending_review">待核验</button>
+    <button class="filter-btn" data-filter="completed">已完成</button>
+    <button class="filter-btn" data-filter="all">全部</button>
+  </div>
+
+  <div id="taskList"></div>
+  <div class="last-update" id="lastUpdate"></div>
+  <div class="footer-note">有任何问题请联系管理员</div>
 </div>
 
-<div class="stats-bar" id="statsBar">
-  <div class="stat-item"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">总任务</div></div>
-  <div class="stat-item"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">待处理</div></div>
-  <div class="stat-item"><div class="stat-num processing" id="statProcessing">0</div><div class="stat-label">处理中</div></div>
-  <div class="stat-item"><div class="stat-num review" id="statReview">0</div><div class="stat-label">待核验</div></div>
-  <div class="stat-item"><div class="stat-num completed" id="statCompleted">0</div><div class="stat-label">已完成</div></div>
-  <div class="stat-item"><div class="stat-num overdue" id="statOverdue">0</div><div class="stat-label">超时</div></div>
+<!-- 分享失效页 -->
+<div class="expired-page" id="expiredPage">
+  <h2>分享链接已失效</h2>
+  <p>该分享链接已过期或无效，请联系管理员重新获取。</p>
 </div>
 
-<div class="filter-bar" id="filterBar">
-  <button class="filter-btn active" data-filter="all">全部</button>
-  <button class="filter-btn" data-filter="pending">待处理</button>
-  <button class="filter-btn" data-filter="processing">处理中</button>
-  <button class="filter-btn" data-filter="pending_review">待核验</button>
-  <button class="filter-btn" data-filter="completed">已完成</button>
-  <button class="filter-btn" data-filter="overdue">已超时</button>
+<!-- 管理员首次登录弹窗 -->
+<div class="admin-login-overlay" id="adminLoginOverlay">
+  <div class="admin-login-box">
+    <h2>管理员验证</h2>
+    <p>请输入管理员密钥以激活完整权限</p>
+    <input type="password" id="adminKeyInput" placeholder="请输入密钥">
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn-cancel" onclick="closeAdminLogin()">取消</button>
+      <button class="btn-primary" onclick="submitAdminKey()">验证</button>
+    </div>
+    <p id="adminKeyError" style="color:#e74c3c;font-size:12px;margin-top:6px;display:none;">密钥错误，请重试</p>
+  </div>
 </div>
-
-<div id="taskList"></div>
-<div class="last-update" id="lastUpdate"></div>
-<div class="footer-note">有任何问题请联系管理员</div>
 
 <!-- 图片预览 -->
 <div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
   <span class="preview-close" onclick="closePreview()">✕</span>
   <img id="previewImage" src="" alt="预览">
   <div class="preview-label" id="previewLabel"></div>
-  <div class="preview-back" onclick="closePreview()">← 返回看板</div>
+  <div class="preview-back" onclick="closePreview()">返回看板</div>
 </div>
 
+<!-- 二维码模态框 -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-box qr-modal-content" style="position:relative;">
+    <button class="modal-close" onclick="closeQrModal()">✕</button>
+    <h2>任务二维码</h2>
+    <div class="qr-wrap" id="qrCodeContainer"></div>
+    <div class="qr-task-id" id="qrTaskId"></div>
+    <p style="font-size:12px;color:#999;margin-top:8px;">扫码即可在移动端查看本条任务详情</p>
+  </div>
+</div>
+
+<!-- 新建任务模态框 -->
+<div class="modal-overlay" id="newTaskModal">
+  <div class="modal-box" style="position:relative;">
+    <button class="modal-close" onclick="closeNewTaskModal()">✕</button>
+    <h2>新建养护任务</h2>
+    <div class="form-group">
+      <label>现场照片 <span style="color:#e74c3c;">*</span></label>
+      <div class="photo-upload-zone" id="photoUploadZone" onclick="document.getElementById('newTaskPhotos').click()">
+        点击上传最少 1 张照片
+        <div class="upload-preview-row" id="uploadPreviewRow"></div>
+      </div>
+      <input type="file" id="newTaskPhotos" accept="image/*" multiple style="display:none;" onchange="handleNewTaskPhotos(event)">
+      <div class="hint">最少 1 张，支持多张</div>
+    </div>
+    <div class="form-group">
+      <label>桩号</label>
+      <input type="text" id="newPiles" placeholder="例如 K12+300（支持水印照片OCR自动提取）">
+      <div class="hint" id="ocrHint" style="display:none;"></div>
+    </div>
+    <div class="form-group">
+      <label>问题描述 <span style="color:#e74c3c;">*</span></label>
+      <textarea id="newDescription" placeholder="一句话描述病害问题"></textarea>
+    </div>
+    <div class="form-group">
+      <label>病害分类</label>
+      <select id="newCategory">
+        <option value="路面">路面</option>
+        <option value="边坡">边坡</option>
+        <option value="交安">交安</option>
+        <option value="水沟">水沟</option>
+        <option value="涵洞">涵洞</option>
+        <option value="桥梁">桥梁</option>
+        <option value="隧道">隧道</option>
+        <option value="绿化">绿化</option>
+        <option value="消防">消防</option>
+        <option value="检修道">检修道</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>位置</label>
+      <input type="text" id="newLocation" placeholder="例如 右侧护栏">
+    </div>
+    <div class="form-group">
+      <label>创建人</label>
+      <input type="text" id="newCreator" placeholder="请输入您的姓名">
+    </div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeNewTaskModal()">取消</button>
+      <button class="btn-primary" onclick="submitNewTask()">提交任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导出配置模态框 -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal-box" style="position:relative;">
+    <button class="modal-close" onclick="closeExportModal()">✕</button>
+    <h2>导出配置</h2>
+
+    <h3>选择导出格式</h3>
+    <div class="format-options" id="formatOptions">
+      <div class="format-opt selected" data-format="excel" onclick="selectFormat('excel', this)">Excel</div>
+      <div class="format-opt" data-format="pdf-archive" onclick="selectFormat('pdf-archive', this)">PDF（内业存档版）</div>
+      <div class="format-opt" data-format="pdf-settlement" onclick="selectFormat('pdf-settlement', this)">PDF（结算完整版）</div>
+      <div class="format-opt" data-format="zip" onclick="selectFormat('zip', this)">ZIP文件包</div>
+    </div>
+
+    <h3>选择导出字段</h3>
+    <div class="preset-row">
+      <span class="preset-btn" onclick="presetPrintFields()">打印精简</span>
+      <span class="preset-btn" onclick="presetAllFields()">全部字段</span>
+      <span class="preset-btn save-template" onclick="saveFieldTemplate()">保存为模板</span>
+    </div>
+    <div class="template-row" id="templateRow"></div>
+    <div class="field-grid" id="fieldGrid"></div>
+
+    <h3>选择导出照片</h3>
+    <div class="photo-check-panel" id="photoCheckPanel"></div>
+
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeExportModal()">取消</button>
+      <button class="btn-primary" id="btnConfirmExport" onclick="confirmExport()">确认导出</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分享模态框 -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal-box share-panel" style="position:relative;">
+    <button class="modal-close" onclick="closeShareModal()">✕</button>
+    <h2>生成分享链接</h2>
+    <div class="form-group">
+      <label>分享对象名称</label>
+      <input type="text" id="shareName" placeholder="例如：业主李总">
+    </div>
+    <div class="form-group">
+      <label>有效期</label>
+      <select id="shareExpiry">
+        <option value="1">1 天</option>
+        <option value="3">3 天</option>
+        <option value="7">7 天</option>
+        <option value="custom">自定义</option>
+      </select>
+    </div>
+    <div class="form-group" id="customExpiryGroup" style="display:none;">
+      <label>自定义天数</label>
+      <input type="number" id="customExpiryDays" min="1" max="365" value="30" placeholder="输入天数">
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generateShareLink()">生成链接</button>
+    </div>
+    <div class="share-url-box" id="shareUrlBox" style="display:none;">
+      <input type="text" id="shareUrlInput" readonly>
+      <button class="btn-copy" onclick="copyShareUrl()">复制</button>
+    </div>
+    <p style="font-size:11px;color:#999;margin-top:8px;text-align:center;">分享链接仅提供只读查看权限</p>
+  </div>
+</div>
+
+<!-- 导入模态框 -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal-box" style="position:relative;max-width:640px;">
+    <button class="modal-close" onclick="closeImportModal()">✕</button>
+    <h2>导入养护记录</h2>
+
+    <!-- 步骤指示器 -->
+    <div class="import-steps">
+      <div class="import-step active" id="importStep1"><span class="step-num">1</span>上传ZIP</div>
+      <div class="import-step-connector" id="importConn1"></div>
+      <div class="import-step" id="importStep2"><span class="step-num">2</span>解析预览</div>
+      <div class="import-step-connector" id="importConn2"></div>
+      <div class="import-step" id="importStep3"><span class="step-num">3</span>照片匹配</div>
+      <div class="import-step-connector" id="importConn3"></div>
+      <div class="import-step" id="importStep4"><span class="step-num">4</span>确认导入</div>
+    </div>
+
+    <!-- 步骤1：上传ZIP -->
+    <div class="import-step-content active" id="importContent1">
+      <div class="import-upload-zone" id="importUploadZone"
+        onclick="document.getElementById('importZipInput').click()"
+        ondragover="event.preventDefault();this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleImportDrop(event)">
+        <div class="upload-icon">📦</div>
+        <div class="upload-text">点击或拖拽上传 ZIP 文件</div>
+        <div class="upload-hint">支持 Excel 记录表 + 现场照片文件夹压缩包</div>
+      </div>
+      <input type="file" id="importZipInput" accept=".zip" style="display:none" onchange="handleImportZip(event)">
+      <div class="import-zip-contents" id="importZipContents" style="display:none;"></div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="btn-cancel" onclick="closeImportModal()">取消</button>
+        <button class="btn-primary" id="btnImportNext1" onclick="gotoImportStep(2)" style="display:none;">下一步：解析预览</button>
+      </div>
+    </div>
+
+    <!-- 步骤2：解析预览 -->
+    <div class="import-step-content" id="importContent2">
+      <div class="import-excel-preview" id="importExcelPreview"></div>
+      <div class="import-field-mapping" id="importFieldMapping"></div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="gotoImportStep(1)">上一步</button>
+        <button class="btn-primary" onclick="gotoImportStep(3)">下一步：照片匹配</button>
+      </div>
+    </div>
+
+    <!-- 步骤3：照片匹配 -->
+    <div class="import-step-content" id="importContent3">
+      <div class="import-photo-match" id="importPhotoMatch"></div>
+      <div class="import-unmatched-photos" id="importUnmatchedPhotos" style="display:none;"></div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="gotoImportStep(2)">上一步</button>
+        <button class="btn-primary" onclick="gotoImportStep(4)">下一步：确认导入</button>
+      </div>
+    </div>
+
+    <!-- 步骤4：确认导入 -->
+    <div class="import-step-content" id="importContent4">
+      <div class="import-summary" id="importSummary"></div>
+      <div class="form-group">
+        <label>创建人</label>
+        <input type="text" id="importCreator" placeholder="请输入您的姓名">
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="gotoImportStep(3)">上一步</button>
+        <button class="btn-primary" id="btnConfirmImport" onclick="confirmImport()">确认导入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 照片滑动浏览器 -->
+<div class="photo-browser-overlay" id="photoBrowser">
+  <div class="photo-browser-topbar">
+    <span class="group-label" id="pbGroupLabel">维修前</span>
+    <span class="photo-counter" id="pbCounter">1 / 1</span>
+    <button class="photo-browser-close" onclick="closePhotoBrowser()" title="返回看板">✕</button>
+  </div>
+  <div class="photo-browser-main" id="pbMain">
+    <button class="pb-arrow pb-arrow-left hidden" id="pbPrev" onclick="pbNavigate(-1)">&#8249;</button>
+    <button class="pb-arrow pb-arrow-up hidden" id="pbUp" onclick="pbPrevGroup()">&#8963;</button>
+    <img id="pbImage" src="" alt="">
+    <button class="pb-arrow pb-arrow-right hidden" id="pbNext" onclick="pbNavigate(1)">&#8250;</button>
+    <button class="pb-arrow pb-arrow-down hidden" id="pbDown" onclick="pbNextGroup()">&#8964;</button>
+  </div>
+  <div class="photo-browser-indicator" id="pbIndicator"></div>
+  <div class="photo-browser-bottom" id="pbBottom"></div>
+</div>
+
+<!-- 添加定期巡查模态框 -->
+<div class="modal-overlay" id="circularModal">
+  <div class="modal-box" style="position:relative;">
+    <button class="modal-close" onclick="closeCircularModal()">✕</button>
+    <h2>添加定期巡查任务</h2>
+    <div class="form-group">
+      <label>任务标题 <span style="color:#e74c3c;">*</span></label>
+      <input type="text" id="circTitle" placeholder="例如：每周桥梁检查">
+    </div>
+    <div class="form-group">
+      <label>巡查频率</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="weekly" checked onchange="updateCircDayUI()"> 每周</label>
+        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="monthly" onchange="updateCircDayUI()"> 每月</label>
+      </div>
+      <div id="circDayUI" style="display:flex;gap:4px;flex-wrap:wrap;">
+        <span class="hint">选择星期几：</span>
+        <select id="circDayOfWeek" style="width:auto;padding:4px 8px;font-size:12px;">
+          <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+          <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
+        </select>
+      </div>
+      <div id="circDayMonth" style="display:none;margin-top:4px;">
+        <span class="hint">选择每月几号：</span>
+        <input type="number" id="circDayOfMonth" min="1" max="28" value="1" style="width:80px;padding:4px 8px;font-size:12px;">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>病害分类</label>
+      <select id="circCategory">
+        <option value="路面">路面</option><option value="边坡">边坡</option><option value="交安">交安</option>
+        <option value="水沟">水沟</option><option value="涵洞">涵洞</option><option value="桥梁" selected>桥梁</option>
+        <option value="隧道">隧道</option><option value="绿化">绿化</option><option value="消防">消防</option>
+        <option value="检修道">检修道</option><option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>巡查位置</label>
+      <input type="text" id="circLocation" placeholder="例如：全线桥梁">
+    </div>
+    <div class="form-group">
+      <label>任务描述</label>
+      <textarea id="circDescription" placeholder="详细描述巡查内容"></textarea>
+    </div>
+    <div class="form-group">
+      <label>指派人</label>
+      <input type="text" id="circAssignee" placeholder="例如：张三（养护组）">
+    </div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeCircularModal()">取消</button>
+      <button class="btn-primary" onclick="submitCircularTask()">添加</button>
+    </div>
+  </div>
+</div>
 
 <script>
+// ============ 权限体系 ============
+const ADMIN_KEY = 'yh2026';
+const SHARE_HMAC_SECRET = 'yanghu_share_secret_2026';
+let USER_ROLE = 'visitor'; // admin | visitor
+
+function detectRole() {
+  // 1. 检查 ?share= token
+  const params = new URLSearchParams(window.location.search);
+  const shareToken = params.get('share');
+  if (shareToken) {
+    const shareData = parseShareToken(shareToken);
+    if (shareData && shareData.expire_ts && Date.now() < shareData.expire_ts * 1000) {
+      USER_ROLE = 'visitor';
+      document.getElementById('readonlyBanner').innerHTML = '只读模式 - 分享自 ' + (shareData.name || '未知');
+      document.getElementById('readonlyBanner').classList.add('show');
+      document.getElementById('btnNewTask').style.display = 'none';
+      document.getElementById('btnImport').style.display = 'none';
+      document.getElementById('btnExport').style.display = 'none';
+      document.getElementById('btnShare').style.display = 'none';
+      document.getElementById('btnLogout').style.display = 'none';
+    } else {
+      if (shareData && shareData.expire_ts && Date.now() >= shareData.expire_ts * 1000) {
+        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('expiredPage').classList.add('show');
+      } else {
+        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('expiredPage').classList.add('show');
+      }
+    }
+    return;
+  }
+
+  // 2. 检查 localStorage 中是否已有认证记录
+  const storedKey = localStorage.getItem('admin_key');
+  if (storedKey === ADMIN_KEY) {
+    USER_ROLE = 'admin';
+  }
+
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const isAdmin = (USER_ROLE === 'admin');
+  const banner = document.getElementById('readonlyBanner');
+  const btnNewTask = document.getElementById('btnNewTask');
+  const btnImport = document.getElementById('btnImport');
+  const btnExport = document.getElementById('btnExport');
+  const btnShare = document.getElementById('btnShare');
+  const btnLogout = document.getElementById('btnLogout');
+
+  if (isAdmin) {
+    banner.classList.remove('show');
+    btnNewTask.style.display = '';
+    btnImport.style.display = '';
+    btnExport.style.display = '';
+    btnShare.style.display = '';
+    btnLogout.style.display = '';
+  } else {
+    banner.innerHTML = '只读模式，操作需验证　<a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#856404;text-decoration:underline;font-weight:700;">验证身份</a>';
+    banner.classList.add('show');
+    btnNewTask.style.display = 'none';
+    btnImport.style.display = 'none';
+    btnExport.style.display = 'none';
+    btnShare.style.display = 'none';
+    btnLogout.style.display = 'none';
+  }
+
+  // 重新渲染任务卡片以更新操作按钮
+  if (allTasks.length > 0) {
+    const activeFilter = document.querySelector('.filter-btn.active');
+    applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  }
+}
+
+function requireAuth(callback) {
+  if (USER_ROLE === 'admin') {
+    callback();
+  } else {
+    window._pendingAuthCallback = callback;
+    showAdminLogin();
+  }
+}
+
+function showAdminLogin() {
+  document.getElementById('adminKeyInput').value = '';
+  document.getElementById('adminKeyError').style.display = 'none';
+  document.getElementById('adminLoginOverlay').classList.add('show');
+}
+
+function submitAdminKey() {
+  const input = document.getElementById('adminKeyInput').value.trim();
+  if (input === ADMIN_KEY) {
+    localStorage.setItem('admin_key', input);
+    USER_ROLE = 'admin';
+    document.getElementById('adminLoginOverlay').classList.remove('show');
+    updateAuthUI();
+    if (window._pendingAuthCallback) {
+      const cb = window._pendingAuthCallback;
+      window._pendingAuthCallback = null;
+      setTimeout(cb, 100);
+    }
+  } else {
+    document.getElementById('adminKeyError').style.display = 'block';
+  }
+}
+
+function closeAdminLogin() {
+  document.getElementById('adminLoginOverlay').classList.remove('show');
+  window._pendingAuthCallback = null;
+}
+
+function logout() {
+  localStorage.removeItem('admin_key');
+  USER_ROLE = 'visitor';
+  updateAuthUI();
+}
+
+// ============ 分享 Token ============
+function generateShareToken(name, expireDays) {
+  const expireMs = Date.now() + expireDays * 86400000;
+  const expireTs = Math.floor(expireMs / 1000);
+
+  // 简单 HMAC（使用 CryptoJS 风格的纯 JS 实现）
+  const payload = JSON.stringify({ name, expire_ts: expireTs });
+  // 使用简单的签名方式：SHA-256 不可用时回退到 Base64 拼接
+  const signature = simpleSign(payload + SHARE_HMAC_SECRET);
+  const tokenPayload = btoa(unescape(encodeURIComponent(
+    JSON.stringify({ name, expire_ts: expireTs, sig: signature })
+  )));
+  return tokenPayload;
+}
+
+function simpleSign(str) {
+  // 简单的哈希：对字符串做 DJB2 哈希 + 位置相关的二次编码
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  // 增加基于字符串长度的二次混淆
+  const hash2 = str.split('').reduce((acc, c, i) => acc + c.charCodeAt(0) * (i + 1), 0);
+  return btoa(hash.toString(16) + '_' + hash2.toString(16));
+}
+
+function parseShareToken(token) {
+  try {
+    const jsonStr = decodeURIComponent(escape(atob(token)));
+    const data = JSON.parse(jsonStr);
+    // 校验签名
+    const payload = JSON.stringify({ name: data.name, expire_ts: data.expire_ts });
+    const expectedSig = simpleSign(payload + SHARE_HMAC_SECRET);
+    if (expectedSig !== data.sig) return null;
+    return { name: data.name, expire_ts: data.expire_ts };
+  } catch (e) {
+    return null;
+  }
+}
+
+function openShareModal() {
+  if (USER_ROLE !== 'admin') {
+    alert('仅管理员可生成分享链接');
+    return;
+  }
+  document.getElementById('shareModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('shareUrlBox').style.display = 'none';
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('shareExpiry').addEventListener('change', function() {
+  document.getElementById('customExpiryGroup').style.display =
+    this.value === 'custom' ? 'block' : 'none';
+});
+
+function generateShareLink() {
+  const name = document.getElementById('shareName').value.trim() || '外部访客';
+  let expiryVal = document.getElementById('shareExpiry').value;
+  let days;
+  if (expiryVal === 'custom') {
+    days = parseInt(document.getElementById('customExpiryDays').value) || 30;
+  } else {
+    days = parseInt(expiryVal);
+  }
+  const token = generateShareToken(name, days);
+  const url = 'https://yanghu-admin.github.io/yanghu-task-board/?share=' + token;
+  document.getElementById('shareUrlInput').value = url;
+  document.getElementById('shareUrlBox').style.display = 'flex';
+}
+
+function copyShareUrl() {
+  const input = document.getElementById('shareUrlInput');
+  input.select();
+  document.execCommand('copy');
+  alert('链接已复制到剪贴板');
+}
+
+// ============ 全局状态 ============
 const DATA_URL = 'data.json';
+const BASE_URL = 'https://yanghu-admin.github.io/yanghu-task-board/';
 let allTasks = [];
+let currentExportFormat = 'excel';
+let chartInstances = {};
+let selectedPhotoMap = {};  // taskId -> { before: Set<index>, during: Set<index>, after: Set<index> }
+let pinnedPhotoMap = {};    // taskId -> { before: index|null, during: index|null, after: index|null }
+let newTaskPhotos = [];     // 新建任务暂存照片 dataURL
 
 const STATUS_MAP = {
-  pending: { label: '待处理', cls: 'status-pending' },
+  pending: { label: '待响应', cls: 'status-pending' },
   processing: { label: '处理中', cls: 'status-processing' },
   pending_review: { label: '待核验', cls: 'status-review' },
   completed: { label: '已完成', cls: 'status-completed' },
   rejected: { label: '需整改', cls: 'status-rejected' }
 };
 
+const ALL_EXPORT_FIELDS = [
+  { key: 'index', label: '序号' },
+  { key: 'number', label: '编号' },
+  { key: 'creator', label: '创建人' },
+  { key: 'category', label: '病害分类' },
+  { key: 'piles', label: '桩号' },
+  { key: 'location', label: '位置' },
+  { key: 'description', label: '问题描述' },
+  { key: 'status', label: '状态' },
+  { key: 'dispatched_at', label: '派发时间' },
+  { key: 'dispatcher', label: '派发人' },
+  { key: 'assignee', label: '经办人' },
+  { key: 'deadline', label: '截止时间' },
+  { key: 'completed_at', label: '完成时间' },
+  { key: 'before_photos', label: '维修前照片' },
+  { key: 'during_photos', label: '维修中照片' },
+  { key: 'after_photos', label: '维修后照片' },
+  { key: 'notes', label: '备注' },
+  { key: 'review_l1', label: '一级核验结果' },
+  { key: 'review_l2', label: '二级核验结果' },
+  { key: 'acceptance', label: '验收意见' }
+];
+
+const PRINT_FIELDS = ['index','number','creator','dispatched_at','piles','description','before_photos','during_photos','after_photos','acceptance'];
+
+// ============ 工具函数 ============
 function formatTime(isoStr) {
   if (!isoStr) return '';
   const d = new Date(isoStr);
   const pad = n => String(n).padStart(2, '0');
   return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatFullTime(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 function getStatusInfo(task) {
@@ -207,13 +1457,223 @@ function getStatusBorder(task) {
   return 'pending';
 }
 
-function renderImageSlot(label, images) {
+function getPinnedPhoto(task, group) {
+  const map = pinnedPhotoMap[task.id];
+  if (!map || map[group] == null) return null;
+  const idx = map[group];
+  const arr = (task.images && task.images[group]) ? task.images[group] : [];
+  return (idx >= 0 && idx < arr.length) ? arr[idx] : null;
+}
+
+function getPhotosForDisplay(task, group) {
+  const arr = (task.images && task.images[group]) ? task.images[group] : [];
+  const pinned = getPinnedPhoto(task, group);
+  if (pinned && arr.length > 0 && arr[0] !== pinned) {
+    const result = [pinned];
+    for (const p of arr) { if (p !== pinned) result.push(p); }
+    return result;
+  }
+  return arr;
+}
+
+function getPhotos(images, group, maxCount) {
+  const arr = (images && images[group]) ? images[group] : [];
+  if (maxCount === 'all') return arr;
+  const n = parseInt(maxCount) || 1;
+  return arr.slice(0, n);
+}
+
+function getPhotoNames(images, group, maxCount) {
+  const arr = getPhotos(images, group, maxCount);
+  return arr.map(p => {
+    const parts = p.split('/');
+    return parts[parts.length - 1];
+  }).join('、');
+}
+
+// ============ 照片滑动浏览器 ============
+let pbTask = null;
+let pbGroupOrder = ['before', 'during', 'after'];
+let pbCurrentGroup = 'before';
+let pbCurrentIndex = 0;
+let pbGroupData = {};
+let pbTouchStart = null;
+let pbKeyboardBound = false;
+
+function openPhotoBrowser(taskId, startGroup, startIndex) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task) return;
+  pbTask = task;
+  pbGroupData = {
+    before: getPhotosForDisplay(task, 'before'),
+    during: getPhotosForDisplay(task, 'during'),
+    after: getPhotosForDisplay(task, 'after')
+  };
+  if (startGroup && pbGroupData[startGroup] && pbGroupData[startGroup].length > 0) {
+    pbCurrentGroup = startGroup;
+    pbCurrentIndex = startIndex || 0;
+  } else {
+    const firstGroup = pbGroupOrder.find(g => pbGroupData[g].length > 0);
+    pbCurrentGroup = firstGroup || 'before';
+    pbCurrentIndex = 0;
+  }
+  document.getElementById('photoBrowser').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  renderPhotoBrowser();
+  attachPbTouchEvents();
+  if (!pbKeyboardBound) {
+    document.addEventListener('keydown', pbKeyHandler);
+    pbKeyboardBound = true;
+  }
+}
+
+function closePhotoBrowser() {
+  document.getElementById('photoBrowser').classList.remove('show');
+  document.body.style.overflow = '';
+  pbTask = null;
+}
+
+function renderPhotoBrowser() {
+  const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
+  const photos = pbGroupData[pbCurrentGroup];
+  const img = document.getElementById('pbImage');
+  const counter = document.getElementById('pbCounter');
+  const groupLabel = document.getElementById('pbGroupLabel');
+  const prevBtn = document.getElementById('pbPrev');
+  const nextBtn = document.getElementById('pbNext');
+  const upBtn = document.getElementById('pbUp');
+  const downBtn = document.getElementById('pbDown');
+  const indicator = document.getElementById('pbIndicator');
+  const bottom = document.getElementById('pbBottom');
+
+  groupLabel.textContent = labelMap[pbCurrentGroup];
+
+  if (photos.length === 0) {
+    img.style.opacity = '0';
+    img.src = '';
+    counter.textContent = '暂无照片';
+    prevBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
+  } else {
+    const src = photos[pbCurrentIndex];
+    img.style.opacity = '0';
+    img.onload = () => { img.style.opacity = '1'; };
+    img.src = src;
+    counter.textContent = `${pbCurrentIndex + 1} / ${photos.length}`;
+    // 水平箭头：首张只有右，末张只有左，单张都隐藏
+    if (photos.length === 1) {
+      prevBtn.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+    } else {
+      prevBtn.classList.toggle('hidden', pbCurrentIndex === 0);
+      nextBtn.classList.toggle('hidden', pbCurrentIndex === photos.length - 1);
+    }
+  }
+
+  // 垂直箭头：循环导航，任意两组有照片就同时显示上下箭头
+  const groupsWithPhotos = pbGroupOrder.filter(g => pbGroupData[g].length > 0);
+  const hasMultiGroups = groupsWithPhotos.length >= 2;
+  upBtn.classList.toggle('hidden', !hasMultiGroups);
+  downBtn.classList.toggle('hidden', !hasMultiGroups);
+
+  if (photos.length > 1) {
+    indicator.innerHTML = photos.map((_, i) =>
+      `<div class="photo-browser-dot${i === pbCurrentIndex ? ' active' : ''}"></div>`
+    ).join('');
+  } else {
+    indicator.innerHTML = '';
+  }
+
+  bottom.innerHTML = pbGroupOrder.map(g => {
+    const count = pbGroupData[g].length;
+    const isActive = g === pbCurrentGroup;
+    return `<button class="photo-browser-group-btn${isActive ? ' active' : ''}" onclick="pbSwitchGroup('${g}')">${labelMap[g]}${count > 0 ? ` (${count})` : ' (空)'}</button>`;
+  }).join('');
+}
+
+function pbNavigate(direction) {
+  const photos = pbGroupData[pbCurrentGroup];
+  if (photos.length === 0) return;
+  const newIndex = pbCurrentIndex + direction;
+  if (newIndex < 0 || newIndex >= photos.length) return;
+  pbCurrentIndex = newIndex;
+  renderPhotoBrowser();
+}
+
+function pbNextGroup() {
+  const groupsWithPhotos = pbGroupOrder.filter(g => pbGroupData[g].length > 0);
+  if (groupsWithPhotos.length < 2) return;
+  const currentIdx = groupsWithPhotos.indexOf(pbCurrentGroup);
+  const nextIdx = (currentIdx + 1) % groupsWithPhotos.length;
+  pbCurrentGroup = groupsWithPhotos[nextIdx];
+  pbCurrentIndex = 0;
+  renderPhotoBrowser();
+}
+
+function pbPrevGroup() {
+  const groupsWithPhotos = pbGroupOrder.filter(g => pbGroupData[g].length > 0);
+  if (groupsWithPhotos.length < 2) return;
+  const currentIdx = groupsWithPhotos.indexOf(pbCurrentGroup);
+  const prevIdx = (currentIdx - 1 + groupsWithPhotos.length) % groupsWithPhotos.length;
+  pbCurrentGroup = groupsWithPhotos[prevIdx];
+  pbCurrentIndex = pbGroupData[pbCurrentGroup].length - 1;
+  renderPhotoBrowser();
+}
+
+function pbSwitchGroup(group) {
+  if (!pbGroupData[group] || pbGroupData[group].length === 0) return;
+  pbCurrentGroup = group;
+  pbCurrentIndex = 0;
+  renderPhotoBrowser();
+}
+
+function attachPbTouchEvents() {
+  const main = document.getElementById('pbMain');
+  if (main._pbBound) return;
+  main._pbBound = true;
+
+  main.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) return;
+    pbTouchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now() };
+  }, { passive: true });
+
+  main.addEventListener('touchend', function(e) {
+    if (!pbTouchStart) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - pbTouchStart.x;
+    const dy = t.clientY - pbTouchStart.y;
+    const elapsed = Date.now() - pbTouchStart.time;
+    pbTouchStart = null;
+    if (elapsed > 800) return;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (Math.max(absX, absY) < 30) return;
+    if (absX > absY) {
+      pbNavigate(dx < 0 ? 1 : -1);
+    } else {
+      if (dy > 0) pbNextGroup();
+      else pbPrevGroup();
+    }
+  }, { passive: true });
+}
+
+function pbKeyHandler(e) {
+  if (!document.getElementById('photoBrowser').classList.contains('show')) return;
+  if (e.key === 'Escape') closePhotoBrowser();
+  else if (e.key === 'ArrowLeft') pbNavigate(-1);
+  else if (e.key === 'ArrowRight') pbNavigate(1);
+  else if (e.key === 'ArrowDown') pbNextGroup();
+  else if (e.key === 'ArrowUp') pbPrevGroup();
+}
+
+// ============ 渲染 ============
+function renderImageSlot(label, groupKey, images, taskId) {
   if (!images || images.length === 0) {
     return `<div class="image-thumb"><div class="placeholder"><div class="icon">📷</div><div class="text">无${label}</div></div></div>`;
   }
-  return images.map(img => {
+  return images.map((img, i) => {
     const src = img.startsWith('http') ? img : img;
-    return `<div class="image-thumb"><img src="${src}" alt="${label}" onclick="openPreview('${src}','${label}')" loading="lazy"></div>`;
+    return `<div class="image-thumb"><img src="${src}" alt="${label}" onclick="openPhotoBrowser('${taskId}','${groupKey}',${i})" loading="lazy"></div>`;
   }).join('');
 }
 
@@ -222,15 +1682,15 @@ function renderReviewStatus(task) {
   if (!r) return '';
   let html = '<div class="review-status">';
   if (r.level1) {
-    const s = r.level1.result === 'approved' ? '<span class="approved">✅ 已通过</span>' : r.level1.result === 'rejected' ? '<span class="rejected">❌ 退回</span>' : '<span class="pending-text">⏳ 待核验</span>';
-    html += `<div>一级核验（黄瑾文）：${s}</div>`;
+    const s = r.level1.result === 'approved' ? '<span class="approved">已通过</span>' : r.level1.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
+    html += `<div>一级核验（${r.level1.reviewer || '黄瑾文'}）：${s}</div>`;
     if (r.level1.images && r.level1.images.length > 0) {
       html += '<div class="review-images">' + r.level1.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
     }
   }
   if (r.level2) {
-    const s = r.level2.result === 'approved' ? '<span class="approved">✅ 已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">❌ 退回</span>' : '<span class="pending-text">⏳ 待核验</span>';
-    html += `<div>二级核验（邹佳飞）：${s}`;
+    const s = r.level2.result === 'approved' ? '<span class="approved">已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
+    html += `<div>二级核验（${r.level2.reviewer || '邹佳飞'}）：${s}`;
     if (r.level2.comment) html += ` · ${r.level2.comment}`;
     html += '</div>';
     if (r.level2.images && r.level2.images.length > 0) {
@@ -244,69 +1704,89 @@ function renderReviewStatus(task) {
 function renderTasks(tasks) {
   const container = document.getElementById('taskList');
   if (!tasks || tasks.length === 0) {
-    container.innerHTML = '<div class="no-data">📭 暂无任务</div>';
+    container.innerHTML = '<div class="no-data">暂无任务</div>';
     return;
   }
   container.innerHTML = tasks.map(task => {
     const statusInfo = getStatusInfo(task);
     const borderCls = getStatusBorder(task);
     const taskNo = task.number || task.id;
-    const overdueTag = task.is_overdue && task.status !== 'completed' ? '<span class="overdue-tag">⚠️ 已超时</span>' : '';
+    const overdueTag = task.is_overdue && task.status !== 'completed' ? '<span class="overdue-tag">已超时</span>' : '';
     const deadlineStr = task.deadline ? `限时：${formatTime(task.deadline)}` : '';
     const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
     const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
     const acceptedStr = task.accepted_at ? `受理：${formatTime(task.accepted_at)}` : '';
+    const creatorStr = task.creator ? `创建人：${task.creator}` : '';
     const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
     const reviewUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblBh8mjI3BiDLmh&view=vewGUjc8Gh&field_fld2YuOhjx=${encodeURIComponent(taskNo)}`;
 
-    // 根据状态显示不同按钮
     let actionBtn = '';
-    if (task.status === 'pending') {
-      actionBtn = `<a class="accept-btn" href="${feishuUrl}" target="_blank">确认受理</a>`;
-    } else if (task.status === 'processing') {
-      actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
-    } else if (task.status === 'pending_review') {
-      const r = task.reviews || {};
-      const l1 = r.level1;
-      const l2 = r.level2;
-      if (!l1 || (l1.result !== 'approved' && l1.result !== 'rejected')) {
-        actionBtn = `<a class="review-btn level1" href="${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('一级核验')}" target="_blank">一级核验</a>`;
-      } else if (l1.result === 'approved' && (!l2 || (l2.result !== 'approved' && l2.result !== 'rejected'))) {
-        actionBtn = `<a class="review-btn level2" href="${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('二级核验')}" target="_blank">二级核验</a>`;
+    if (USER_ROLE === 'admin') {
+      if (task.status === 'pending') {
+        actionBtn = `<a class="accept-btn" href="${feishuUrl}" target="_blank">确认受理</a>`;
+      } else if (task.status === 'processing') {
+        actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
+      } else if (task.status === 'pending_review') {
+        const r = task.reviews || {};
+        const l1 = r.level1;
+        const l2 = r.level2;
+        if (!l1 || (l1.result !== 'approved' && l1.result !== 'rejected')) {
+          actionBtn = `<a class="review-btn level1" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('一级核验')}','_blank')})" style="cursor:pointer;">一级核验</a>`;
+        } else if (l1.result === 'approved' && (!l2 || (l2.result !== 'approved' && l2.result !== 'rejected'))) {
+          actionBtn = `<a class="review-btn level2" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('二级核验')}','_blank')})" style="cursor:pointer;">二级核验</a>`;
+        }
       }
     }
+    let deleteBtn = '';
+    if (USER_ROLE === 'admin') {
+      deleteBtn = `<button class="btn-danger" style="font-size:11px;padding:4px 10px;border-radius:6px;" onclick="requireAuth(function(){deleteTask('${task.id}')})">删除</button>`;
+    }
+
+    // 照片显示：置顶优先
+    const beforePhotos = getPhotosForDisplay(task, 'before');
+    const duringPhotos = getPhotosForDisplay(task, 'during');
+    const afterPhotos = getPhotosForDisplay(task, 'after');
 
     return `
       <div class="task-card ${borderCls}">
         <div class="task-header">
-          <span class="task-number">${taskNo}</span>
-          <span class="task-status ${statusInfo.cls}">${statusInfo.label}</span>
+          <div class="task-header-left">
+            <span class="task-number">${taskNo}</span>
+          </div>
+          <div class="task-header-right">
+            <span class="task-status ${statusInfo.cls}">${statusInfo.label}</span>
+            <span class="qr-icon" onclick="openQrModal('${task.id}','${taskNo}')" title="查看二维码">
+              <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h2v-3zm-2 5h2v4h-2v-4zm5-2h-3v2h2v2h-2v2h3v-6zm0 7v-2h-2v2h2z"/></svg>
+            </span>
+          </div>
         </div>
         <div class="task-location">${task.piles ? task.piles : ''} ${task.location || ''}</div>
         <div class="task-desc">${task.description || ''}</div>
         <div class="task-meta">
-          <span>👤 ${task.dispatcher || '你'} ${assigneeStr}</span>
-          <span>📅 ${formatTime(task.dispatched_at)}</span>
-          ${acceptedStr ? `<span>📥 ${acceptedStr}</span>` : ''}
-          ${deadlineStr ? `<span>⏰ ${deadlineStr}</span>` : ''}
-          ${completedStr ? `<span>✅ ${completedStr}</span>` : ''}
+          <span>${creatorStr}</span>
+          <span>${task.dispatcher || '你'} ${assigneeStr}</span>
+          <span>${formatTime(task.dispatched_at)}</span>
+          ${acceptedStr ? `<span>${acceptedStr}</span>` : ''}
+          ${deadlineStr ? `<span>${deadlineStr}</span>` : ''}
+          ${completedStr ? `<span>${completedStr}</span>` : ''}
           ${overdueTag}
         </div>
         <div class="image-section">
-          <div class="image-label">📸 现场照片</div>
+          <div class="image-label">现场照片</div>
           <div class="image-row">
-            <div>${renderImageSlot('维修前', task.images?.before)}</div>
-            <div>${renderImageSlot('维修中', task.images?.during)}</div>
-            <div>${renderImageSlot('维修后', task.images?.after)}</div>
+            <div>${renderImageSlot('维修前', 'before', beforePhotos, task.id)}</div>
+            <div>${renderImageSlot('维修中', 'during', duringPhotos, task.id)}</div>
+            <div>${renderImageSlot('维修后', 'after', afterPhotos, task.id)}</div>
           </div>
         </div>
         ${renderReviewStatus(task)}
-        ${actionBtn ? `<div class="task-card-footer">${actionBtn}</div>` : ''}
+        ${actionBtn || deleteBtn ? `<div class="task-card-footer">${actionBtn}${deleteBtn}</div>` : ''}
       </div>
     `;
   }).join('');
 }
 
+// ============ 统计与筛选 ============
 function updateStats(stats) {
   if (!stats) return;
   document.getElementById('statTotal').textContent = stats.total || 0;
@@ -317,27 +1797,150 @@ function updateStats(stats) {
   document.getElementById('statOverdue').textContent = stats.overdue || 0;
 }
 
-function loadData() {
-  fetch(DATA_URL + '?_t=' + Date.now())
-    .then(res => res.json())
-    .then(data => {
-      allTasks = data.tasks || [];
-      updateStats(data.statistics);
-      const activeFilter = document.querySelector('.filter-btn.active');
-      applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
-      document.getElementById('lastUpdate').textContent = `最后更新：${formatTime(data.last_updated) || '今天'}`;
-    })
-    .catch(err => {
-      document.getElementById('taskList').innerHTML = '<div class="no-data">⚠️ 无法加载数据</div>';
-    });
-}
-
 function applyFilter(filter) {
   let filtered;
   if (filter === 'all') filtered = allTasks;
   else if (filter === 'overdue') filtered = allTasks.filter(t => t.is_overdue && t.status !== 'completed');
   else filtered = allTasks.filter(t => t.status === filter);
   renderTasks(filtered);
+}
+
+// ============ 图表渲染 ============
+function renderCharts() {
+  const catMap = {};
+  allTasks.forEach(t => {
+    const cat = t.category || '未分类';
+    catMap[cat] = (catMap[cat] || 0) + 1;
+  });
+  const catLabels = Object.keys(catMap);
+  const catData = Object.values(catMap);
+  const catColors = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#95a5a6','#f1c40f','#00bcd4'];
+
+  if (chartInstances.pie) chartInstances.pie.destroy();
+  chartInstances.pie = new Chart(document.getElementById('chartPie'), {
+    type: 'pie',
+    data: {
+      labels: catLabels,
+      datasets: [{ data: catData, backgroundColor: catColors.slice(0, catLabels.length) }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }
+    }
+  });
+
+  const statLabels = ['待响应','超时','处理中','待核验','已完成'];
+  const statColors = ['#f39c12','#e74c3c','#3498db','#9b59b6','#27ae60'];
+  const stats = allTasks.length ? [
+    allTasks.filter(t => t.status === 'pending').length,
+    allTasks.filter(t => t.is_overdue && t.status !== 'completed').length,
+    allTasks.filter(t => t.status === 'processing').length,
+    allTasks.filter(t => t.status === 'pending_review').length,
+    allTasks.filter(t => t.status === 'completed').length
+  ] : [0,0,0,0,0];
+
+  if (chartInstances.bar) chartInstances.bar.destroy();
+  chartInstances.bar = new Chart(document.getElementById('chartBar'), {
+    type: 'bar',
+    data: {
+      labels: statLabels,
+      datasets: [{ data: stats, backgroundColor: statColors, borderRadius: 6, barThickness: 32 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+        x: { ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  const monthMap = {};
+  allTasks.forEach(t => {
+    if (t.dispatched_at) {
+      const d = new Date(t.dispatched_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      monthMap[key] = (monthMap[key] || 0) + 1;
+    }
+  });
+  const months = Object.keys(monthMap).sort();
+  const monthData = months.map(m => monthMap[m]);
+
+  if (chartInstances.line) chartInstances.line.destroy();
+  chartInstances.line = new Chart(document.getElementById('chartLine'), {
+    type: 'line',
+    data: {
+      labels: months.length ? months : ['暂无数据'],
+      datasets: [{
+        label: '任务数',
+        data: monthData.length ? monthData : [0],
+        borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.1)',
+        fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#3498db'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+        x: { ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ============ 数据加载 ============
+let loadRetryCount = 0;
+const MAX_RETRIES = 3;
+
+function loadData(isRetry = false) {
+  if (!isRetry) loadRetryCount = 0;
+  fetch(DATA_URL + '?_t=' + Date.now())
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      loadRetryCount = 0;
+      allTasks = (data.tasks || []).map(task => {
+        if (!task.images || typeof task.images === 'string') {
+          task.images = { before: [], during: [], after: [] };
+        } else {
+          ['before','during','after'].forEach(group => {
+            if (!task.images[group]) task.images[group] = [];
+          });
+        }
+        if (!task.reviews) {
+          task.reviews = {
+            level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+            level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
+          };
+        }
+        return task;
+      });
+      circularTasks = data.circular_tasks || [];
+      renderCircularTasks();
+      generateCircularTasks();
+      updateStats(data.statistics);
+      const activeFilter = document.querySelector('.filter-btn.active');
+      applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+      document.getElementById('lastUpdate').textContent = `最后更新：${formatTime(data.last_updated) || '今天'}`;
+      renderCharts();
+      initExportFields();
+    })
+    .catch(err => {
+      loadRetryCount++;
+      if (loadRetryCount <= MAX_RETRIES) {
+        const delay = 1000 * Math.pow(2, loadRetryCount - 1);
+        console.warn(`数据加载失败，${delay/1000}秒后重试 (${loadRetryCount}/${MAX_RETRIES})`);
+        document.getElementById('taskList').innerHTML = '<div class="no-data">正在加载数据...</div>';
+        setTimeout(() => loadData(true), delay);
+      } else {
+        document.getElementById('taskList').innerHTML = '<div class="no-data" style="cursor:pointer" onclick="loadData()">无法加载数据，点击重试</div>';
+      }
+    });
 }
 
 document.getElementById('filterBar').addEventListener('click', function(e) {
@@ -348,10 +1951,7 @@ document.getElementById('filterBar').addEventListener('click', function(e) {
   applyFilter(btn.dataset.filter);
 });
 
-loadData();
-setInterval(loadData, 30000);
-
-// ========== 图片预览 ==========
+// ============ 图片预览 ============
 function openPreview(src, label) {
   document.getElementById('previewImage').src = src;
   document.getElementById('previewLabel').textContent = label || '';
@@ -364,6 +1964,885 @@ function closePreview(e) {
   document.body.style.overflow = '';
 }
 function openLightbox(src) { openPreview(src, '验收照片'); }
+
+// ============ 二维码模态框 ============
+let qrCodeInstance = null;
+function openQrModal(taskId, taskNo) {
+  const url = BASE_URL + '?task=' + taskId;
+  document.getElementById('qrTaskId').textContent = taskNo;
+  const container = document.getElementById('qrCodeContainer');
+  container.innerHTML = '';
+  if (qrCodeInstance) qrCodeInstance = null;
+  qrCodeInstance = new QRCode(container, {
+    text: url, width: 200, height: 200,
+    colorDark: '#000000', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qrModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeQrModal() {
+  document.getElementById('qrModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ============ 新建任务 ============
+function openNewTaskModal() {
+  requireAuth(function() {
+    newTaskPhotos = [];
+    document.getElementById('uploadPreviewRow').innerHTML = '';
+    document.getElementById('photoUploadZone').classList.remove('has-files');
+    document.getElementById('newPiles').value = '';
+    document.getElementById('newDescription').value = '';
+    document.getElementById('newCategory').value = '路面';
+    document.getElementById('newLocation').value = '';
+    const savedCreator = localStorage.getItem('yanghu_creator') || '';
+    document.getElementById('newCreator').value = savedCreator;
+    document.getElementById('ocrHint').style.display = 'none';
+    document.getElementById('newTaskModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    if (newTaskPhotos.length > 0) {
+      tryOcrOnPhotos();
+    }
+  });
+}
+
+function closeNewTaskModal() {
+  document.getElementById('newTaskModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function handleNewTaskPhotos(event) {
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+  newTaskPhotos = [];
+  const zone = document.getElementById('photoUploadZone');
+  zone.classList.add('has-files');
+  const row = document.getElementById('uploadPreviewRow');
+  row.innerHTML = '';
+
+  files.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      newTaskPhotos.push(e.target.result);
+      const item = document.createElement('div');
+      item.className = 'upload-preview-item';
+      item.innerHTML = `<img src="${e.target.result}" alt="照片${index+1}"><span class="remove-upload" onclick="removeUploadPhoto(${index}, event)">×</span>`;
+      row.appendChild(item);
+
+      if (newTaskPhotos.length === files.length) {
+        tryOcrOnPhotos();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeUploadPhoto(index, event) {
+  event.stopPropagation();
+  newTaskPhotos.splice(index, 1);
+  refreshUploadPreview();
+  if (newTaskPhotos.length === 0) {
+    document.getElementById('photoUploadZone').classList.remove('has-files');
+  }
+}
+
+function refreshUploadPreview() {
+  const row = document.getElementById('uploadPreviewRow');
+  row.innerHTML = newTaskPhotos.map((dataUrl, i) => `
+    <div class="upload-preview-item">
+      <img src="${dataUrl}" alt="照片${i+1}">
+      <span class="remove-upload" onclick="removeUploadPhoto(${i}, event)">×</span>
+    </div>
+  `).join('');
+}
+
+// OCR 模拟：检测照片中是否有桩号格式文本
+function tryOcrOnPhotos() {
+  // 实际 OCR 需要后端支持，这里做一个模拟提示
+  // 如果用户还没填桩号，提示可以手动从照片中读取
+  const pilesInput = document.getElementById('newPiles');
+  if (!pilesInput.value.trim()) {
+    document.getElementById('ocrHint').textContent = 'OCR 自动提取未识别到桩号，请手动输入';
+    document.getElementById('ocrHint').style.display = 'block';
+  }
+}
+
+function submitNewTask() {
+  const description = document.getElementById('newDescription').value.trim();
+  if (!description) { alert('请输入问题描述'); return; }
+  if (newTaskPhotos.length === 0) { alert('请至少上传1张照片'); return; }
+
+  const piles = document.getElementById('newPiles').value.trim();
+  const category = document.getElementById('newCategory').value;
+  const location = document.getElementById('newLocation').value.trim();
+  let creator = document.getElementById('newCreator').value.trim();
+
+  if (!creator) { alert('请输入创建人姓名'); return; }
+
+  localStorage.setItem('yanghu_creator', creator);
+
+  // 生成编号 YYMMDD-NN
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const existingCount = allTasks.filter(t => {
+    if (!t.number) return false;
+    return t.number.startsWith(yy + mm + dd + '-');
+  }).length;
+  const taskNumber = `${yy}${mm}${dd}-${String(existingCount + 1).padStart(2, '0')}`;
+  const taskId = 'TASK-' + String(allTasks.length + 1).padStart(3, '0');
+
+  const newTask = {
+    id: taskId,
+    number: taskNumber,
+    piles: piles,
+    location: location,
+    description: description,
+    dispatcher: '你',
+    assignee: '',
+    dispatched_at: now.toISOString(),
+    deadline: null,
+    status: 'pending',
+    completed_at: null,
+    is_overdue: false,
+    category: category,
+    images: {
+      before: newTaskPhotos.map((_, i) => `images/${taskId}_维修前_${i+1}.jpg`),
+      during: [],
+      after: []
+    },
+    notes: '',
+    reviews: {
+      level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+      level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
+    },
+    accepted_at: null,
+    creator: creator
+  };
+
+  allTasks.unshift(newTask);
+  updateStatsFromTasks();
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  renderCharts();
+  initExportFields();
+
+  closeNewTaskModal();
+  alert(`任务 ${taskNumber} 已创建。请通知管理员同步到飞书。`);
+}
+
+function updateStatsFromTasks() {
+  const stats = {
+    total: allTasks.length,
+    pending: allTasks.filter(t => t.status === 'pending').length,
+    processing: allTasks.filter(t => t.status === 'processing').length,
+    pending_review: allTasks.filter(t => t.status === 'pending_review').length,
+    completed: allTasks.filter(t => t.status === 'completed').length,
+    overdue: allTasks.filter(t => t.is_overdue && t.status !== 'completed').length
+  };
+  updateStats(stats);
+}
+
+// ============ 导入模态框 ============
+function openImportModal() {
+  requireAuth(function() {
+    document.getElementById('importModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+}
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function initExportFields() {
+  const grid = document.getElementById('fieldGrid');
+  grid.innerHTML = ALL_EXPORT_FIELDS.map(f => `
+    <label class="field-item">
+      <input type="checkbox" value="${f.key}" checked data-key="${f.key}">
+      <span>${f.label}</span>
+    </label>
+  `).join('');
+
+  renderExportTemplates();
+  renderPhotoCheckPanel();
+}
+
+function presetPrintFields() {
+  document.querySelectorAll('#fieldGrid input[type=checkbox]').forEach(cb => {
+    cb.checked = PRINT_FIELDS.includes(cb.dataset.key);
+  });
+}
+
+function presetAllFields() {
+  document.querySelectorAll('#fieldGrid input[type=checkbox]').forEach(cb => { cb.checked = true; });
+}
+
+// ============ 字段模板 ============
+function saveFieldTemplate() {
+  const name = prompt('请输入模板名称：');
+  if (!name || !name.trim()) return;
+  const selected = getSelectedFields();
+  if (selected.length === 0) { alert('请至少选择一个字段'); return; }
+
+  const templates = JSON.parse(localStorage.getItem('export_field_templates') || '{}');
+  templates[name.trim()] = selected;
+  localStorage.setItem('export_field_templates', JSON.stringify(templates));
+  renderExportTemplates();
+}
+
+function applyFieldTemplate(fields) {
+  document.querySelectorAll('#fieldGrid input[type=checkbox]').forEach(cb => {
+    cb.checked = fields.includes(cb.dataset.key);
+  });
+  alert('模板已应用');
+}
+
+function deleteFieldTemplate(name, event) {
+  event.stopPropagation();
+  if (!confirm(`确定删除模板 "${name}"？`)) return;
+  const templates = JSON.parse(localStorage.getItem('export_field_templates') || '{}');
+  delete templates[name];
+  localStorage.setItem('export_field_templates', JSON.stringify(templates));
+  renderExportTemplates();
+}
+
+function renderExportTemplates() {
+  const row = document.getElementById('templateRow');
+  const templates = JSON.parse(localStorage.getItem('export_field_templates') || '{}');
+  const names = Object.keys(templates);
+  if (names.length === 0) { row.innerHTML = ''; return; }
+  row.innerHTML = names.map(n => `
+    <span class="template-chip" onclick="applyFieldTemplate(${JSON.stringify(templates[n]).replace(/"/g, '&quot;')})">
+      ${n} <span class="del-tpl" onclick="(function(e){deleteFieldTemplate('${n.replace(/'/g, "\\'")}',e)})(event)">×</span>
+    </span>
+  `).join('');
+}
+
+// ============ 照片勾选与置顶 ============
+function initPhotoSelectionMap() {
+  selectedPhotoMap = {};
+  pinnedPhotoMap = {};
+  allTasks.forEach(task => {
+    selectedPhotoMap[task.id] = { before: new Set(), during: new Set(), after: new Set() };
+    pinnedPhotoMap[task.id] = { before: null, during: null, after: null };
+    ['before','during','after'].forEach(group => {
+      const arr = (task.images && task.images[group]) ? task.images[group] : [];
+      arr.forEach((_, i) => selectedPhotoMap[task.id][group].add(i));
+    });
+  });
+}
+
+function renderPhotoCheckPanel() {
+  initPhotoSelectionMap();
+  const panel = document.getElementById('photoCheckPanel');
+  let html = '';
+
+  allTasks.forEach(task => {
+    const taskNo = task.number || task.id;
+    html += `<h3 style="margin-top:14px;">${taskNo} - ${task.piles || ''} ${task.location || ''}</h3>`;
+    ['before','during','after'].forEach(group => {
+      const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
+      const arr = (task.images && task.images[group]) ? task.images[group] : [];
+      const groupId = `${task.id}_${group}`;
+      html += `<div class="photo-collapse open" id="collapse_${groupId}">`;
+      html += `<div class="photo-collapse-header" onclick="togglePhotoCollapse('${groupId}')">`;
+      html += `<span>${labelMap[group]}（${arr.length}张）</span>`;
+      html += `<span class="select-all" onclick="event.stopPropagation();toggleSelectAll('${task.id}','${group}')">全选/取消</span>`;
+      html += `<span class="arrow">▶</span>`;
+      html += `</div>`;
+      html += `<div class="photo-collapse-body"><div class="photo-grid">`;
+      arr.forEach((img, i) => {
+        const selected = selectedPhotoMap[task.id]?.[group]?.has(i) ? ' selected' : '';
+        const pinned = pinnedPhotoMap[task.id]?.[group] === i ? ' pinned' : '';
+        const src = img.startsWith('http') ? img : img;
+        html += `<div class="photo-grid-item${selected}" id="photo_item_${task.id}_${group}_${i}">`;
+        html += `<input type="checkbox" class="photo-check" ${selected ? 'checked' : ''} onchange="togglePhotoItem('${task.id}','${group}',${i}, this.checked)">`;
+        html += `<img src="${src}" alt="${labelMap[group]}">`;
+        html += `<button class="star-btn${pinned}" onclick="event.stopPropagation();pinPhoto('${task.id}','${group}',${i})" title="设为置顶">★</button>`;
+        html += `</div>`;
+      });
+      html += `</div></div></div>`;
+    });
+  });
+
+  panel.innerHTML = html;
+}
+
+function togglePhotoCollapse(groupId) {
+  document.getElementById('collapse_' + groupId).classList.toggle('open');
+}
+
+function toggleSelectAll(taskId, group) {
+  const arr = (selectedPhotoMap[taskId]?.[group] ? true : false);
+  if (!selectedPhotoMap[taskId]) selectedPhotoMap[taskId] = { before: new Set(), during: new Set(), after: new Set() };
+  const set = selectedPhotoMap[taskId][group];
+  const task = allTasks.find(t => t.id === taskId);
+  const images = (task && task.images && task.images[group]) ? task.images[group] : [];
+  if (set.size === images.length) {
+    set.clear();
+  } else {
+    images.forEach((_, i) => set.add(i));
+  }
+  images.forEach((_, i) => {
+    const item = document.getElementById(`photo_item_${taskId}_${group}_${i}`);
+    if (item) {
+      const cb = item.querySelector('.photo-check');
+      if (set.has(i)) { cb.checked = true; item.classList.add('selected'); }
+      else { cb.checked = false; item.classList.remove('selected'); }
+    }
+  });
+}
+
+function togglePhotoItem(taskId, group, index, checked) {
+  if (!selectedPhotoMap[taskId]) selectedPhotoMap[taskId] = { before: new Set(), during: new Set(), after: new Set() };
+  if (checked) {
+    selectedPhotoMap[taskId][group].add(index);
+  } else {
+    selectedPhotoMap[taskId][group].delete(index);
+  }
+  const item = document.getElementById(`photo_item_${taskId}_${group}_${index}`);
+  if (item) {
+    if (checked) item.classList.add('selected'); else item.classList.remove('selected');
+  }
+}
+
+function pinPhoto(taskId, group, index) {
+  if (!pinnedPhotoMap[taskId]) pinnedPhotoMap[taskId] = { before: null, during: null, after: null };
+  const current = pinnedPhotoMap[taskId][group];
+  if (current === index) {
+    pinnedPhotoMap[taskId][group] = null;
+  } else {
+    pinnedPhotoMap[taskId][group] = index;
+  }
+  // 更新星标样式
+  const task = allTasks.find(t => t.id === taskId);
+  const arr = (task && task.images && task.images[group]) ? task.images[group] : [];
+  arr.forEach((_, i) => {
+    const btn = document.querySelector(`#photo_item_${taskId}_${group}_${i} .star-btn`);
+    if (btn) {
+      if (pinnedPhotoMap[taskId][group] === i) btn.classList.add('pinned');
+      else btn.classList.remove('pinned');
+    }
+  });
+}
+
+function selectFormat(format, el) {
+  currentExportFormat = format;
+  document.querySelectorAll('#formatOptions .format-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function openExportModal() {
+  requireAuth(function() {
+    document.getElementById('exportModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+}
+function closeExportModal() {
+  document.getElementById('exportModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function getSelectedFields() {
+  const cbs = document.querySelectorAll('#fieldGrid input[type=checkbox]:checked');
+  return Array.from(cbs).map(cb => cb.dataset.key);
+}
+
+function getExportPhotoConfigForTask(task) {
+  const sm = selectedPhotoMap[task.id];
+  if (!sm) return { before: [], during: [], after: [] };
+  const result = {};
+  ['before','during','after'].forEach(group => {
+    const arr = (task.images && task.images[group]) ? task.images[group] : [];
+    result[group] = arr.filter((_, i) => sm[group].has(i));
+  });
+  return result;
+}
+
+function getFieldValue(task, fieldKey, idx) {
+  const photoCfg = getExportPhotoConfigForTask(task);
+  switch (fieldKey) {
+    case 'index': return idx;
+    case 'number': return task.number || task.id;
+    case 'creator': return task.creator || '';
+    case 'piles': return task.piles || '';
+    case 'location': return task.location || '';
+    case 'category': return task.category || '';
+    case 'description': return task.description || '';
+    case 'status': return getStatusInfo(task).label;
+    case 'dispatched_at': return formatFullTime(task.dispatched_at);
+    case 'dispatcher': return task.dispatcher || '';
+    case 'assignee': return task.assignee || '';
+    case 'deadline': return task.deadline ? formatFullTime(task.deadline) : '';
+    case 'completed_at': return task.completed_at ? formatFullTime(task.completed_at) : '';
+    case 'before_photos': return photoCfg.before.map(p => p.split('/').pop()).join('、');
+    case 'during_photos': return photoCfg.during.map(p => p.split('/').pop()).join('、');
+    case 'after_photos': return photoCfg.after.map(p => p.split('/').pop()).join('、');
+    case 'notes': return task.notes || '';
+    case 'review_l1': {
+      const r1 = task.reviews?.level1;
+      if (!r1 || !r1.result) return '';
+      return r1.result === 'approved' ? `通过 (${r1.reviewer})` : `退回 (${r1.reviewer})`;
+    }
+    case 'review_l2': {
+      const r2 = task.reviews?.level2;
+      if (!r2 || !r2.result) return '';
+      return r2.result === 'approved' ? `通过 (${r2.reviewer})` : `退回 (${r2.reviewer})`;
+    }
+    case 'acceptance': {
+      const r1 = task.reviews?.level1;
+      const r2 = task.reviews?.level2;
+      if (r1?.result === 'approved' && r2?.result === 'approved') return '通过';
+      if (r1?.result === 'rejected' || r2?.result === 'rejected') return '退回整改';
+      return '';
+    }
+    default: return '';
+  }
+}
+
+function getFieldLabel(key) {
+  const f = ALL_EXPORT_FIELDS.find(x => x.key === key);
+  return f ? f.label : key;
+}
+
+// ============ 导出执行 ============
+async function confirmExport() {
+  const btn = document.getElementById('btnConfirmExport');
+  btn.disabled = true;
+  btn.textContent = '导出中...';
+
+  const selectedFields = getSelectedFields();
+
+  if (selectedFields.length === 0) {
+    alert('请至少选择一个导出字段');
+    btn.disabled = false;
+    btn.textContent = '确认导出';
+    return;
+  }
+
+  try {
+    if (currentExportFormat === 'excel') {
+      await exportExcel(selectedFields);
+    } else if (currentExportFormat === 'pdf-archive' || currentExportFormat === 'pdf-settlement') {
+      await exportPdf(selectedFields, currentExportFormat);
+    } else if (currentExportFormat === 'zip') {
+      await exportZip(selectedFields);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('导出失败：' + err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '确认导出';
+  closeExportModal();
+}
+
+async function exportExcel(selectedFields) {
+  const headers = selectedFields.map(f => getFieldLabel(f));
+  const rows = [headers];
+  allTasks.forEach((task, i) => {
+    const row = selectedFields.map(f => getFieldValue(task, f, i + 1));
+    rows.push(row);
+  });
+
+  const ws1 = XLSX.utils.aoa_to_sheet(rows);
+
+  const stats = [
+    ['状态', '数量'],
+    ['待响应', allTasks.filter(t => t.status === 'pending').length],
+    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length],
+    ['处理中', allTasks.filter(t => t.status === 'processing').length],
+    ['待核验', allTasks.filter(t => t.status === 'pending_review').length],
+    ['已完成', allTasks.filter(t => t.status === 'completed').length],
+    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length]
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(stats);
+
+  const catMap = {};
+  allTasks.forEach(t => { const c = t.category || '未分类'; catMap[c] = (catMap[c] || 0) + 1; });
+  const catRows = [['分类', '数量'], ...Object.entries(catMap)];
+  const ws3 = XLSX.utils.aoa_to_sheet(catRows);
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws1, '任务清单');
+  XLSX.utils.book_append_sheet(wb, ws2, '状态统计');
+  XLSX.utils.book_append_sheet(wb, ws3, '分类统计');
+
+  XLSX.writeFile(wb, '养护任务看板_导出.xlsx');
+}
+
+async function exportPdf(selectedFields, format) {
+  const { jsPDF } = window.jspdf;
+  const zip = new JSZip();
+  const isSettlement = format === 'pdf-settlement';
+  const titleText = isSettlement ? '养护巡查问题登记表（结算版）' : '养护巡查问题登记表';
+
+  for (let i = 0; i < allTasks.length; i++) {
+    const task = allTasks[i];
+    const taskNo = task.number || task.id;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    let y = 15;
+    const margin = 15;
+    const pageW = 210;
+
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text(titleText, margin, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`编号：${taskNo}`, margin, y);
+    doc.text(`[二维码: ${BASE_URL}?task=${task.id}]`, pageW - margin - 50, y - 2);
+    y += 7;
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, pageW - margin, y);
+    y += 6;
+
+    doc.setFontSize(10);
+    const labelW = 35;
+    const valueW = pageW - margin * 2 - labelW - 4;
+    const lineH = 7;
+
+    selectedFields.forEach(f => {
+      if (y > 270) { doc.addPage(); y = 15; }
+      const label = getFieldLabel(f);
+      const value = getFieldValue(task, f, i + 1);
+      doc.setFont(undefined, 'bold');
+      doc.text(label, margin, y);
+      doc.setFont(undefined, 'normal');
+      doc.text(value || '—', margin + labelW, y, { maxWidth: valueW });
+      doc.setDrawColor(220, 220, 220);
+      doc.line(margin, y + 2, pageW - margin, y + 2);
+      y += lineH;
+    });
+
+    if (isSettlement) {
+      y += 4;
+      doc.setFontSize(11);
+      doc.setFont(undefined, 'bold');
+      doc.text('现场照片', margin, y);
+      y += 7;
+
+      const photoCfg = getExportPhotoConfigForTask(task);
+      ['before', 'during', 'after'].forEach(group => {
+        const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
+        const photos = photoCfg[group] || [];
+        if (y > 260) { doc.addPage(); y = 15; }
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${labelMap[group]}：`, margin, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(photos.length > 0 ? photos.map(p => p.split('/').pop()).join('、') : '无', margin + 22, y);
+        y += 6;
+      });
+    }
+
+    if (y > 270) { doc.addPage(); y = 15; }
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`导出时间：${formatFullTime(new Date().toISOString())}  |  南平联络线高速土建养护`, margin, 285);
+
+    const pdfBlob = doc.output('blob');
+    zip.file(`${taskNo}_登记表.pdf`, pdfBlob);
+  }
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(zipBlob, '养护任务登记表_PDF.zip');
+}
+
+async function exportZip(selectedFields) {
+  const zip = new JSZip();
+  const { jsPDF } = window.jspdf;
+
+  for (let i = 0; i < allTasks.length; i++) {
+    const task = allTasks[i];
+    const taskNo = task.number || task.id;
+    const folder = zip.folder(taskNo);
+
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    let y = 15;
+    const margin = 15;
+
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('养护巡查问题登记表', margin, y);
+    y += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`编号：${taskNo}`, margin, y);
+    y += 7;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, 210 - margin, y);
+    y += 6;
+
+    selectedFields.forEach(f => {
+      if (y > 270) { doc.addPage(); y = 15; }
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(getFieldLabel(f), margin, y);
+      doc.setFont(undefined, 'normal');
+      doc.text(getFieldValue(task, f, i + 1) || '—', margin + 32, y);
+      y += 7;
+    });
+
+    const pdfBlob = doc.output('blob');
+    folder.file(`${taskNo}_登记表.pdf`, pdfBlob);
+
+    const photoCfg = getExportPhotoConfigForTask(task);
+    const allPhotos = [
+      ...(photoCfg.before || []),
+      ...(photoCfg.during || []),
+      ...(photoCfg.after || [])
+    ];
+
+    const photoList = allPhotos.map(p => {
+      const parts = p.split('/');
+      return parts[parts.length - 1] + '\t' + p;
+    }).join('\n');
+    if (photoList) {
+      folder.file('照片清单.txt', `照片路径列表：\n${photoList}\n\n注：照片为相对路径，请在源目录中查找。`);
+    }
+
+    for (const photoPath of allPhotos) {
+      try {
+        const resp = await fetch(photoPath);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const fname = photoPath.split('/').pop();
+          folder.file(fname, blob);
+        }
+      } catch (e) { /* 跳过无法加载的图片 */ }
+    }
+  }
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(zipBlob, '养护任务登记表_文件包.zip');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============ 删除任务 ============
+function deleteTask(taskId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task) return;
+  const taskNo = task.number || task.id;
+  if (!confirm(`确定删除任务「${taskNo}」吗？此操作不可撤销。`)) return;
+  allTasks = allTasks.filter(t => t.id !== taskId);
+  updateStatsFromTasks();
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  renderCharts();
+  initExportFields();
+}
+
+// ============ 循环任务管理 ============
+let circularTasks = [];
+
+const INTERVAL_LABELS = { weekly: '每周', monthly: '每月' };
+const WEEKDAY_LABELS = { 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六', 7: '周日' };
+
+function updateCircDayUI() {
+  const interval = document.querySelector('input[name="circInterval"]:checked').value;
+  document.getElementById('circDayUI').style.display = interval === 'weekly' ? 'flex' : 'none';
+  document.getElementById('circDayMonth').style.display = interval === 'monthly' ? 'block' : 'none';
+}
+
+function openCircularModal() {
+  requireAuth(function() {
+    document.getElementById('circTitle').value = '';
+    document.getElementById('circCategory').value = '桥梁';
+    document.getElementById('circLocation').value = '';
+    document.getElementById('circDescription').value = '';
+    document.getElementById('circAssignee').value = '';
+    updateCircDayUI();
+    document.getElementById('circularModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+function closeCircularModal() {
+  document.getElementById('circularModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function submitCircularTask() {
+  const title = document.getElementById('circTitle').value.trim();
+  if (!title) { alert('请输入任务标题'); return; }
+  const interval = document.querySelector('input[name="circInterval"]:checked').value;
+  const dayOfWeek = interval === 'weekly' ? parseInt(document.getElementById('circDayOfWeek').value) : undefined;
+  const dayOfMonth = interval === 'monthly' ? parseInt(document.getElementById('circDayOfMonth').value) : undefined;
+  const category = document.getElementById('circCategory').value;
+  const location = document.getElementById('circLocation').value.trim();
+  const description = document.getElementById('circDescription').value.trim();
+  const assignee = document.getElementById('circAssignee').value.trim();
+
+  const newCirc = {
+    id: 'CIRC-' + String(circularTasks.length + 1).padStart(3, '0'),
+    title, interval, category, location, description, assignee,
+    enabled: true,
+    last_generated: new Date().toISOString()
+  };
+  if (interval === 'weekly') newCirc.day_of_week = dayOfWeek;
+  if (interval === 'monthly') newCirc.day_of_month = dayOfMonth;
+
+  circularTasks.push(newCirc);
+  renderCircularTasks();
+  closeCircularModal();
+  syncDataJson();
+}
+
+function renderCircularTasks() {
+  const container = document.getElementById('circularList');
+  if (!circularTasks || circularTasks.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:16px;color:#bbb;font-size:13px;">暂无定期巡查任务，点击上方按钮添加</div>';
+    return;
+  }
+
+  container.innerHTML = circularTasks.map(ct => {
+    let freqText = '';
+    if (ct.interval === 'weekly') {
+      freqText = `每${WEEKDAY_LABELS[ct.day_of_week] || '周一'}`;
+    } else if (ct.interval === 'monthly') {
+      freqText = `每月${ct.day_of_month || 1}号`;
+    } else {
+      freqText = '每天';
+    }
+    const lastGen = ct.last_generated ? `上次生成：${formatTime(ct.last_generated)}` : '';
+    const statusClass = ct.enabled ? 'enabled' : '';
+    const cardClass = ct.enabled ? '' : 'disabled';
+
+    return `
+      <div class="circular-card ${cardClass}">
+        <div class="circular-info">
+          <div class="circular-title">${ct.title}</div>
+          <div class="circular-detail">${freqText} · ${ct.category || ''} · ${ct.location || ''} · ${ct.assignee || ''} · ${lastGen}</div>
+        </div>
+        <div class="circular-actions">
+          <div class="circular-toggle ${statusClass}" onclick="requireAuth(function(){toggleCircularTask('${ct.id}')})" title="${ct.enabled ? '关闭' : '开启'}"></div>
+          <button class="circular-delete" onclick="requireAuth(function(){deleteCircularTask('${ct.id}')})" title="删除">×</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCircularTask(id) {
+  const ct = circularTasks.find(c => c.id === id);
+  if (!ct) return;
+  ct.enabled = !ct.enabled;
+  renderCircularTasks();
+  syncDataJson();
+}
+
+function deleteCircularTask(id) {
+  const ct = circularTasks.find(c => c.id === id);
+  if (!ct) return;
+  if (!confirm(`确定删除定期巡查「${ct.title}」吗？`)) return;
+  circularTasks = circularTasks.filter(c => c.id !== id);
+  renderCircularTasks();
+  syncDataJson();
+}
+
+function generateCircularTasks() {
+  // 从已启用的循环模板生成到期任务
+  const now = new Date();
+  let generated = 0;
+
+  circularTasks.forEach(ct => {
+    if (!ct.enabled) return;
+    if (!ct.last_generated) { ct.last_generated = now.toISOString(); return; }
+
+    const lastGen = new Date(ct.last_generated);
+    let shouldGenerate = false;
+
+    if (ct.interval === 'weekly') {
+      const dayOfWeek = ct.day_of_week || 1;
+      const currentDay = now.getDay(); // 0=Sunday
+      const mappedDay = currentDay === 0 ? 7 : currentDay;
+      // 如果今天就是目标星期，且本周还未生成
+      if (mappedDay === dayOfWeek) {
+        const lastGenDay = lastGen.getDay();
+        const lastMapped = lastGenDay === 0 ? 7 : lastGenDay;
+        if (lastMapped !== dayOfWeek || lastGen.toDateString() !== now.toDateString()) {
+          shouldGenerate = true;
+        }
+      }
+    } else if (ct.interval === 'monthly') {
+      const dayOfMonth = ct.day_of_month || 1;
+      if (now.getDate() === dayOfMonth) {
+        if (lastGen.getMonth() !== now.getMonth() || lastGen.getFullYear() !== now.getFullYear()) {
+          shouldGenerate = true;
+        }
+      }
+    }
+
+    if (shouldGenerate) {
+      const taskNumber = `${String(now.getFullYear()).slice(2)}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${String(allTasks.length + 1).padStart(2,'0')}`;
+      const taskId = 'TASK-' + String(allTasks.length + 1).padStart(3, '0');
+      const newTask = {
+        id: taskId,
+        number: taskNumber,
+        piles: '',
+        location: ct.location || '',
+        description: ct.description || ct.title,
+        dispatcher: '你',
+        assignee: ct.assignee || '',
+        dispatched_at: now.toISOString(),
+        deadline: null,
+        status: 'pending',
+        completed_at: null,
+        is_overdue: false,
+        category: ct.category || '',
+        images: { before: [], during: [], after: [] },
+        notes: `[定期任务：${ct.title}]`,
+        reviews: {
+          level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+          level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
+        },
+        accepted_at: null,
+        creator: '系统（定期任务）'
+      };
+      allTasks.unshift(newTask);
+      ct.last_generated = now.toISOString();
+      generated++;
+    }
+  });
+
+  if (generated > 0) {
+    updateStatsFromTasks();
+    const activeFilter = document.querySelector('.filter-btn.active');
+    applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+    renderCharts();
+    initExportFields();
+    syncDataJson();
+  }
+}
+
+function syncDataJson() {
+  // 注意：此函数仅在纯前端演示时使用，实际应由飞书同步脚本维护
+  // 此处更新 JS 内存中的 circularTasks，不写回文件（文件由飞书同步脚本管理）
+}
+
+// ============ 启动 ============
+detectRole();
+loadData();
+setInterval(loadData, 30000);
 </script>
 
 </body>
