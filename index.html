@@ -32,6 +32,11 @@
   }
   .header-left h1 { font-size: 20px; font-weight: 600; }
   .header-left p { font-size: 13px; color: #aaa; margin-top: 2px; }
+  .closed-loop-badge {
+    display: inline-block; font-size: 11px; padding: 1px 8px;
+    background: rgba(46,204,113,0.25); color: #2ecc71; border-radius: 10px;
+    vertical-align: middle; margin-left: 6px; font-weight: 500;
+  }
   .header-right { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; align-items: flex-start; }
   .btn-new-task {
     padding: 8px 18px;
@@ -822,7 +827,7 @@
   <div class="header">
     <div class="header-left">
       <h1>养护任务跟踪看板</h1>
-      <p>南平联络线高速土建养护</p>
+      <p>南平联络线高速土建养护<span class="closed-loop-badge">闭环管理</span></p>
     </div>
     <div class="header-right" id="headerRight">
       <button class="btn-new-task" id="btnNewTask" onclick="openNewTaskModal()">+ 新建任务</button>
@@ -888,8 +893,8 @@
 <!-- 管理员首次登录弹窗 -->
 <div class="admin-login-overlay" id="adminLoginOverlay">
   <div class="admin-login-box">
-    <h2>管理员验证</h2>
-    <p>请输入管理员密钥以激活完整权限</p>
+    <h2>身份验证</h2>
+    <p>输入密钥以激活操作权限（管理员 / 发布者）</p>
     <input type="password" id="adminKeyInput" placeholder="请输入密钥">
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn-cancel" onclick="closeAdminLogin()">取消</button>
@@ -1185,8 +1190,10 @@
 <script>
 // ============ 权限体系 ============
 const ADMIN_KEY = 'yh2026';
+const PUBLISHER_KEYS = { 'hjw2026': '黄瑾文', 'cxh2026': '陈晓辉' };
 const SHARE_HMAC_SECRET = 'yanghu_share_secret_2026';
-let USER_ROLE = 'visitor'; // admin | visitor
+let USER_ROLE = 'visitor'; // admin | publisher | visitor
+let USER_NAME = '';
 
 function detectRole() {
   // 1. 检查 ?share= token
@@ -1219,6 +1226,10 @@ function detectRole() {
   const storedKey = localStorage.getItem('admin_key');
   if (storedKey === ADMIN_KEY) {
     USER_ROLE = 'admin';
+    USER_NAME = '管理员';
+  } else if (storedKey && PUBLISHER_KEYS[storedKey]) {
+    USER_ROLE = 'publisher';
+    USER_NAME = PUBLISHER_KEYS[storedKey];
   }
 
   updateAuthUI();
@@ -1226,6 +1237,7 @@ function detectRole() {
 
 function updateAuthUI() {
   const isAdmin = (USER_ROLE === 'admin');
+  const canPublish = (USER_ROLE === 'admin' || USER_ROLE === 'publisher');
   const banner = document.getElementById('readonlyBanner');
   const btnNewTask = document.getElementById('btnNewTask');
   const btnImport = document.getElementById('btnImport');
@@ -1233,12 +1245,12 @@ function updateAuthUI() {
   const btnShare = document.getElementById('btnShare');
   const btnLogout = document.getElementById('btnLogout');
 
-  if (isAdmin) {
+  if (canPublish) {
     banner.classList.remove('show');
     btnNewTask.style.display = '';
-    btnImport.style.display = '';
-    btnExport.style.display = '';
-    btnShare.style.display = '';
+    btnImport.style.display = isAdmin ? '' : 'none';
+    btnExport.style.display = isAdmin ? '' : 'none';
+    btnShare.style.display = isAdmin ? '' : 'none';
     btnLogout.style.display = '';
   } else {
     banner.innerHTML = '只读模式，操作需验证　<a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#856404;text-decoration:underline;font-weight:700;">验证身份</a>';
@@ -1258,7 +1270,7 @@ function updateAuthUI() {
 }
 
 function requireAuth(callback) {
-  if (USER_ROLE === 'admin') {
+  if (USER_ROLE === 'admin' || USER_ROLE === 'publisher') {
     callback();
   } else {
     window._pendingAuthCallback = callback;
@@ -1277,15 +1289,21 @@ function submitAdminKey() {
   if (input === ADMIN_KEY) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'admin';
-    document.getElementById('adminLoginOverlay').classList.remove('show');
-    updateAuthUI();
-    if (window._pendingAuthCallback) {
-      const cb = window._pendingAuthCallback;
-      window._pendingAuthCallback = null;
-      setTimeout(cb, 100);
-    }
+    USER_NAME = '管理员';
+  } else if (PUBLISHER_KEYS[input]) {
+    localStorage.setItem('admin_key', input);
+    USER_ROLE = 'publisher';
+    USER_NAME = PUBLISHER_KEYS[input];
   } else {
     document.getElementById('adminKeyError').style.display = 'block';
+    return;
+  }
+  document.getElementById('adminLoginOverlay').classList.remove('show');
+  updateAuthUI();
+  if (window._pendingAuthCallback) {
+    const cb = window._pendingAuthCallback;
+    window._pendingAuthCallback = null;
+    setTimeout(cb, 100);
   }
 }
 
@@ -1297,6 +1315,7 @@ function closeAdminLogin() {
 function logout() {
   localStorage.removeItem('admin_key');
   USER_ROLE = 'visitor';
+  USER_NAME = '';
   updateAuthUI();
 }
 
@@ -1701,6 +1720,18 @@ function renderReviewStatus(task) {
   return html;
 }
 
+function acceptTask(taskId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || task.status !== 'pending') return;
+  task.accepted_at = new Date().toISOString();
+  task.accepted_by = USER_NAME;
+  task.status = 'processing';
+  updateAllStats();
+  renderCharts();
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
 function renderTasks(tasks) {
   const container = document.getElementById('taskList');
   if (!tasks || tasks.length === 0) {
@@ -1715,15 +1746,16 @@ function renderTasks(tasks) {
     const deadlineStr = task.deadline ? `限时：${formatTime(task.deadline)}` : '';
     const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
     const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
-    const acceptedStr = task.accepted_at ? `受理：${formatTime(task.accepted_at)}` : '';
+    const acceptedStr = task.accepted_at ? `接单：${formatTime(task.accepted_at)} ${task.accepted_by ? '(' + task.accepted_by + ')' : ''}` : '';
     const creatorStr = task.creator ? `创建人：${task.creator}` : '';
     const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
     const reviewUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblBh8mjI3BiDLmh&view=vewGUjc8Gh&field_fld2YuOhjx=${encodeURIComponent(taskNo)}`;
 
+    const canAct = (USER_ROLE === 'admin' || USER_ROLE === 'publisher');
     let actionBtn = '';
-    if (USER_ROLE === 'admin') {
+    if (canAct) {
       if (task.status === 'pending') {
-        actionBtn = `<a class="accept-btn" href="${feishuUrl}" target="_blank">确认受理</a>`;
+        actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">确认接单</button>`;
       } else if (task.status === 'processing') {
         actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
       } else if (task.status === 'pending_review') {
@@ -1997,7 +2029,7 @@ function openNewTaskModal() {
     document.getElementById('newCategory').value = '路面';
     document.getElementById('newLocation').value = '';
     const savedCreator = localStorage.getItem('yanghu_creator') || '';
-    document.getElementById('newCreator').value = savedCreator;
+    document.getElementById('newCreator').value = USER_NAME || savedCreator;
     document.getElementById('ocrHint').style.display = 'none';
     document.getElementById('newTaskModal').classList.add('show');
     document.body.style.overflow = 'hidden';
