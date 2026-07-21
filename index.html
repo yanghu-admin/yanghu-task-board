@@ -745,6 +745,15 @@
     transition: opacity 0.2s;
     user-select: none; -webkit-user-select: none; pointer-events: none;
   }
+  .pb-spinner {
+    position: absolute; width: 36px; height: 36px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    animation: pbSpin 0.7s linear infinite;
+    pointer-events: none; z-index: 1;
+  }
+  @keyframes pbSpin { to { transform: rotate(360deg); } }
   /* 方向箭头 - 悬浮闪烁 */
   @keyframes pbPulse {
     0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255,255,255,0.1); }
@@ -1122,6 +1131,7 @@
     <button class="photo-browser-close" onclick="closePhotoBrowser()" title="返回看板">✕</button>
   </div>
   <div class="photo-browser-main" id="pbMain">
+    <div class="pb-spinner" id="pbSpinner"></div>
     <button class="pb-arrow pb-arrow-left hidden" id="pbPrev" onclick="pbNavigate(-1)">&#8249;</button>
     <button class="pb-arrow pb-arrow-up hidden" id="pbUp" onclick="pbPrevGroup()">&#8963;</button>
     <img id="pbImage" src="" alt="">
@@ -1544,18 +1554,25 @@ function openPhotoBrowser(taskId, startGroup, startIndex) {
     document.addEventListener('keydown', pbKeyHandler);
     pbKeyboardBound = true;
   }
+  // 注入历史记录，拦截手机端退回手势
+  if (!window._pbHistoryPushed) {
+    history.pushState({pbOpen: true}, '');
+    window._pbHistoryPushed = true;
+  }
 }
 
 function closePhotoBrowser() {
   document.getElementById('photoBrowser').classList.remove('show');
   document.body.style.overflow = '';
   pbTask = null;
+  window._pbHistoryPushed = false;
 }
 
 function renderPhotoBrowser() {
   const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
   const photos = pbGroupData[pbCurrentGroup];
   const img = document.getElementById('pbImage');
+  const spinner = document.getElementById('pbSpinner');
   const counter = document.getElementById('pbCounter');
   const groupLabel = document.getElementById('pbGroupLabel');
   const prevBtn = document.getElementById('pbPrev');
@@ -1570,13 +1587,16 @@ function renderPhotoBrowser() {
   if (photos.length === 0) {
     img.style.opacity = '0';
     img.src = '';
+    spinner.style.display = 'none';
     counter.textContent = '暂无照片';
     prevBtn.classList.add('hidden');
     nextBtn.classList.add('hidden');
   } else {
     const src = photos[pbCurrentIndex];
+    spinner.style.display = 'block';
     img.style.opacity = '0';
-    img.onload = () => { img.style.opacity = '1'; };
+    img.onload = () => { spinner.style.display = 'none'; img.style.opacity = '1'; };
+    img.onerror = () => { spinner.style.display = 'none'; };
     img.src = src;
     counter.textContent = `${pbCurrentIndex + 1} / ${photos.length}`;
     // 水平箭头：首张只有右，末张只有左，单张都隐藏
@@ -1684,6 +1704,16 @@ function pbKeyHandler(e) {
   else if (e.key === 'ArrowDown') pbNextGroup();
   else if (e.key === 'ArrowUp') pbPrevGroup();
 }
+
+// 全局拦截：手机端退回手势时关闭浏览器而非离开页面
+window.addEventListener('popstate', function(e) {
+  const pb = document.getElementById('photoBrowser');
+  if (pb && pb.classList.contains('show')) {
+    closePhotoBrowser();
+  } else {
+    window._pbHistoryPushed = false;
+  }
+});
 
 // ============ 渲染 ============
 function renderImageSlot(label, groupKey, images, taskId) {
