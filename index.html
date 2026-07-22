@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>鍏绘姢浠诲姟璺熻釜鐪嬫澘</title>
-<!-- CDN 渚濊禆 -->
+<title>养护任务跟踪看板</title>
+<!-- CDN 依赖 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -89,7 +89,7 @@
   }
   .btn-logout:hover { color: #e74c3c; }
 
-  /* 鍙妯″紡鎻愮ず鏉?*/
+  /* 只读模式提示条 */
   .readonly-banner {
     display: none;
     background: #fff3cd;
@@ -102,7 +102,7 @@
   }
   .readonly-banner.show { display: block; }
 
-  /* 绠＄悊鍛樼櫥褰曞脊绐?*/
+  /* 管理员登录弹窗 */
   .admin-login-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.7); z-index: 5000;
@@ -142,7 +142,7 @@
   #pullIndicator.ready { color: #3498db; }
   #pullIndicator .arrow { display: inline-block; transition: transform 0.3s; }
   #pullIndicator.ready .arrow { transform: rotate(180deg); }
-  /* 棰嗗鎽樿鏍?*/
+  /* 领导摘要栏 */
   .leader-banner {
     margin: 12px 16px 8px; padding: 14px 18px;
     background: linear-gradient(135deg, #1a3a5c 0%, #1f4d7a 100%);
@@ -187,8 +187,8 @@
     padding: 6px 10px; background: rgba(26,58,92,0.05); border-radius: 6px;
     font-weight: 500; line-height: 1.4;
   }
-  .chart-caption::before { content: '銆?; color: #c9a84c; }
-  .chart-caption::after { content: '銆?; color: #c9a84c; }
+  .chart-caption::before { content: '「'; color: #c9a84c; }
+  .chart-caption::after { content: '」'; color: #c9a84c; }
 
   .filter-bar { display: flex; gap: 8px; margin: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 0 4px; position: sticky; top: 70px; z-index: 99; background: #f5f5f5; }
   .filter-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; color: #666; cursor: pointer; transition: all 0.2s; }
@@ -293,7 +293,7 @@
   }
   .modal-close:hover { background: #f0f0f0; color: #333; }
 
-  /* 瀵煎嚭妯℃€佹 */
+  /* 导出模态框 */
   .format-options, .photo-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
   .format-opt {
     flex: 1; min-width: 120px;
@@ -332,7 +332,7 @@
     margin-left: 4px; color: #c0392b; font-weight: 700; cursor: pointer;
   }
 
-  /* 鐓х墖鍕鹃€夐潰鏉?*/
+  /* 照片勾选面板 */
   .photo-check-panel { margin-bottom: 12px; }
   .photo-collapse {
     border: 1px solid #eee; border-radius: 8px;
@@ -383,7 +383,7 @@
   }
   .photo-collapse-header .select-all:hover { text-decoration: underline; }
 
-  /* 鏂板缓浠诲姟琛ㄥ崟 */
+  /* 新建任务表单 */
   .form-group { margin-bottom: 12px; }
   .form-group label {
     display: block; font-size: 13px; font-weight: 600;
@@ -423,7 +423,7 @@
     text-align: center; cursor: pointer;
   }
 
-  /* 鍒嗕韩闈㈡澘 */
+  /* 分享面板 */
   .share-panel { }
   .share-panel .share-url-box {
     display: flex; gap: 6px; margin-top: 10px;
@@ -463,7 +463,7 @@
   }
   .qr-modal-content .qr-task-id { font-size: 14px; font-weight: 600; color: #333; margin-top: 8px; }
 
-  /* 澶辨晥椤?*/
+  /* 失效页 */
   .expired-page {
     display: none; text-align: center; padding: 100px 20px;
   }
@@ -519,7 +519,7 @@
     .admin-login-box input { background: #3a3a4e; color: #eee; border-color: #555; }
   }
 
-  /* ========== 瀵煎叆鍔熻兘鏍峰紡 ========== */
+  /* ========== 导入功能样式 ========== */
   .btn-import {
     padding: 8px 18px;
     background: rgba(255,255,255,0.15);
@@ -698,7 +698,7 @@
     line-height: 1.8;
   }
 
-  /* ========== 寰幆浠诲姟鏍峰紡 ========== */
+  /* ========== 循环任务样式 ========== */
   .circular-section {
     margin: 12px 16px;
   }
@@ -752,7 +752,7 @@
     .circular-header h3 { color: #aaa; }
   }
 
-  /* ========== 鐓х墖婊戝姩娴忚鍣?========== */
+  /* ========== 照片滑动浏览器 ========== */
   .photo-browser-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.92); z-index: 5000;
@@ -789,7 +789,7 @@
     pointer-events: none; z-index: 1;
   }
   @keyframes pbSpin { to { transform: rotate(360deg); } }
-  /* 鏂瑰悜绠ご - 鎮诞闂儊 */
+  /* 方向箭头 - 悬浮闪烁 */
   @keyframes pbPulse {
     0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255,255,255,0.1); }
     50% { opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
@@ -863,7 +863,7 @@
   }
   .user-name-display { color: #aaa; font-size: 13px; margin-right: 10px; display: none; white-space: nowrap; }
   .badge-btn { background: linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; font-size:13px; padding:6px 14px; border-radius:20px; border:none; cursor:default; display:none; white-space:nowrap; font-weight:600; letter-spacing:1px; }
-  .btn-new-task { font-size:13px !important; padding:6px 14px !important; } /* 缂╁皬鎸夐挳 */
+  .btn-new-task { font-size:13px !important; padding:6px 14px !important; } /* 缩小按钮 */
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -876,48 +876,48 @@
 
   <div class="header">
     <div class="header-left">
-      <h1>鍏绘姢浠诲姟璺熻釜鐪嬫澘</h1>
-      <p>鍗楀钩鑱旂粶绾块珮閫熷湡寤哄吇鎶?span class="closed-loop-badge">闂幆绠＄悊</span></p>
+      <h1>养护任务跟踪看板</h1>
+      <p>南平联络线高速土建养护<span class="closed-loop-badge">闭环管理</span></p>
     </div>
     <div class="header-right" id="headerRight">
       <span class="user-name-display" id="userNameDisplay"></span>
-      <button class="btn-new-task" id="btnNewTask" onclick="openNewTaskModal()">+ 鏂板缓浠诲姟</button>
-      <span class="badge-btn" id="badgeBtn">闂幆绠＄悊</span>
-      <button class="btn-import" id="btnImport" onclick="openImportModal()">瀵煎叆</button>
-      <button class="btn-export" id="btnExport" onclick="openExportModal()">瀵煎嚭</button>
-      <button class="btn-share" id="btnShare" onclick="openShareModal()">鍒嗕韩</button>
-      <a class="btn-logout" id="btnLogout" onclick="logout()" style="display:none;">閫€鍑?/a>
+      <button class="btn-new-task" id="btnNewTask" onclick="openNewTaskModal()">+ 新建任务</button>
+      <span class="badge-btn" id="badgeBtn">闭环管理</span>
+      <button class="btn-import" id="btnImport" onclick="openImportModal()">导入</button>
+      <button class="btn-export" id="btnExport" onclick="openExportModal()">导出</button>
+      <button class="btn-share" id="btnShare" onclick="openShareModal()">分享</button>
+      <a class="btn-logout" id="btnLogout" onclick="logout()" style="display:none;">退出</a>
     </div>
   </div>
 
-  <div id="pullIndicator"><span class="arrow">鈫?/span> 涓嬫媺鍒锋柊</div>
+  <div id="pullIndicator"><span class="arrow">↓</span> 下拉刷新</div>
 
   <div class="leader-banner" id="leaderBanner" style="display:none">
-    <div class="banner-title">绠″吇鎬佸娍</div>
+    <div class="banner-title">管养态势</div>
     <div class="banner-summary" id="bannerSummary"></div>
   </div>
 
   <div class="stats-bar" id="statsBar">
-    <div class="stat-item"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">寰呭搷搴?/div></div>
-    <div class="stat-item"><div class="stat-num processing" id="statProcessing">0</div><div class="stat-label">澶勭悊涓?/div></div>
-    <div class="stat-item"><div class="stat-num review" id="statReview">0</div><div class="stat-label">寰呮牳楠?/div></div>
-    <div class="stat-item"><div class="stat-num completed" id="statCompleted">0</div><div class="stat-label">宸插畬鎴?/div></div>
-    <div class="stat-item"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">鎬讳换鍔℃暟</div></div>
+    <div class="stat-item"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">待响应</div></div>
+    <div class="stat-item"><div class="stat-num processing" id="statProcessing">0</div><div class="stat-label">处理中</div></div>
+    <div class="stat-item"><div class="stat-num review" id="statReview">0</div><div class="stat-label">待核验</div></div>
+    <div class="stat-item"><div class="stat-num completed" id="statCompleted">0</div><div class="stat-label">已完成</div></div>
+    <div class="stat-item"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">总任务数</div></div>
   </div>
 
   <div class="chart-section">
     <div class="chart-card">
-      <h3>鐥呭鍒嗙被鍒嗗竷</h3>
+      <h3>病害分类分布</h3>
       <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
       <div class="chart-caption" id="pieCaption"></div>
     </div>
     <div class="chart-card">
-      <h3>鍚勭姸鎬佹暟閲?/h3>
+      <h3>各状态数量</h3>
       <div class="chart-wrap"><canvas id="chartBar"></canvas></div>
       <div class="chart-caption" id="barCaption"></div>
     </div>
     <div class="chart-card">
-      <h3>鏈堝害瓒嬪娍</h3>
+      <h3>月度趋势</h3>
       <div class="chart-wrap"><canvas id="chartLine"></canvas></div>
       <div class="chart-caption" id="lineCaption"></div>
     </div>
@@ -925,256 +925,257 @@
 
   <div class="circular-section">
     <div class="circular-header">
-      <h3>瀹氭湡宸℃煡浠诲姟</h3>
-      <button class="btn-add-circular" onclick="openCircularModal()">+ 娣诲姞瀹氭湡宸℃煡</button>
+      <h3>定期巡查任务</h3>
+      <button class="btn-add-circular" onclick="openCircularModal()">+ 添加定期巡查</button>
     </div>
     <div id="circularList"></div>
   </div>
 
   <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-filter="pending">寰呭搷搴?/button>
-    <button class="filter-btn" data-filter="processing">澶勭悊涓?/button>
-    <button class="filter-btn" data-filter="pending_review">寰呮牳楠?/button>
-    <button class="filter-btn" data-filter="completed">宸插畬鎴?/button>
-    <button class="filter-btn" data-filter="all">鍏ㄩ儴</button>
+    <button class="filter-btn active" data-filter="pending">待响应</button>
+    <button class="filter-btn" data-filter="processing">处理中</button>
+    <button class="filter-btn" data-filter="pending_review">待核验</button>
+    <button class="filter-btn" data-filter="completed">已完成</button>
+    <button class="filter-btn" data-filter="all">全部</button>
   </div>
 
   <div id="taskList"></div>
   <div class="last-update" id="lastUpdate"></div>
-  <div class="footer-note">鏈変换浣曢棶棰樿鑱旂郴绠＄悊鍛?/div>
+  <div class="footer-note">有任何问题请联系管理员</div>
 </div>
 
-<!-- 鍒嗕韩澶辨晥椤?-->
+<!-- 分享失效页 -->
 <div class="expired-page" id="expiredPage">
-  <h2>鍒嗕韩閾炬帴宸插け鏁?/h2>
-  <p>璇ュ垎浜摼鎺ュ凡杩囨湡鎴栨棤鏁堬紝璇疯仈绯荤鐞嗗憳閲嶆柊鑾峰彇銆?/p>
+  <h2>分享链接已失效</h2>
+  <p>该分享链接已过期或无效，请联系管理员重新获取。</p>
 </div>
 
-<!-- 绠＄悊鍛橀娆＄櫥褰曞脊绐?-->
+<!-- 管理员首次登录弹窗 -->
 <div class="admin-login-overlay" id="adminLoginOverlay">
   <div class="admin-login-box">
-    <h2>韬唤楠岃瘉</h2>
-    <p>杈撳叆瀵嗛挜浠ョ櫥褰曟搷浣?/p>
-    <input type="password" id="adminKeyInput" placeholder="璇疯緭鍏ュ瘑閽?>
+    <h2>身份验证</h2>
+    <p>输入密钥以登录操作</p>
+    <input type="password" id="adminKeyInput" placeholder="请输入密钥">
     <div class="btn-row" style="margin-top:12px;">
-      <button class="btn-cancel" onclick="closeAdminLogin()">鍙栨秷</button>
-      <button class="btn-primary" onclick="submitAdminKey()">楠岃瘉</button>
+      <button class="btn-cancel" onclick="closeAdminLogin()">取消</button>
+      <button class="btn-primary" onclick="submitAdminKey()">验证</button>
     </div>
-    <p id="adminKeyError" style="color:#e74c3c;font-size:12px;margin-top:6px;display:none;">瀵嗛挜閿欒锛岃閲嶈瘯</p>
+    <p id="adminKeyError" style="color:#e74c3c;font-size:12px;margin-top:6px;display:none;">密钥错误，请重试</p>
   </div>
 </div>
 
-<!-- 鍥剧墖棰勮 -->
+<!-- 图片预览 -->
 <div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
-  <span class="preview-close" onclick="closePreview()">鉁?/span>
-  <img id="previewImage" src="" alt="棰勮">
+  <span class="preview-close" onclick="closePreview()">✕</span>
+  <img id="previewImage" src="" alt="预览">
   <div class="preview-label" id="previewLabel"></div>
-  <div class="preview-back" onclick="closePreview()">杩斿洖鐪嬫澘</div>
+  <div class="preview-back" onclick="closePreview()">返回看板</div>
 </div>
 
-<!-- 浜岀淮鐮佹ā鎬佹 -->
+<!-- 二维码模态框 -->
 <div class="modal-overlay" id="qrModal">
   <div class="modal-box qr-modal-content" style="position:relative;">
-    <button class="modal-close" onclick="closeQrModal()">鉁?/button>
-    <h2>浠诲姟浜岀淮鐮?/h2>
+    <button class="modal-close" onclick="closeQrModal()">✕</button>
+    <h2>任务二维码</h2>
     <div class="qr-wrap" id="qrCodeContainer"></div>
     <div class="qr-task-id" id="qrTaskId"></div>
-    <p style="font-size:12px;color:#999;margin-top:8px;">鎵爜鍗冲彲鍦ㄧЩ鍔ㄧ鏌ョ湅鏈潯浠诲姟璇︽儏</p>
+    <p style="font-size:12px;color:#999;margin-top:8px;">扫码即可在移动端查看本条任务详情</p>
   </div>
 </div>
 
-<!-- 鏂板缓浠诲姟妯℃€佹 -->
+<!-- 新建任务模态框 -->
 <div class="modal-overlay" id="newTaskModal">
   <div class="modal-box" style="position:relative;">
-    <button class="modal-close" onclick="closeNewTaskModal()">鉁?/button>
-    <h2>鏂板缓鍏绘姢浠诲姟</h2>
+    <button class="modal-close" onclick="closeNewTaskModal()">✕</button>
+    <h2>新建养护任务</h2>
     <div class="form-group">
-      <label>鐜板満鐓х墖 <span style="color:#e74c3c;">*</span></label>
+      <label>现场照片 <span style="color:#e74c3c;">*</span></label>
       <div class="photo-upload-zone" id="photoUploadZone" onclick="document.getElementById('newTaskPhotos').click()">
-        鐐瑰嚮涓婁紶鏈€灏?1 寮犵収鐗?        <div class="upload-preview-row" id="uploadPreviewRow"></div>
+        点击上传最少 1 张照片
+        <div class="upload-preview-row" id="uploadPreviewRow"></div>
       </div>
       <input type="file" id="newTaskPhotos" accept="image/*" multiple style="display:none;" onchange="handleNewTaskPhotos(event)">
-      <div class="hint">鏈€灏?1 寮狅紝鏀寔澶氬紶</div>
+      <div class="hint">最少 1 张，支持多张</div>
     </div>
     <div class="form-group">
-      <label>闂鎻忚堪 <span style="color:#e74c3c;">*</span></label>
-      <textarea id="newDescription" placeholder="涓€鍙ヨ瘽鎻忚堪鐥呭闂锛堢郴缁熷皢鑷姩鍖归厤妗╁彿銆佸垎绫荤瓑淇℃伅锛? oninput="autoExtractFromDescription()"></textarea>
+      <label>问题描述 <span style="color:#e74c3c;">*</span></label>
+      <textarea id="newDescription" placeholder="一句话描述病害问题（系统将自动匹配桩号、分类等信息）" oninput="autoExtractFromDescription()"></textarea>
     </div>
     <div class="form-group">
-      <label>妗╁彿</label>
-      <input type="text" id="newPiles" placeholder="鑷姩浠庨棶棰樻弿杩颁腑鎻愬彇锛屼篃鍙墜鍔ㄨ緭鍏ワ紙渚嬪 K12+300锛?>
+      <label>桩号</label>
+      <input type="text" id="newPiles" placeholder="自动从问题描述中提取，也可手动输入（例如 K12+300）">
       <div class="hint" id="ocrHint" style="display:none;"></div>
     </div>
     <div class="form-group">
-      <label>鐥呭鍒嗙被</label>
+      <label>病害分类</label>
       <select id="newCategory">
-        <option value="璺潰">璺潰</option>
-        <option value="杈瑰潯">杈瑰潯</option>
-        <option value="浜ゅ畨">浜ゅ畨</option>
-        <option value="姘存矡">姘存矡</option>
-        <option value="娑垫礊">娑垫礊</option>
-        <option value="妗ユ">妗ユ</option>
-        <option value="闅ч亾">闅ч亾</option>
-        <option value="缁垮寲">缁垮寲</option>
-        <option value="娑堥槻">娑堥槻</option>
-        <option value="妫€淇亾">妫€淇亾</option>
-        <option value="鍏朵粬">鍏朵粬</option>
+        <option value="路面">路面</option>
+        <option value="边坡">边坡</option>
+        <option value="交安">交安</option>
+        <option value="水沟">水沟</option>
+        <option value="涵洞">涵洞</option>
+        <option value="桥梁">桥梁</option>
+        <option value="隧道">隧道</option>
+        <option value="绿化">绿化</option>
+        <option value="消防">消防</option>
+        <option value="检修道">检修道</option>
+        <option value="其他">其他</option>
       </select>
     </div>
     <div class="form-group">
-      <label>鍒涘缓浜?/label>
-      <input type="text" id="newCreator" placeholder="璇疯緭鍏ユ偍鐨勫鍚?>
+      <label>创建人</label>
+      <input type="text" id="newCreator" placeholder="请输入您的姓名">
     </div>
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeNewTaskModal()">鍙栨秷</button>
-      <button class="btn-primary" onclick="submitNewTask()">鎻愪氦浠诲姟</button>
+      <button class="btn-cancel" onclick="closeNewTaskModal()">取消</button>
+      <button class="btn-primary" onclick="submitNewTask()">提交任务</button>
     </div>
   </div>
 </div>
 
-<!-- 瀵煎嚭閰嶇疆妯℃€佹 -->
+<!-- 导出配置模态框 -->
 <div class="modal-overlay" id="exportModal">
   <div class="modal-box" style="position:relative;">
-    <button class="modal-close" onclick="closeExportModal()">鉁?/button>
-    <h2>瀵煎嚭閰嶇疆</h2>
+    <button class="modal-close" onclick="closeExportModal()">✕</button>
+    <h2>导出配置</h2>
 
-    <h3>閫夋嫨瀵煎嚭鏍煎紡</h3>
+    <h3>选择导出格式</h3>
     <div class="format-options" id="formatOptions">
       <div class="format-opt selected" data-format="excel" onclick="selectFormat('excel', this)">Excel</div>
-      <div class="format-opt" data-format="pdf-archive" onclick="selectFormat('pdf-archive', this)">PDF锛堝唴涓氬瓨妗ｇ増锛?/div>
-      <div class="format-opt" data-format="pdf-settlement" onclick="selectFormat('pdf-settlement', this)">PDF锛堢粨绠楀畬鏁寸増锛?/div>
-      <div class="format-opt" data-format="zip" onclick="selectFormat('zip', this)">ZIP鏂囦欢鍖?/div>
+      <div class="format-opt" data-format="pdf-archive" onclick="selectFormat('pdf-archive', this)">PDF（内业存档版）</div>
+      <div class="format-opt" data-format="pdf-settlement" onclick="selectFormat('pdf-settlement', this)">PDF（结算完整版）</div>
+      <div class="format-opt" data-format="zip" onclick="selectFormat('zip', this)">ZIP文件包</div>
     </div>
 
-    <h3>閫夋嫨瀵煎嚭瀛楁</h3>
+    <h3>选择导出字段</h3>
     <div class="preset-row">
-      <span class="preset-btn" onclick="presetPrintFields()">鎵撳嵃绮剧畝</span>
-      <span class="preset-btn" onclick="presetAllFields()">鍏ㄩ儴瀛楁</span>
-      <span class="preset-btn save-template" onclick="saveFieldTemplate()">淇濆瓨涓烘ā鏉?/span>
+      <span class="preset-btn" onclick="presetPrintFields()">打印精简</span>
+      <span class="preset-btn" onclick="presetAllFields()">全部字段</span>
+      <span class="preset-btn save-template" onclick="saveFieldTemplate()">保存为模板</span>
     </div>
     <div class="template-row" id="templateRow"></div>
     <div class="field-grid" id="fieldGrid"></div>
 
-    <h3>閫夋嫨瀵煎嚭鐓х墖</h3>
+    <h3>选择导出照片</h3>
     <div class="photo-check-panel" id="photoCheckPanel"></div>
 
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeExportModal()">鍙栨秷</button>
-      <button class="btn-primary" id="btnConfirmExport" onclick="confirmExport()">纭瀵煎嚭</button>
+      <button class="btn-cancel" onclick="closeExportModal()">取消</button>
+      <button class="btn-primary" id="btnConfirmExport" onclick="confirmExport()">确认导出</button>
     </div>
   </div>
 </div>
 
-<!-- 鍒嗕韩妯℃€佹 -->
+<!-- 分享模态框 -->
 <div class="modal-overlay" id="shareModal">
   <div class="modal-box share-panel" style="position:relative;">
-    <button class="modal-close" onclick="closeShareModal()">鉁?/button>
-    <h2>鐢熸垚鍒嗕韩閾炬帴</h2>
+    <button class="modal-close" onclick="closeShareModal()">✕</button>
+    <h2>生成分享链接</h2>
     <div class="form-group">
-      <label>鍒嗕韩瀵硅薄鍚嶇О</label>
-      <input type="text" id="shareName" placeholder="渚嬪锛氫笟涓绘潕鎬?>
+      <label>分享对象名称</label>
+      <input type="text" id="shareName" placeholder="例如：业主李总">
     </div>
     <div class="form-group">
-      <label>鏈夋晥鏈?/label>
+      <label>有效期</label>
       <select id="shareExpiry">
-        <option value="1">1 澶?/option>
-        <option value="3">3 澶?/option>
-        <option value="7">7 澶?/option>
-        <option value="custom">鑷畾涔?/option>
+        <option value="1">1 天</option>
+        <option value="3">3 天</option>
+        <option value="7">7 天</option>
+        <option value="custom">自定义</option>
       </select>
     </div>
     <div class="form-group" id="customExpiryGroup" style="display:none;">
-      <label>鑷畾涔夊ぉ鏁?/label>
-      <input type="number" id="customExpiryDays" min="1" max="365" value="30" placeholder="杈撳叆澶╂暟">
+      <label>自定义天数</label>
+      <input type="number" id="customExpiryDays" min="1" max="365" value="30" placeholder="输入天数">
     </div>
     <div class="btn-row">
-      <button class="btn-primary" onclick="generateShareLink()">鐢熸垚閾炬帴</button>
+      <button class="btn-primary" onclick="generateShareLink()">生成链接</button>
     </div>
     <div class="share-url-box" id="shareUrlBox" style="display:none;">
       <input type="text" id="shareUrlInput" readonly>
-      <button class="btn-copy" onclick="copyShareUrl()">澶嶅埗</button>
+      <button class="btn-copy" onclick="copyShareUrl()">复制</button>
     </div>
-    <p style="font-size:11px;color:#999;margin-top:8px;text-align:center;">鍒嗕韩閾炬帴浠呮彁渚涘彧璇绘煡鐪嬫潈闄?/p>
+    <p style="font-size:11px;color:#999;margin-top:8px;text-align:center;">分享链接仅提供只读查看权限</p>
   </div>
 </div>
 
-<!-- 瀵煎叆妯℃€佹 -->
+<!-- 导入模态框 -->
 <div class="modal-overlay" id="importModal">
   <div class="modal-box" style="position:relative;max-width:640px;">
-    <button class="modal-close" onclick="closeImportModal()">鉁?/button>
-    <h2>瀵煎叆鍏绘姢璁板綍</h2>
+    <button class="modal-close" onclick="closeImportModal()">✕</button>
+    <h2>导入养护记录</h2>
 
-    <!-- 姝ラ鎸囩ず鍣?-->
+    <!-- 步骤指示器 -->
     <div class="import-steps">
-      <div class="import-step active" id="importStep1"><span class="step-num">1</span>涓婁紶ZIP</div>
+      <div class="import-step active" id="importStep1"><span class="step-num">1</span>上传ZIP</div>
       <div class="import-step-connector" id="importConn1"></div>
-      <div class="import-step" id="importStep2"><span class="step-num">2</span>瑙ｆ瀽棰勮</div>
+      <div class="import-step" id="importStep2"><span class="step-num">2</span>解析预览</div>
       <div class="import-step-connector" id="importConn2"></div>
-      <div class="import-step" id="importStep3"><span class="step-num">3</span>鐓х墖鍖归厤</div>
+      <div class="import-step" id="importStep3"><span class="step-num">3</span>照片匹配</div>
       <div class="import-step-connector" id="importConn3"></div>
-      <div class="import-step" id="importStep4"><span class="step-num">4</span>纭瀵煎叆</div>
+      <div class="import-step" id="importStep4"><span class="step-num">4</span>确认导入</div>
     </div>
 
-    <!-- 姝ラ1锛氫笂浼燴IP -->
+    <!-- 步骤1：上传ZIP -->
     <div class="import-step-content active" id="importContent1">
       <div class="import-upload-zone" id="importUploadZone"
         onclick="document.getElementById('importZipInput').click()"
         ondragover="event.preventDefault();this.classList.add('dragover')"
         ondragleave="this.classList.remove('dragover')"
         ondrop="handleImportDrop(event)">
-        <div class="upload-icon">馃摝</div>
-        <div class="upload-text">鐐瑰嚮鎴栨嫋鎷戒笂浼?ZIP 鏂囦欢</div>
-        <div class="upload-hint">鏀寔 Excel 璁板綍琛?+ 鐜板満鐓х墖鏂囦欢澶瑰帇缂╁寘</div>
+        <div class="upload-icon">📦</div>
+        <div class="upload-text">点击或拖拽上传 ZIP 文件</div>
+        <div class="upload-hint">支持 Excel 记录表 + 现场照片文件夹压缩包</div>
       </div>
       <input type="file" id="importZipInput" accept=".zip" style="display:none" onchange="handleImportZip(event)">
       <div class="import-zip-contents" id="importZipContents" style="display:none;"></div>
       <div class="btn-row" style="margin-top:16px;">
-        <button class="btn-cancel" onclick="closeImportModal()">鍙栨秷</button>
-        <button class="btn-primary" id="btnImportNext1" onclick="gotoImportStep(2)" style="display:none;">涓嬩竴姝ワ細瑙ｆ瀽棰勮</button>
+        <button class="btn-cancel" onclick="closeImportModal()">取消</button>
+        <button class="btn-primary" id="btnImportNext1" onclick="gotoImportStep(2)" style="display:none;">下一步：解析预览</button>
       </div>
     </div>
 
-    <!-- 姝ラ2锛氳В鏋愰瑙?-->
+    <!-- 步骤2：解析预览 -->
     <div class="import-step-content" id="importContent2">
       <div class="import-excel-preview" id="importExcelPreview"></div>
       <div class="import-field-mapping" id="importFieldMapping"></div>
       <div class="btn-row">
-        <button class="btn-cancel" onclick="gotoImportStep(1)">涓婁竴姝?/button>
-        <button class="btn-primary" onclick="gotoImportStep(3)">涓嬩竴姝ワ細鐓х墖鍖归厤</button>
+        <button class="btn-cancel" onclick="gotoImportStep(1)">上一步</button>
+        <button class="btn-primary" onclick="gotoImportStep(3)">下一步：照片匹配</button>
       </div>
     </div>
 
-    <!-- 姝ラ3锛氱収鐗囧尮閰?-->
+    <!-- 步骤3：照片匹配 -->
     <div class="import-step-content" id="importContent3">
       <div class="import-photo-match" id="importPhotoMatch"></div>
       <div class="import-unmatched-photos" id="importUnmatchedPhotos" style="display:none;"></div>
       <div class="btn-row">
-        <button class="btn-cancel" onclick="gotoImportStep(2)">涓婁竴姝?/button>
-        <button class="btn-primary" onclick="gotoImportStep(4)">涓嬩竴姝ワ細纭瀵煎叆</button>
+        <button class="btn-cancel" onclick="gotoImportStep(2)">上一步</button>
+        <button class="btn-primary" onclick="gotoImportStep(4)">下一步：确认导入</button>
       </div>
     </div>
 
-    <!-- 姝ラ4锛氱‘璁ゅ鍏?-->
+    <!-- 步骤4：确认导入 -->
     <div class="import-step-content" id="importContent4">
       <div class="import-summary" id="importSummary"></div>
       <div class="form-group">
-        <label>鍒涘缓浜?/label>
-        <input type="text" id="importCreator" placeholder="璇疯緭鍏ユ偍鐨勫鍚?>
+        <label>创建人</label>
+        <input type="text" id="importCreator" placeholder="请输入您的姓名">
       </div>
       <div class="btn-row">
-        <button class="btn-cancel" onclick="gotoImportStep(3)">涓婁竴姝?/button>
-        <button class="btn-primary" id="btnConfirmImport" onclick="confirmImport()">纭瀵煎叆</button>
+        <button class="btn-cancel" onclick="gotoImportStep(3)">上一步</button>
+        <button class="btn-primary" id="btnConfirmImport" onclick="confirmImport()">确认导入</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 鐓х墖婊戝姩娴忚鍣?-->
+<!-- 照片滑动浏览器 -->
 <div class="photo-browser-overlay" id="photoBrowser">
   <div class="photo-browser-topbar">
-    <span class="group-label" id="pbGroupLabel">缁翠慨鍓?/span>
+    <span class="group-label" id="pbGroupLabel">维修前</span>
     <span class="photo-counter" id="pbCounter">1 / 1</span>
-    <button class="photo-browser-close" onclick="closePhotoBrowser()" title="杩斿洖鐪嬫澘">鉁?/button>
+    <button class="photo-browser-close" onclick="closePhotoBrowser()" title="返回看板">✕</button>
   </div>
   <div class="photo-browser-main" id="pbMain">
     <div class="pb-spinner" id="pbSpinner"></div>
@@ -1188,74 +1189,74 @@
   <div class="photo-browser-bottom" id="pbBottom"></div>
 </div>
 
-<!-- 娣诲姞瀹氭湡宸℃煡妯℃€佹 -->
+<!-- 添加定期巡查模态框 -->
 <div class="modal-overlay" id="circularModal">
   <div class="modal-box" style="position:relative;">
-    <button class="modal-close" onclick="closeCircularModal()">鉁?/button>
-    <h2>娣诲姞瀹氭湡宸℃煡浠诲姟</h2>
+    <button class="modal-close" onclick="closeCircularModal()">✕</button>
+    <h2>添加定期巡查任务</h2>
     <div class="form-group">
-      <label>浠诲姟鏍囬 <span style="color:#e74c3c;">*</span></label>
-      <input type="text" id="circTitle" placeholder="渚嬪锛氭瘡鍛ㄦˉ姊佹鏌?>
+      <label>任务标题 <span style="color:#e74c3c;">*</span></label>
+      <input type="text" id="circTitle" placeholder="例如：每周桥梁检查">
     </div>
     <div class="form-group">
-      <label>宸℃煡棰戠巼</label>
+      <label>巡查频率</label>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="weekly" checked onchange="updateCircDayUI()"> 姣忓懆</label>
-        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="monthly" onchange="updateCircDayUI()"> 姣忔湀</label>
+        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="weekly" checked onchange="updateCircDayUI()"> 每周</label>
+        <label class="field-item" style="cursor:pointer;"><input type="radio" name="circInterval" value="monthly" onchange="updateCircDayUI()"> 每月</label>
       </div>
       <div id="circDayUI" style="display:flex;gap:4px;flex-wrap:wrap;">
-        <span class="hint">閫夋嫨鏄熸湡鍑狅細</span>
+        <span class="hint">选择星期几：</span>
         <select id="circDayOfWeek" style="width:auto;padding:4px 8px;font-size:12px;">
-          <option value="1">鍛ㄤ竴</option><option value="2">鍛ㄤ簩</option><option value="3">鍛ㄤ笁</option>
-          <option value="4">鍛ㄥ洓</option><option value="5">鍛ㄤ簲</option><option value="6">鍛ㄥ叚</option><option value="7">鍛ㄦ棩</option>
+          <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+          <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
         </select>
       </div>
       <div id="circDayMonth" style="display:none;margin-top:4px;">
-        <span class="hint">閫夋嫨姣忔湀鍑犲彿锛?/span>
+        <span class="hint">选择每月几号：</span>
         <input type="number" id="circDayOfMonth" min="1" max="28" value="1" style="width:80px;padding:4px 8px;font-size:12px;">
       </div>
     </div>
     <div class="form-group">
-      <label>鐥呭鍒嗙被</label>
+      <label>病害分类</label>
       <select id="circCategory">
-        <option value="璺潰">璺潰</option><option value="杈瑰潯">杈瑰潯</option><option value="浜ゅ畨">浜ゅ畨</option>
-        <option value="姘存矡">姘存矡</option><option value="娑垫礊">娑垫礊</option><option value="妗ユ" selected>妗ユ</option>
-        <option value="闅ч亾">闅ч亾</option><option value="缁垮寲">缁垮寲</option><option value="娑堥槻">娑堥槻</option>
-        <option value="妫€淇亾">妫€淇亾</option><option value="鍏朵粬">鍏朵粬</option>
+        <option value="路面">路面</option><option value="边坡">边坡</option><option value="交安">交安</option>
+        <option value="水沟">水沟</option><option value="涵洞">涵洞</option><option value="桥梁" selected>桥梁</option>
+        <option value="隧道">隧道</option><option value="绿化">绿化</option><option value="消防">消防</option>
+        <option value="检修道">检修道</option><option value="其他">其他</option>
       </select>
     </div>
     <div class="form-group">
-      <label>宸℃煡浣嶇疆</label>
-      <input type="text" id="circLocation" placeholder="渚嬪锛氬叏绾挎ˉ姊?>
+      <label>巡查位置</label>
+      <input type="text" id="circLocation" placeholder="例如：全线桥梁">
     </div>
     <div class="form-group">
-      <label>浠诲姟鎻忚堪</label>
-      <textarea id="circDescription" placeholder="璇︾粏鎻忚堪宸℃煡鍐呭"></textarea>
+      <label>任务描述</label>
+      <textarea id="circDescription" placeholder="详细描述巡查内容"></textarea>
     </div>
     <div class="form-group">
-      <label>鎸囨淳浜?/label>
-      <input type="text" id="circAssignee" placeholder="渚嬪锛氬紶涓夛紙鍏绘姢缁勶級">
+      <label>指派人</label>
+      <input type="text" id="circAssignee" placeholder="例如：张三（养护组）">
     </div>
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeCircularModal()">鍙栨秷</button>
-      <button class="btn-primary" onclick="submitCircularTask()">娣诲姞</button>
+      <button class="btn-cancel" onclick="closeCircularModal()">取消</button>
+      <button class="btn-primary" onclick="submitCircularTask()">添加</button>
     </div>
   </div>
 </div>
 
 <script>
-// ============ 鏉冮檺浣撶郴 ============
+// ============ 权限体系 ============
 const ADMIN_KEY = 'yh2026';
-const PUBLISHER_KEYS = { 'hjw2026': '榛勭懢鏂?, 'cxh2026': '闄堟檽杈? };
+const PUBLISHER_KEYS = { 'hjw2026': '黄瑾文', 'cxh2026': '陈晓辉' };
 const USER_CAPABILITIES = {
-  '閭逛匠椋?: { canCreate: true, canAccept: false, hasBadge: true },
-  '榛勭懢鏂?: { canCreate: true, canAccept: true, hasBadge: true },
-  '宸皬寮?: { canCreate: false, canAccept: false, hasBadge: true },
-  '鏉庡織绂?: { canCreate: false, canAccept: false, hasBadge: true },
-  '闄堟檽杈?: { canCreate: true, canAccept: true, hasBadge: false },
-  '閮戞柊榫?: { canCreate: true, canAccept: true, hasBadge: false },
-  '椹繆鏉?: { canCreate: true, canAccept: true, hasBadge: false },
-  '鍙舵槍閫?: { canCreate: false, canAccept: true, hasBadge: false },
+  '邹佳飞': { canCreate: true, canAccept: false, hasBadge: true },
+  '黄瑾文': { canCreate: true, canAccept: true, hasBadge: true },
+  '巫小强': { canCreate: false, canAccept: false, hasBadge: true },
+  '李志福': { canCreate: false, canAccept: false, hasBadge: true },
+  '陈晓辉': { canCreate: true, canAccept: true, hasBadge: false },
+  '郑新龙': { canCreate: true, canAccept: true, hasBadge: false },
+  '马俊杰': { canCreate: true, canAccept: true, hasBadge: false },
+  '叶昌通': { canCreate: false, canAccept: true, hasBadge: false },
 };
 let USER_CAN_CREATE = false;
 let USER_CAN_ACCEPT = false;
@@ -1278,14 +1279,14 @@ let USER_ROLE = 'visitor'; // admin | publisher | visitor
 let USER_NAME = '';
 
 function detectRole() {
-  // 1. 妫€鏌??share= token
+  // 1. 检查 ?share= token
   const params = new URLSearchParams(window.location.search);
   const shareToken = params.get('share');
   if (shareToken) {
     const shareData = parseShareToken(shareToken);
     if (shareData && shareData.expire_ts && Date.now() < shareData.expire_ts * 1000) {
       USER_ROLE = 'visitor';
-      document.getElementById('readonlyBanner').innerHTML = '鍙妯″紡 - 鍒嗕韩鑷?' + (shareData.name || '鏈煡');
+      document.getElementById('readonlyBanner').innerHTML = '只读模式 - 分享自 ' + (shareData.name || '未知');
       document.getElementById('readonlyBanner').classList.add('show');
       document.getElementById('btnNewTask').style.display = 'none';
       document.getElementById('btnImport').style.display = 'none';
@@ -1304,11 +1305,12 @@ function detectRole() {
     return;
   }
 
-  // 2. 妫€鏌?localStorage 涓槸鍚﹀凡鏈夎璇佽褰?  const storedKey = localStorage.getItem('admin_key');
+  // 2. 检查 localStorage 中是否已有认证记录
+  const storedKey = localStorage.getItem('admin_key');
   if (storedKey === ADMIN_KEY) {
     USER_ROLE = 'admin';
-    USER_NAME = '绠＄悊鍛?;
-    applyCapability('閭逛匠椋?);
+    USER_NAME = '管理员';
+    applyCapability('邹佳飞');
   } else if (storedKey && PUBLISHER_KEYS[storedKey]) {
     USER_ROLE = 'publisher';
     USER_NAME = PUBLISHER_KEYS[storedKey];
@@ -1343,23 +1345,24 @@ function updateAuthUI() {
 
   if (isAnyAuth) {
     banner.classList.remove('show');
-    // 鏂板缓浠诲姟鎸夐挳锛歎SER_CAN_CREATE 鎺у埗
+    // 新建任务按钮：USER_CAN_CREATE 控制
     btnNewTask.style.display = USER_CAN_CREATE ? '' : 'none';
-    // 瀵煎叆/瀵煎嚭/鍒嗕韩锛氫粎 admin
+    // 导入/导出/分享：仅 admin
     btnImport.style.display = isAdmin ? '' : 'none';
     btnExport.style.display = isAdmin ? '' : 'none';
     btnShare.style.display = isAdmin ? '' : 'none';
     btnLogout.style.display = '';
-    // 闂幆绠＄悊寰界珷锛坔eader-left p鍐呯殑锛夛細USER_HAS_BADGE 鎺у埗
+    // 闭环管理徽章（header-left p内的）：USER_HAS_BADGE 控制
     if (badge) badge.style.display = USER_HAS_BADGE ? '' : 'none';
-    // 寰界珷鎸夐挳锛坔eader-right鏇挎崲鏂板缓浠诲姟浣嶇疆锛夛細娌℃湁鏂板缓浠诲姟浣嗘湁badge鐨勪汉锛堝帆灏忓己/鏉庡織绂忥級
+    // 徽章按钮（header-right替换新建任务位置）：没有新建任务但有badge的人（巫小强/李志福）
     if (badgeBtn) badgeBtn.style.display = (!USER_CAN_CREATE && USER_HAS_BADGE) ? '' : 'none';
-    // 鐢ㄦ埛鍚嶆樉绀?    if (userNameDisplay) {
+    // 用户名显示
+    if (userNameDisplay) {
       userNameDisplay.style.display = '';
-      userNameDisplay.textContent = USER_NAME || '鏈櫥褰?;
+      userNameDisplay.textContent = USER_NAME || '未登录';
     }
   } else {
-    banner.innerHTML = '鍙妯″紡锛屾搷浣滈渶楠岃瘉銆€<a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#856404;text-decoration:underline;font-weight:700;">楠岃瘉韬唤</a>';
+    banner.innerHTML = '只读模式，操作需验证　<a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#856404;text-decoration:underline;font-weight:700;">验证身份</a>';
     banner.classList.add('show');
     btnNewTask.style.display = 'none';
     btnImport.style.display = 'none';
@@ -1386,22 +1389,22 @@ function showAdminLogin() {
 function submitAdminKey() {
   const input = document.getElementById('adminKeyInput').value.trim();
   if (!input) {
-    document.getElementById('adminKeyError').textContent = '璇疯緭鍏ュ瘑閽?;
+    document.getElementById('adminKeyError').textContent = '请输入密钥';
     document.getElementById('adminKeyError').style.display = 'block';
     return;
   }
   if (input === ADMIN_KEY) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'admin';
-    USER_NAME = '绠＄悊鍛?;
-    applyCapability('閭逛匠椋?);
+    USER_NAME = '管理员';
+    applyCapability('邹佳飞');
   } else if (PUBLISHER_KEYS[input]) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'publisher';
     USER_NAME = PUBLISHER_KEYS[input];
     applyCapability(USER_NAME);
   } else {
-    // 浠绘剰瀵嗛挜鍙綔涓烘櫘閫氬憳宸ョ櫥褰曪紝鍙互鏂板缓浠诲姟
+    // 任意密钥可作为普通员工登录，可以新建任务
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'worker';
     USER_NAME = input;
@@ -1444,8 +1447,9 @@ function generateShareToken(name, expireDays) {
   const expireMs = Date.now() + expireDays * 86400000;
   const expireTs = Math.floor(expireMs / 1000);
 
-  // 绠€鍗?HMAC锛堜娇鐢?CryptoJS 椋庢牸鐨勭函 JS 瀹炵幇锛?  const payload = JSON.stringify({ name, expire_ts: expireTs });
-  // 浣跨敤绠€鍗曠殑绛惧悕鏂瑰紡锛歋HA-256 涓嶅彲鐢ㄦ椂鍥為€€鍒?Base64 鎷兼帴
+  // 简单 HMAC（使用 CryptoJS 风格的纯 JS 实现）
+  const payload = JSON.stringify({ name, expire_ts: expireTs });
+  // 使用简单的签名方式：SHA-256 不可用时回退到 Base64 拼接
   const signature = simpleSign(payload + SHARE_HMAC_SECRET);
   const tokenPayload = btoa(unescape(encodeURIComponent(
     JSON.stringify({ name, expire_ts: expireTs, sig: signature })
@@ -1454,12 +1458,13 @@ function generateShareToken(name, expireDays) {
 }
 
 function simpleSign(str) {
-  // 绠€鍗曠殑鍝堝笇锛氬瀛楃涓插仛 DJB2 鍝堝笇 + 浣嶇疆鐩稿叧鐨勪簩娆＄紪鐮?  let hash = 5381;
+  // 简单的哈希：对字符串做 DJB2 哈希 + 位置相关的二次编码
+  let hash = 5381;
   for (let i = 0; i < str.length; i++) {
     hash = ((hash << 5) + hash) + str.charCodeAt(i);
     hash = hash & hash; // Convert to 32bit integer
   }
-  // 澧炲姞鍩轰簬瀛楃涓查暱搴︾殑浜屾娣锋穯
+  // 增加基于字符串长度的二次混淆
   const hash2 = str.split('').reduce((acc, c, i) => acc + c.charCodeAt(0) * (i + 1), 0);
   return btoa(hash.toString(16) + '_' + hash2.toString(16));
 }
@@ -1468,7 +1473,7 @@ function parseShareToken(token) {
   try {
     const jsonStr = decodeURIComponent(escape(atob(token)));
     const data = JSON.parse(jsonStr);
-    // 鏍￠獙绛惧悕
+    // 校验签名
     const payload = JSON.stringify({ name: data.name, expire_ts: data.expire_ts });
     const expectedSig = simpleSign(payload + SHARE_HMAC_SECRET);
     if (expectedSig !== data.sig) return null;
@@ -1480,7 +1485,7 @@ function parseShareToken(token) {
 
 function openShareModal() {
   if (USER_ROLE !== 'admin') {
-    alert('浠呯鐞嗗憳鍙敓鎴愬垎浜摼鎺?);
+    alert('仅管理员可生成分享链接');
     return;
   }
   document.getElementById('shareModal').classList.add('show');
@@ -1499,7 +1504,7 @@ document.getElementById('shareExpiry').addEventListener('change', function() {
 });
 
 function generateShareLink() {
-  const name = document.getElementById('shareName').value.trim() || '澶栭儴璁垮';
+  const name = document.getElementById('shareName').value.trim() || '外部访客';
   let expiryVal = document.getElementById('shareExpiry').value;
   let days;
   if (expiryVal === 'custom') {
@@ -1517,10 +1522,10 @@ function copyShareUrl() {
   const input = document.getElementById('shareUrlInput');
   input.select();
   document.execCommand('copy');
-  alert('閾炬帴宸插鍒跺埌鍓创鏉?);
+  alert('链接已复制到剪贴板');
 }
 
-// ============ 鍏ㄥ眬鐘舵€?============
+// ============ 全局状态 ============
 const DATA_URL = 'data.json';
 const BASE_URL = 'https://yanghu-admin.github.io/yanghu-task-board/';
 let allTasks = [];
@@ -1528,42 +1533,42 @@ let currentExportFormat = 'excel';
 let chartInstances = {};
 let selectedPhotoMap = {};  // taskId -> { before: Set<index>, during: Set<index>, after: Set<index> }
 let pinnedPhotoMap = {};    // taskId -> { before: index|null, during: index|null, after: index|null }
-let newTaskPhotos = [];     // 鏂板缓浠诲姟鏆傚瓨鐓х墖 dataURL
+let newTaskPhotos = [];     // 新建任务暂存照片 dataURL
 
 const STATUS_MAP = {
-  pending: { label: '寰呭搷搴?, cls: 'status-pending' },
-  processing: { label: '澶勭悊涓?, cls: 'status-processing' },
-  pending_review: { label: '寰呮牳楠?, cls: 'status-review' },
-  completed: { label: '宸插畬鎴?, cls: 'status-completed' },
-  rejected: { label: '闇€鏁存敼', cls: 'status-rejected' }
+  pending: { label: '待响应', cls: 'status-pending' },
+  processing: { label: '处理中', cls: 'status-processing' },
+  pending_review: { label: '待核验', cls: 'status-review' },
+  completed: { label: '已完成', cls: 'status-completed' },
+  rejected: { label: '需整改', cls: 'status-rejected' }
 };
 
 const ALL_EXPORT_FIELDS = [
-  { key: 'index', label: '搴忓彿' },
-  { key: 'number', label: '缂栧彿' },
-  { key: 'creator', label: '鍒涘缓浜? },
-  { key: 'category', label: '鐥呭鍒嗙被' },
-  { key: 'piles', label: '妗╁彿' },
-  { key: 'location', label: '浣嶇疆' },
-  { key: 'description', label: '闂鎻忚堪' },
-  { key: 'status', label: '鐘舵€? },
-  { key: 'dispatched_at', label: '娲惧彂鏃堕棿' },
-  { key: 'dispatcher', label: '娲惧彂浜? },
-  { key: 'assignee', label: '缁忓姙浜? },
-  { key: 'deadline', label: '鎴鏃堕棿' },
-  { key: 'completed_at', label: '瀹屾垚鏃堕棿' },
-  { key: 'before_photos', label: '缁翠慨鍓嶇収鐗? },
-  { key: 'during_photos', label: '缁翠慨涓収鐗? },
-  { key: 'after_photos', label: '缁翠慨鍚庣収鐗? },
-  { key: 'notes', label: '澶囨敞' },
-  { key: 'review_l1', label: '涓€绾ф牳楠岀粨鏋? },
-  { key: 'review_l2', label: '浜岀骇鏍搁獙缁撴灉' },
-  { key: 'acceptance', label: '楠屾敹鎰忚' }
+  { key: 'index', label: '序号' },
+  { key: 'number', label: '编号' },
+  { key: 'creator', label: '创建人' },
+  { key: 'category', label: '病害分类' },
+  { key: 'piles', label: '桩号' },
+  { key: 'location', label: '位置' },
+  { key: 'description', label: '问题描述' },
+  { key: 'status', label: '状态' },
+  { key: 'dispatched_at', label: '派发时间' },
+  { key: 'dispatcher', label: '派发人' },
+  { key: 'assignee', label: '经办人' },
+  { key: 'deadline', label: '截止时间' },
+  { key: 'completed_at', label: '完成时间' },
+  { key: 'before_photos', label: '维修前照片' },
+  { key: 'during_photos', label: '维修中照片' },
+  { key: 'after_photos', label: '维修后照片' },
+  { key: 'notes', label: '备注' },
+  { key: 'review_l1', label: '一级核验结果' },
+  { key: 'review_l2', label: '二级核验结果' },
+  { key: 'acceptance', label: '验收意见' }
 ];
 
 const PRINT_FIELDS = ['index','number','creator','dispatched_at','piles','description','before_photos','during_photos','after_photos','acceptance'];
 
-// ============ 宸ュ叿鍑芥暟 ============
+// ============ 工具函数 ============
 function formatTime(isoStr) {
   if (!isoStr) return '';
   const d = new Date(isoStr);
@@ -1579,7 +1584,7 @@ function formatFullTime(isoStr) {
 }
 
 function getStatusInfo(task) {
-  return STATUS_MAP[task.status] || { label: '鏈煡', cls: '' };
+  return STATUS_MAP[task.status] || { label: '未知', cls: '' };
 }
 
 function getStatusBorder(task) {
@@ -1621,10 +1626,10 @@ function getPhotoNames(images, group, maxCount) {
   return arr.map(p => {
     const parts = p.split('/');
     return parts[parts.length - 1];
-  }).join('銆?);
+  }).join('、');
 }
 
-// ============ 鐓х墖婊戝姩娴忚鍣?============
+// ============ 照片滑动浏览器 ============
 let pbTask = null;
 let pbGroupOrder = ['before', 'during', 'after'];
 let pbCurrentGroup = 'before';
@@ -1658,7 +1663,8 @@ function openPhotoBrowser(taskId, startGroup, startIndex) {
     document.addEventListener('keydown', pbKeyHandler);
     pbKeyboardBound = true;
   }
-  // 娉ㄥ叆鍘嗗彶璁板綍锛屾嫤鎴墜鏈虹閫€鍥炴墜鍔?  if (!window._pbHistoryPushed) {
+  // 注入历史记录，拦截手机端退回手势
+  if (!window._pbHistoryPushed) {
     history.pushState({pbOpen: true}, '');
     window._pbHistoryPushed = true;
   }
@@ -1672,7 +1678,7 @@ function closePhotoBrowser() {
 }
 
 function renderPhotoBrowser() {
-  const labelMap = { before: '缁翠慨鍓?, during: '缁翠慨涓?, after: '缁翠慨鍚? };
+  const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
   const photos = pbGroupData[pbCurrentGroup];
   const img = document.getElementById('pbImage');
   const spinner = document.getElementById('pbSpinner');
@@ -1691,7 +1697,7 @@ function renderPhotoBrowser() {
     img.style.opacity = '0';
     img.src = '';
     spinner.style.display = 'none';
-    counter.textContent = '鏆傛棤鐓х墖';
+    counter.textContent = '暂无照片';
     prevBtn.classList.add('hidden');
     nextBtn.classList.add('hidden');
   } else {
@@ -1702,7 +1708,7 @@ function renderPhotoBrowser() {
     img.onerror = () => { spinner.style.display = 'none'; };
     img.src = src;
     counter.textContent = `${pbCurrentIndex + 1} / ${photos.length}`;
-    // 姘村钩绠ご锛氶寮犲彧鏈夊彸锛屾湯寮犲彧鏈夊乏锛屽崟寮犻兘闅愯棌
+    // 水平箭头：首张只有右，末张只有左，单张都隐藏
     if (photos.length === 1) {
       prevBtn.classList.add('hidden');
       nextBtn.classList.add('hidden');
@@ -1712,7 +1718,7 @@ function renderPhotoBrowser() {
     }
   }
 
-  // 鍨傜洿绠ご锛氬惊鐜鑸紝浠绘剰涓ょ粍鏈夌収鐗囧氨鍚屾椂鏄剧ず涓婁笅绠ご
+  // 垂直箭头：循环导航，任意两组有照片就同时显示上下箭头
   const groupsWithPhotos = pbGroupOrder.filter(g => pbGroupData[g].length > 0);
   const hasMultiGroups = groupsWithPhotos.length >= 2;
   upBtn.classList.toggle('hidden', !hasMultiGroups);
@@ -1729,7 +1735,7 @@ function renderPhotoBrowser() {
   bottom.innerHTML = pbGroupOrder.map(g => {
     const count = pbGroupData[g].length;
     const isActive = g === pbCurrentGroup;
-    return `<button class="photo-browser-group-btn${isActive ? ' active' : ''}" onclick="pbSwitchGroup('${g}')">${labelMap[g]}${count > 0 ? ` (${count})` : ' (绌?'}</button>`;
+    return `<button class="photo-browser-group-btn${isActive ? ' active' : ''}" onclick="pbSwitchGroup('${g}')">${labelMap[g]}${count > 0 ? ` (${count})` : ' (空)'}</button>`;
   }).join('');
 }
 
@@ -1808,7 +1814,7 @@ function pbKeyHandler(e) {
   else if (e.key === 'ArrowUp') pbPrevGroup();
 }
 
-// 鍏ㄥ眬鎷︽埅锛氭墜鏈虹閫€鍥炴墜鍔挎椂鍏抽棴娴忚鍣ㄨ€岄潪绂诲紑椤甸潰
+// 全局拦截：手机端退回手势时关闭浏览器而非离开页面
 window.addEventListener('popstate', function(e) {
   const pb = document.getElementById('photoBrowser');
   if (pb && pb.classList.contains('show')) {
@@ -1818,10 +1824,10 @@ window.addEventListener('popstate', function(e) {
   }
 });
 
-// ============ 娓叉煋 ============
+// ============ 渲染 ============
 function renderImageSlot(label, groupKey, images, taskId) {
   if (!images || images.length === 0) {
-    return `<div class="image-thumb"><div class="placeholder"><div class="icon">馃摲</div><div class="text">鏃?{label}</div></div></div>`;
+    return `<div class="image-thumb"><div class="placeholder"><div class="icon">📷</div><div class="text">无${label}</div></div></div>`;
   }
   return images.map((img, i) => {
     const src = img.startsWith('http') ? img : img;
@@ -1834,16 +1840,16 @@ function renderReviewStatus(task) {
   if (!r) return '';
   let html = '<div class="review-status">';
   if (r.level1) {
-    const s = r.level1.result === 'approved' ? '<span class="approved">宸查€氳繃</span>' : r.level1.result === 'rejected' ? '<span class="rejected">閫€鍥?/span>' : '<span class="pending-text">寰呮牳楠?/span>';
-    html += `<div>涓€绾ф牳楠岋紙${r.level1.reviewer || '榛勭懢鏂?}锛夛細${s}</div>`;
+    const s = r.level1.result === 'approved' ? '<span class="approved">已通过</span>' : r.level1.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
+    html += `<div>一级核验（${r.level1.reviewer || '黄瑾文'}）：${s}</div>`;
     if (r.level1.images && r.level1.images.length > 0) {
       html += '<div class="review-images">' + r.level1.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
     }
   }
   if (r.level2) {
-    const s = r.level2.result === 'approved' ? '<span class="approved">宸查€氳繃</span>' : r.level2.result === 'rejected' ? '<span class="rejected">閫€鍥?/span>' : '<span class="pending-text">寰呮牳楠?/span>';
-    html += `<div>浜岀骇鏍搁獙锛?{r.level2.reviewer || '閭逛匠椋?}锛夛細${s}`;
-    if (r.level2.comment) html += ` 路 ${r.level2.comment}`;
+    const s = r.level2.result === 'approved' ? '<span class="approved">已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
+    html += `<div>二级核验（${r.level2.reviewer || '邹佳飞'}）：${s}`;
+    if (r.level2.comment) html += ` · ${r.level2.comment}`;
     html += '</div>';
     if (r.level2.images && r.level2.images.length > 0) {
       html += '<div class="review-images">' + r.level2.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
@@ -1869,17 +1875,17 @@ function acceptTask(taskId) {
 function renderTasks(tasks) {
   const container = document.getElementById('taskList');
   if (!tasks || tasks.length === 0) {
-    container.innerHTML = '<div class="no-data">鏆傛棤浠诲姟</div>';
+    container.innerHTML = '<div class="no-data">暂无任务</div>';
     return;
   }
   container.innerHTML = tasks.map(task => {
     const statusInfo = getStatusInfo(task);
     const borderCls = getStatusBorder(task);
     const taskNo = task.number || task.id;
-    const completedStr = task.completed_at ? `瀹屾垚锛?{formatTime(task.completed_at)}` : '';
-    const assigneeStr = task.assignee ? `鈫?${task.assignee}` : '';
-    const acceptedStr = task.accepted_at ? `鎺ュ崟锛?{formatTime(task.accepted_at)} ${task.accepted_by ? '(' + task.accepted_by + ')' : ''}` : '';
-    const creatorStr = task.creator ? `鍒涘缓浜猴細${task.creator}` : '';
+    const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
+    const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
+    const acceptedStr = task.accepted_at ? `接单：${formatTime(task.accepted_at)} ${task.accepted_by ? '(' + task.accepted_by + ')' : ''}` : '';
+    const creatorStr = task.creator ? `创建人：${task.creator}` : '';
     const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
     const reviewUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblBh8mjI3BiDLmh&view=vewGUjc8Gh&field_fld2YuOhjx=${encodeURIComponent(taskNo)}`;
 
@@ -1887,26 +1893,27 @@ function renderTasks(tasks) {
     let actionBtn = '';
     if (canAct) {
       if (task.status === 'pending') {
-        actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">纭鎺ュ崟</button>`;
+        actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">确认接单</button>`;
       } else if (task.status === 'processing') {
-        actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">鎻愪氦鐓х墖</a>`;
+        actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
       } else if (task.status === 'pending_review') {
         const r = task.reviews || {};
         const l1 = r.level1;
         const l2 = r.level2;
         if (!l1 || (l1.result !== 'approved' && l1.result !== 'rejected')) {
-          actionBtn = `<a class="review-btn level1" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('涓€绾ф牳楠?)}','_blank')})" style="cursor:pointer;">涓€绾ф牳楠?/a>`;
+          actionBtn = `<a class="review-btn level1" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('一级核验')}','_blank')})" style="cursor:pointer;">一级核验</a>`;
         } else if (l1.result === 'approved' && (!l2 || (l2.result !== 'approved' && l2.result !== 'rejected'))) {
-          actionBtn = `<a class="review-btn level2" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('浜岀骇鏍搁獙')}','_blank')})" style="cursor:pointer;">浜岀骇鏍搁獙</a>`;
+          actionBtn = `<a class="review-btn level2" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('二级核验')}','_blank')})" style="cursor:pointer;">二级核验</a>`;
         }
       }
     }
     let deleteBtn = '';
-    if (USER_ROLE === 'admin' || USER_NAME === '閭逛匠椋?) {
-      deleteBtn = `<button class="btn-danger" style="font-size:11px;padding:4px 10px;border-radius:6px;" onclick="requireAuth(function(){deleteTask('${task.id}')})">鍒犻櫎</button>`;
+    if (USER_ROLE === 'admin' || USER_NAME === '邹佳飞') {
+      deleteBtn = `<button class="btn-danger" style="font-size:11px;padding:4px 10px;border-radius:6px;" onclick="requireAuth(function(){deleteTask('${task.id}')})">删除</button>`;
     }
 
-    // 鐓х墖鏄剧ず锛氱疆椤朵紭鍏?    const beforePhotos = getPhotosForDisplay(task, 'before');
+    // 照片显示：置顶优先
+    const beforePhotos = getPhotosForDisplay(task, 'before');
     const duringPhotos = getPhotosForDisplay(task, 'during');
     const afterPhotos = getPhotosForDisplay(task, 'after');
 
@@ -1918,7 +1925,7 @@ function renderTasks(tasks) {
           </div>
           <div class="task-header-right">
             <span class="task-status ${statusInfo.cls}">${statusInfo.label}</span>
-            <span class="qr-icon" onclick="openQrModal('${task.id}','${taskNo}')" title="鏌ョ湅浜岀淮鐮?>
+            <span class="qr-icon" onclick="openQrModal('${task.id}','${taskNo}')" title="查看二维码">
               <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h2v-3zm-2 5h2v4h-2v-4zm5-2h-3v2h2v2h-2v2h3v-6zm0 7v-2h-2v2h2z"/></svg>
             </span>
           </div>
@@ -1927,17 +1934,17 @@ function renderTasks(tasks) {
         <div class="task-desc">${task.description || ''}</div>
         <div class="task-meta">
           <span>${creatorStr}</span>
-          <span>${task.dispatcher || '浣?} ${assigneeStr}</span>
+          <span>${task.dispatcher || '你'} ${assigneeStr}</span>
           <span>${formatTime(task.dispatched_at)}</span>
           ${acceptedStr ? `<span>${acceptedStr}</span>` : ''}
           ${completedStr ? `<span>${completedStr}</span>` : ''}
         </div>
         <div class="image-section">
-          <div class="image-label">鐜板満鐓х墖</div>
+          <div class="image-label">现场照片</div>
           <div class="image-row">
-            <div>${renderImageSlot('缁翠慨鍓?, 'before', beforePhotos, task.id)}</div>
-            <div>${renderImageSlot('缁翠慨涓?, 'during', duringPhotos, task.id)}</div>
-            <div>${renderImageSlot('缁翠慨鍚?, 'after', afterPhotos, task.id)}</div>
+            <div>${renderImageSlot('维修前', 'before', beforePhotos, task.id)}</div>
+            <div>${renderImageSlot('维修中', 'during', duringPhotos, task.id)}</div>
+            <div>${renderImageSlot('维修后', 'after', afterPhotos, task.id)}</div>
           </div>
         </div>
         ${task.status !== 'pending' ? renderReviewStatus(task) : ''}
@@ -1947,7 +1954,7 @@ function renderTasks(tasks) {
   }).join('');
 }
 
-// ============ 缁熻涓庣瓫閫?============
+// ============ 统计与筛选 ============
 function updateStats(stats) {
   if (!stats) return;
   document.getElementById('statTotal').textContent = stats.total || 0;
@@ -1964,16 +1971,17 @@ function applyFilter(filter) {
   renderTasks(filtered);
 }
 
-// ============ 鍥捐〃娓叉煋 ============
+// ============ 图表渲染 ============
 function renderCharts() {
   const catMap = {};
   allTasks.forEach(t => {
-    const cat = t.category || '鏈垎绫?;
+    const cat = t.category || '未分类';
     catMap[cat] = (catMap[cat] || 0) + 1;
   });
   const catLabels = Object.keys(catMap);
   const catData = Object.values(catMap);
-  // 钃濋噾涓婚鑹叉澘锛堟繁鍒版祬锛屼笌鏀垮姟椋庢牸缁熶竴锛?  const catColors = ['#1a3a5c','#1f4d7a','#2c5f8a','#3d7ab5','#5dade2','#85c1e9','#aed6f1','#c9a84c','#7fb3d8','#5499c7','#2e86c1'];
+  // 蓝金主题色板（深到浅，与政务风格统一）
+  const catColors = ['#1a3a5c','#1f4d7a','#2c5f8a','#3d7ab5','#5dade2','#85c1e9','#aed6f1','#c9a84c','#7fb3d8','#5499c7','#2e86c1'];
 
   if (chartInstances.pie) chartInstances.pie.destroy();
   chartInstances.pie = new Chart(document.getElementById('chartPie'), {
@@ -1989,7 +1997,7 @@ function renderCharts() {
     }
   });
 
-  const statLabels = ['寰呭搷搴?,'澶勭悊涓?,'寰呮牳楠?,'宸插畬鎴?];
+  const statLabels = ['待响应','处理中','待核验','已完成'];
   const statColors = ['#f0a050','#5dade2','#c39bdb','#58d68d'];
   const stats = allTasks.length ? [
     allTasks.filter(t => t.status === 'pending').length,
@@ -2030,9 +2038,9 @@ function renderCharts() {
   chartInstances.line = new Chart(document.getElementById('chartLine'), {
     type: 'line',
     data: {
-      labels: months.length ? months : ['鏆傛棤鏁版嵁'],
+      labels: months.length ? months : ['暂无数据'],
       datasets: [{
-        label: '浠诲姟鏁?,
+        label: '任务数',
         data: monthData.length ? monthData : [0],
         borderColor: '#c9a84c', backgroundColor: 'rgba(201,168,76,0.08)',
         fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#c9a84c', borderWidth: 2.5
@@ -2048,23 +2056,23 @@ function renderCharts() {
     }
   });
 
-  // 鍥捐〃鐐硅瘎锛堝闀胯瑙掞級
+  // 图表点评（处长视角）
   if (catLabels.length > 0) {
     const topCat = catLabels[catData.indexOf(Math.max(...catData))];
-    document.getElementById('pieCaption').textContent = `${topCat}涓哄綋鍓嶉噸鐐规敾鍧氭柟鍚戯紝闆嗕腑鍔涢噺浼樺厛澶勭疆`;
+    document.getElementById('pieCaption').textContent = `${topCat}为当前重点攻坚方向，集中力量优先处置`;
   }
   const pendingCount = stats[0];
   const reviewCount = stats[2];
   document.getElementById('barCaption').textContent = reviewCount > 0
-    ? `${reviewCount}椤瑰緟鏍搁獙锛岃川閲忔妸鎺ф祦绋嬫甯歌繍琛屼腑`
-    : '鍚勭幆鑺傛祦杞『鐣咃紝鏈嚭鐜扮Н鍘?;
+    ? `${reviewCount}项待核验，质量把控流程正常运行中`
+    : '各环节流转顺畅，未出现积压';
   document.getElementById('lineCaption').textContent = months.length > 1
-    ? `杩?{months.length}涓湀瓒嬪娍骞崇ǔ锛屽缓璁繚鎸佸綋鍓嶈妭濂廯
-    : '鏁版嵁绉疮涓紝鎸佺画杩借釜鍗冲彲';
+    ? `近${months.length}个月趋势平稳，建议保持当前节奏`
+    : '数据积累中，持续追踪即可';
   updateLeaderSummary();
 }
 
-// ============ 棰嗗鎽樿锛堝闀垮紡鎴樼暐璇█锛?============
+// ============ 领导摘要（处长式战略语言） ============
 function updateLeaderSummary() {
   const banner = document.getElementById('leaderBanner');
   const summary = document.getElementById('bannerSummary');
@@ -2083,21 +2091,21 @@ function updateLeaderSummary() {
   }
   banner.style.display = 'block';
 
-  // 澶勯暱寮忔柇瑷€锛氶棶棰樺鍚?+ 姒傚康鍗囧崕
+  // 处长式断言：问题导向 + 概念升华
   if (pending + processing + review === 0) {
-    summary.innerHTML = `褰撳墠绠″吇浠诲姟<span class="banner-highlight">鍏ㄩ儴娓呴浂</span>锛?{completed}椤圭梾瀹冲缃畬姣曪紝鎬佸娍瀹屽叏鍙楁帶銆俙;
+    summary.innerHTML = `当前管养任务<span class="banner-highlight">全部清零</span>，${completed}项病害处置完毕，态势完全受控。`;
   } else if (pending > 0) {
-    summary.innerHTML = `鍏?span class="banner-highlight">${total}澶?/span>鐥呭绾冲叆绠″吇锛屽叾涓?span class="banner-highlight">${pending}澶勫緟鍝嶅簲</span>锛?{processing}澶勬鍦ㄥ缃紝鎬讳綋鍙帶銆俙;
+    summary.innerHTML = `共<span class="banner-highlight">${total}处</span>病害纳入管养，其中<span class="banner-highlight">${pending}处待响应</span>，${processing}处正在处置，总体可控。`;
   } else if (review > 0) {
-    summary.innerHTML = `${processing}澶勫湪澶勭疆涓紝<span class="banner-highlight">${review}澶勫緟鏍搁獙</span>锛屽綋鍓嶉噸鐐规槸鎶婂ソ璐ㄩ噺鍏炽€俙;
+    summary.innerHTML = `${processing}处在处置中，<span class="banner-highlight">${review}处待核验</span>，当前重点是把好质量关。`;
   } else if (rejected > 0) {
-    summary.innerHTML = `${processing}澶勫缃腑锛?span class="banner-highlight">${rejected}澶勯渶杩斿伐</span>锛屽凡璐ｄ护鐩稿叧璐ｄ换浜洪檺鏈熸暣鏀广€俙;
+    summary.innerHTML = `${processing}处处置中，<span class="banner-highlight">${rejected}处需返工</span>，已责令相关责任人限期整改。`;
   } else {
-    summary.innerHTML = `${completed}澶勫凡瀹屾垚澶勭疆锛屽墿浣?{processing}澶勬寜璁″垝鎺ㄨ繘涓紝棰勮鏈懆鏀跺熬銆俙;
+    summary.innerHTML = `${completed}处已完成处置，剩余${processing}处按计划推进中，预计本周收尾。`;
   }
 }
 
-// ============ 鏈湴鎸佷箙鍖?============
+// ============ 本地持久化 ============
 const LS_KEY = 'yanghu_local_tasks';
 
 function loadLocalTasks() {
@@ -2116,17 +2124,19 @@ function mergeLocalIntoAllTasks() {
   const localIds = Object.keys(local);
   if (localIds.length === 0) return;
 
-  // 鍚堝苟锛氭湰鍦颁换鍔¤鐩栨湇鍔″櫒浠诲姟鐨勭姸鎬佸瓧娈?  allTasks = allTasks.map(task => {
+  // 合并：本地任务覆盖服务器任务的状态字段
+  allTasks = allTasks.map(task => {
     const localTask = local[task.id];
     if (!localTask) return task;
-    // 淇濈暀鏈嶅姟鍣ㄥ瓧娈碉紝浠呯敤鏈湴瑕嗙洊鐘舵€?鎺ュ崟/鏍搁獙绛夎繍琛屾椂瀛楁
+    // 保留服务器字段，仅用本地覆盖状态/接单/核验等运行时字段
     const merged = { ...localTask };
-    // 淇濈暀鏈嶅姟鍣ㄧ殑 images 鍜?reviews 缁撴瀯锛堟湰鍦板彲鑳戒笉瀹屾暣锛?    if (task.images) merged.images = task.images;
+    // 保留服务器的 images 和 reviews 结构（本地可能不完整）
+    if (task.images) merged.images = task.images;
     if (task.reviews) merged.reviews = task.reviews;
     return merged;
   });
 
-  // 娣诲姞浠呭湪鏈湴瀛樺湪鐨勪换鍔★紙鐢ㄦ埛鏂板缓鐨勶級
+  // 添加仅在本地存在的任务（用户新建的）
   const serverIds = new Set(allTasks.map(t => t.id));
   localIds.forEach(id => {
     if (!serverIds.has(id)) {
@@ -2141,7 +2151,7 @@ function syncTaskToLocal(task) {
   saveLocalTasks(local);
 }
 
-// ============ 鏁版嵁鍔犺浇 ============
+// ============ 数据加载 ============
 let loadRetryCount = 0;
 const MAX_RETRIES = 3;
 
@@ -2164,8 +2174,8 @@ function loadData(isRetry = false) {
         }
         if (!task.reviews) {
           task.reviews = {
-            level1: { reviewer: '榛勭懢鏂?, result: null, reviewed_at: null, comment: '', images: [] },
-            level2: { reviewer: '閭逛匠椋?, result: null, reviewed_at: null, comment: '', images: [] }
+            level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+            level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
           };
         }
         return task;
@@ -2177,7 +2187,7 @@ function loadData(isRetry = false) {
       updateStats(data.statistics);
       const activeFilter = document.querySelector('.filter-btn.active');
       applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
-      document.getElementById('lastUpdate').textContent = `鏈€鍚庢洿鏂帮細${formatTime(data.last_updated) || '浠婂ぉ'}`;
+      document.getElementById('lastUpdate').textContent = `最后更新：${formatTime(data.last_updated) || '今天'}`;
       renderCharts();
       initExportFields();
     })
@@ -2185,11 +2195,12 @@ function loadData(isRetry = false) {
       loadRetryCount++;
       if (loadRetryCount <= MAX_RETRIES) {
         const delay = 1000 * Math.pow(2, loadRetryCount - 1);
-        console.warn(`鏁版嵁鍔犺浇澶辫触锛?{delay/1000}绉掑悗閲嶈瘯 (${loadRetryCount}/${MAX_RETRIES})`);
-        document.getElementById('taskList').innerHTML = '<div class="no-data">姝ｅ湪鍔犺浇鏁版嵁...</div>';
+        console.warn(`数据加载失败，${delay/1000}秒后重试 (${loadRetryCount}/${MAX_RETRIES})`);
+        document.getElementById('taskList').innerHTML = '<div class="no-data">正在加载数据...</div>';
         setTimeout(() => loadData(true), delay);
       } else {
-        // 鏈嶅姟鍣ㄦ暟鎹姞杞藉け璐ワ紝灏濊瘯浠庢湰鍦板姞杞?        const local = loadLocalTasks();
+        // 服务器数据加载失败，尝试从本地加载
+        const local = loadLocalTasks();
         const localTasks = Object.values(local);
         if (localTasks.length > 0) {
           allTasks = localTasks;
@@ -2198,9 +2209,9 @@ function loadData(isRetry = false) {
           applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
           renderCharts();
           initExportFields();
-          document.getElementById('lastUpdate').textContent = '鏈€鍚庢洿鏂帮細鏈湴缂撳瓨';
+          document.getElementById('lastUpdate').textContent = '最后更新：本地缓存';
         } else {
-          document.getElementById('taskList').innerHTML = '<div class="no-data" style="cursor:pointer" onclick="loadData()">鏃犳硶鍔犺浇鏁版嵁锛岀偣鍑婚噸璇?/div>';
+          document.getElementById('taskList').innerHTML = '<div class="no-data" style="cursor:pointer" onclick="loadData()">无法加载数据，点击重试</div>';
         }
       }
     });
@@ -2214,7 +2225,7 @@ document.getElementById('filterBar').addEventListener('click', function(e) {
   applyFilter(btn.dataset.filter);
 });
 
-// ============ 鍥剧墖棰勮 ============
+// ============ 图片预览 ============
 function openPreview(src, label) {
   document.getElementById('previewImage').src = src;
   document.getElementById('previewLabel').textContent = label || '';
@@ -2226,9 +2237,9 @@ function closePreview(e) {
   document.getElementById('previewOverlay').classList.remove('show');
   document.body.style.overflow = '';
 }
-function openLightbox(src) { openPreview(src, '楠屾敹鐓х墖'); }
+function openLightbox(src) { openPreview(src, '验收照片'); }
 
-// ============ 浜岀淮鐮佹ā鎬佹 ============
+// ============ 二维码模态框 ============
 let qrCodeInstance = null;
 function openQrModal(taskId, taskNo) {
   const url = BASE_URL + '?task=' + taskId;
@@ -2249,7 +2260,7 @@ function closeQrModal() {
   document.body.style.overflow = '';
 }
 
-// ============ 鏂板缓浠诲姟 ============
+// ============ 新建任务 ============
 function openNewTaskModal() {
   requireAuth(function() {
     newTaskPhotos = [];
@@ -2257,7 +2268,7 @@ function openNewTaskModal() {
     document.getElementById('photoUploadZone').classList.remove('has-files');
     document.getElementById('newPiles').value = '';
     document.getElementById('newDescription').value = '';
-    document.getElementById('newCategory').value = '璺潰';
+    document.getElementById('newCategory').value = '路面';
     const savedCreator = localStorage.getItem('yanghu_creator') || '';
     document.getElementById('newCreator').value = USER_NAME || savedCreator;
     document.getElementById('ocrHint').style.display = 'none';
@@ -2290,7 +2301,7 @@ function handleNewTaskPhotos(event) {
       newTaskPhotos.push(e.target.result);
       const item = document.createElement('div');
       item.className = 'upload-preview-item';
-      item.innerHTML = `<img src="${e.target.result}" alt="鐓х墖${index+1}"><span class="remove-upload" onclick="removeUploadPhoto(${index}, event)">脳</span>`;
+      item.innerHTML = `<img src="${e.target.result}" alt="照片${index+1}"><span class="remove-upload" onclick="removeUploadPhoto(${index}, event)">×</span>`;
       row.appendChild(item);
 
       if (newTaskPhotos.length === files.length) {
@@ -2314,60 +2325,65 @@ function refreshUploadPreview() {
   const row = document.getElementById('uploadPreviewRow');
   row.innerHTML = newTaskPhotos.map((dataUrl, i) => `
     <div class="upload-preview-item">
-      <img src="${dataUrl}" alt="鐓х墖${i+1}">
-      <span class="remove-upload" onclick="removeUploadPhoto(${i}, event)">脳</span>
+      <img src="${dataUrl}" alt="照片${i+1}">
+      <span class="remove-upload" onclick="removeUploadPhoto(${i}, event)">×</span>
     </div>
   `).join('');
 }
 
-// OCR 妯℃嫙锛氭娴嬬収鐗囦腑鏄惁鏈夋々鍙锋牸寮忔枃鏈?function tryOcrOnPhotos() {
-  // 瀹為檯 OCR 闇€瑕佸悗绔敮鎸侊紝杩欓噷鍋氫竴涓ā鎷熸彁绀?  // 濡傛灉鐢ㄦ埛杩樻病濉々鍙凤紝鎻愮ず鍙互鎵嬪姩浠庣収鐗囦腑璇诲彇
+// OCR 模拟：检测照片中是否有桩号格式文本
+function tryOcrOnPhotos() {
+  // 实际 OCR 需要后端支持，这里做一个模拟提示
+  // 如果用户还没填桩号，提示可以手动从照片中读取
   const pilesInput = document.getElementById('newPiles');
   if (!pilesInput.value.trim()) {
-    document.getElementById('ocrHint').textContent = 'OCR 鑷姩鎻愬彇鏈瘑鍒埌妗╁彿锛岃鎵嬪姩杈撳叆';
+    document.getElementById('ocrHint').textContent = 'OCR 自动提取未识别到桩号，请手动输入';
     document.getElementById('ocrHint').style.display = 'block';
   }
 }
 
-// 浠庨棶棰樻弿杩颁腑鑷姩鎻愬彇妗╁彿銆佸垎绫荤瓑淇℃伅锛堝闀垮紡鏅鸿兘鍖归厤锛?const AUTO_EXTRACT_MAP = {
-  '璺潰': ['璺潰', '瑁傜紳', '鍧戞Ы', '杞﹁緳', '鎷ュ寘', '娌夐櫡', '鏉炬暎', '榫熻', '缃戣', '妯紳', '绾电紳', '鍞ф祮', '缈绘祮', '閿欏彴', '楹婚潰'],
-  '杈瑰潯': ['杈瑰潯', '婊戝潯', '濉屾柟', '鎸″', '鎶ゅ潯', '钀界煶', '宕╁'],
-  '浜ゅ畨': ['鎶ゆ爮', '鏍囩嚎', '鏍囧織', '淇″彿', '璀︾ず', '闃茬湬', '杞粨鏍?, '闅旂鏍?, '鍑忛€熷甫', '鍑歌捣璺爣'],
-  '姘存矡': ['姘存矡', '鎺掓按', '杈规矡', '鎴按娌?, '鎬ユ祦妲?, '娑电', '娉勬按瀛?],
-  '娑垫礊': ['娑垫礊', '鐩栨澘娑?, '鍦嗙娑?, '绠辨兜', '鎷辨兜'],
-  '妗ユ': ['妗ユ', '妗ラ潰', '妗ュⅸ', '浼哥缉缂?, '鏀骇', '姊佷綋', '妗ュ彴', '妗ユ爮'],
-  '闅ч亾': ['闅ч亾', '琛爩', '娓楁按', '鐓ч潰', '閫氶', '娲為棬', '浠版嫳'],
-  '缁垮寲': ['缁垮寲', '鏍戞湪', '鑽夊潽', '淇壀', '琛ユ', '鏉傝崏', '鏋'],
-  '娑堥槻': ['娑堥槻', '鐏伀', '娑堢伀鏍?, '鐏伀鍣?, '娑堥槻鏍?],
-  '妫€淇亾': ['妫€淇?, '閫氶亾', '姝ラ亾']
+// 从问题描述中自动提取桩号、分类等信息（处长式智能匹配）
+const AUTO_EXTRACT_MAP = {
+  '路面': ['路面', '裂缝', '坑槽', '车辙', '拥包', '沉陷', '松散', '龟裂', '网裂', '横缝', '纵缝', '唧浆', '翻浆', '错台', '麻面'],
+  '边坡': ['边坡', '滑坡', '塌方', '挡墙', '护坡', '落石', '崩塌'],
+  '交安': ['护栏', '标线', '标志', '信号', '警示', '防眩', '轮廓标', '隔离栅', '减速带', '凸起路标'],
+  '水沟': ['水沟', '排水', '边沟', '截水沟', '急流槽', '涵管', '泄水孔'],
+  '涵洞': ['涵洞', '盖板涵', '圆管涵', '箱涵', '拱涵'],
+  '桥梁': ['桥梁', '桥面', '桥墩', '伸缩缝', '支座', '梁体', '桥台', '桥栏'],
+  '隧道': ['隧道', '衬砌', '渗水', '照面', '通风', '洞门', '仰拱'],
+  '绿化': ['绿化', '树木', '草坪', '修剪', '补植', '杂草', '枯死'],
+  '消防': ['消防', '灭火', '消火栓', '灭火器', '消防栓'],
+  '检修道': ['检修', '通道', '步道']
 };
 
 function autoExtractFromDescription() {
   const desc = document.getElementById('newDescription').value;
   if (!desc || desc.length < 2) return;
 
-  // 1. 鑷姩鍖归厤妗╁彿锛堜粎褰撴々鍙蜂负绌烘椂锛?  const pilesInput = document.getElementById('newPiles');
+  // 1. 自动匹配桩号（仅当桩号为空时）
+  const pilesInput = document.getElementById('newPiles');
   if (!pilesInput.value.trim()) {
     const pilePatterns = [
-      /(?:妗╁彿[锛?]\s*)?([A-Z]{0,2}K\d{1,4}\+\d{2,4}(?:\.\d+)?)/gi,
+      /(?:桩号[：:]\s*)?([A-Z]{0,2}K\d{1,4}\+\d{2,4}(?:\.\d+)?)/gi,
       /([A-Z]{0,2}K\d{1,4}\+\d{2,4}(?:\.\d+)?)/gi
     ];
     for (const pat of pilePatterns) {
       const match = desc.match(pat);
       if (match) {
-        pilesInput.value = match[0].replace(/^妗╁彿[锛?]\s*/i, '').toUpperCase();
-        document.getElementById('ocrHint').textContent = '宸蹭粠鎻忚堪涓嚜鍔ㄦ彁鍙栨々鍙?;
+        pilesInput.value = match[0].replace(/^桩号[：:]\s*/i, '').toUpperCase();
+        document.getElementById('ocrHint').textContent = '已从描述中自动提取桩号';
         document.getElementById('ocrHint').style.display = 'block';
         break;
       }
     }
   }
 
-  // 2. 鑷姩鍖归厤鐥呭鍒嗙被锛堜粎褰撲负榛樿"璺潰"鏃讹級
+  // 2. 自动匹配病害分类（仅当为默认"路面"时）
   const catSelect = document.getElementById('newCategory');
-  if (catSelect.value === '璺潰') {
+  if (catSelect.value === '路面') {
     for (const [cat, keywords] of Object.entries(AUTO_EXTRACT_MAP)) {
-      if (cat === '璺潰') continue; // 宸茬粡鏄矾闈?      for (const kw of keywords) {
+      if (cat === '路面') continue; // 已经是路面
+      for (const kw of keywords) {
         if (desc.includes(kw)) {
           catSelect.value = cat;
           return;
@@ -2379,18 +2395,18 @@ function autoExtractFromDescription() {
 
 function submitNewTask() {
   const description = document.getElementById('newDescription').value.trim();
-  if (!description) { alert('璇疯緭鍏ラ棶棰樻弿杩?); return; }
-  if (newTaskPhotos.length === 0) { alert('璇疯嚦灏戜笂浼?寮犵収鐗?); return; }
+  if (!description) { alert('请输入问题描述'); return; }
+  if (newTaskPhotos.length === 0) { alert('请至少上传1张照片'); return; }
 
   const piles = document.getElementById('newPiles').value.trim();
   const category = document.getElementById('newCategory').value;
   let creator = document.getElementById('newCreator').value.trim();
 
-  if (!creator) { alert('璇疯緭鍏ュ垱寤轰汉濮撳悕'); return; }
+  if (!creator) { alert('请输入创建人姓名'); return; }
 
   localStorage.setItem('yanghu_creator', creator);
 
-  // 鐢熸垚缂栧彿 YYMMDD-NN
+  // 生成编号 YYMMDD-NN
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -2407,21 +2423,21 @@ function submitNewTask() {
     number: taskNumber,
     piles: piles,
     description: description,
-    dispatcher: '浣?,
+    dispatcher: '你',
     assignee: '',
     dispatched_at: now.toISOString(),
     status: 'pending',
     completed_at: null,
     category: category,
     images: {
-      before: newTaskPhotos.map((_, i) => `images/${taskId}_缁翠慨鍓峗${i+1}.jpg`),
+      before: newTaskPhotos.map((_, i) => `images/${taskId}_维修前_${i+1}.jpg`),
       during: [],
       after: []
     },
     notes: '',
     reviews: {
-      level1: { reviewer: '榛勭懢鏂?, result: null, reviewed_at: null, comment: '', images: [] },
-      level2: { reviewer: '閭逛匠椋?, result: null, reviewed_at: null, comment: '', images: [] }
+      level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+      level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
     },
     accepted_at: null,
     creator: creator
@@ -2436,7 +2452,7 @@ function submitNewTask() {
   initExportFields();
 
   closeNewTaskModal();
-  alert(`浠诲姟 ${taskNumber} 宸插垱寤恒€俙);
+  alert(`任务 ${taskNumber} 已创建。`);
 }
 
 function updateStatsFromTasks() {
@@ -2450,9 +2466,10 @@ function updateStatsFromTasks() {
   updateStats(stats);
 }
 
-// ============ 瀵煎叆妯℃€佹 ============
-let importZipData = null;  // 瑙ｆ瀽鍚庣殑 ZIP 鍐呭
-let importParsedRows = []; // 瑙ｆ瀽鍚庣殑 Excel 琛?let importPhotoFiles = []; // ZIP 涓殑鐓х墖鏂囦欢
+// ============ 导入模态框 ============
+let importZipData = null;  // 解析后的 ZIP 内容
+let importParsedRows = []; // 解析后的 Excel 行
+let importPhotoFiles = []; // ZIP 中的照片文件
 
 function openImportModal() {
   requireAuth(function() {
@@ -2481,13 +2498,15 @@ function resetImportState() {
 }
 
 function gotoImportStep(step) {
-  // 鏇存柊姝ラ鎸囩ず鍣?  for (let i = 1; i <= 4; i++) {
+  // 更新步骤指示器
+  for (let i = 1; i <= 4; i++) {
     const el = document.getElementById('importStep' + i);
     const conn = document.getElementById('importConn' + i);
     if (el) el.classList.toggle('active', i <= step);
     if (conn) conn.classList.toggle('active', i < step);
   }
-  // 鍒囨崲鍐呭鍖?  for (let i = 1; i <= 4; i++) {
+  // 切换内容区
+  for (let i = 1; i <= 4; i++) {
     const el = document.getElementById('importContent' + i);
     if (el) el.classList.toggle('active', i === step);
   }
@@ -2507,20 +2526,20 @@ function handleImportZip(event) {
 
 async function processImportZip(file) {
   if (!file.name.toLowerCase().endsWith('.zip')) {
-    alert('璇蜂笂浼?.zip 鏍煎紡鐨勬枃浠?);
+    alert('请上传 .zip 格式的文件');
     return;
   }
 
   const contentsDiv = document.getElementById('importZipContents');
   contentsDiv.style.display = 'block';
-  contentsDiv.innerHTML = '<div class="no-data">姝ｅ湪瑙ｆ瀽 ZIP 鏂囦欢...</div>';
+  contentsDiv.innerHTML = '<div class="no-data">正在解析 ZIP 文件...</div>';
 
   try {
     const zip = await JSZip.loadAsync(file);
     const excelFiles = [];
     const photoFiles = [];
 
-    // 閬嶅巻 ZIP 鍐呭
+    // 遍历 ZIP 内容
     const fileList = [];
     zip.forEach((relativePath, zipEntry) => {
       if (zipEntry.dir) return;
@@ -2534,21 +2553,21 @@ async function processImportZip(file) {
     });
 
     if (excelFiles.length === 0) {
-      contentsDiv.innerHTML = '<div class="no-data">ZIP 涓湭鎵惧埌 Excel 鏂囦欢锛?xlsx/.xls锛?/div>';
+      contentsDiv.innerHTML = '<div class="no-data">ZIP 中未找到 Excel 文件（.xlsx/.xls）</div>';
       return;
     }
 
-    // 瑙ｆ瀽绗竴涓?Excel 鏂囦欢
+    // 解析第一个 Excel 文件
     const excelData = await excelFiles[0].entry.async('arraybuffer');
     const workbook = XLSX.read(excelData, { type: 'array' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-    // 杩囨护绌鸿锛岀涓€琛屼负琛ㄥご
+    // 过滤空行，第一行为表头
     const headerRow = rows.find(r => r && r.some(c => c));
     if (!headerRow) {
-      contentsDiv.innerHTML = '<div class="no-data">Excel 鏂囦欢涓虹┖鎴栨棤娉曡В鏋?/div>';
+      contentsDiv.innerHTML = '<div class="no-data">Excel 文件为空或无法解析</div>';
       return;
     }
 
@@ -2556,19 +2575,20 @@ async function processImportZip(file) {
     importPhotoFiles = photoFiles;
     importZipData = { zip, excelFiles, photoFiles, headerRow };
 
-    // 鏄剧ず瑙ｆ瀽缁撴灉
+    // 显示解析结果
     contentsDiv.innerHTML = `
       <div style="padding:12px;background:#e8f5e9;border-radius:8px;margin-bottom:8px;">
-        <strong>瑙ｆ瀽鎴愬姛</strong><br>
-        Excel: ${excelFiles[0].name}锛?{importParsedRows.length} 鏉¤褰曪級<br>
-        鐓х墖: ${photoFiles.length} 寮?      </div>
+        <strong>解析成功</strong><br>
+        Excel: ${excelFiles[0].name}（${importParsedRows.length} 条记录）<br>
+        照片: ${photoFiles.length} 张
+      </div>
     `;
     document.getElementById('btnImportNext1').style.display = 'inline-block';
 
-    // 姝ラ2锛氶瑙?Excel
+    // 步骤2：预览 Excel
     renderImportPreview(headerRow, importParsedRows);
   } catch (err) {
-    contentsDiv.innerHTML = `<div class="no-data">瑙ｆ瀽澶辫触锛?{err.message}</div>`;
+    contentsDiv.innerHTML = `<div class="no-data">解析失败：${err.message}</div>`;
   }
 }
 
@@ -2577,24 +2597,24 @@ function renderImportPreview(headerRow, rows) {
   const mappingDiv = document.getElementById('importFieldMapping');
 
   if (rows.length === 0) {
-    previewDiv.innerHTML = '<div class="no-data">娌℃湁鍙鍏ョ殑鏁版嵁</div>';
+    previewDiv.innerHTML = '<div class="no-data">没有可导入的数据</div>';
     mappingDiv.innerHTML = '';
     return;
   }
 
-  // 琛ㄥご瀛楁鏄犲皠
-  const fieldOptions = ['妗╁彿', '闂鎻忚堪', '鐥呭鍒嗙被', '鍒涘缓浜?];
+  // 表头字段映射
+  const fieldOptions = ['桩号', '问题描述', '病害分类', '创建人'];
   mappingDiv.innerHTML = `
-    <h4>瀛楁鏄犲皠</h4>
+    <h4>字段映射</h4>
     <table style="width:100%;font-size:13px;">
-      <tr><th>Excel 鍒?/th><th>鏄犲皠涓?/th></tr>
+      <tr><th>Excel 列</th><th>映射为</th></tr>
       ${headerRow.map((h, i) => {
         const val = h ? String(h) : '';
         const matched = fieldOptions.find(f => val.includes(f)) || '';
         return `<tr>
-          <td>${val || '(绌?'}</td>
+          <td>${val || '(空)'}</td>
           <td><select id="importMap${i}" style="width:100%;padding:4px;">
-            <option value="">-- 蹇界暐 --</option>
+            <option value="">-- 忽略 --</option>
             ${fieldOptions.map(f => `<option value="${f}" ${f === matched ? 'selected' : ''}>${f}</option>`).join('')}
           </select></td>
         </tr>`;
@@ -2602,8 +2622,9 @@ function renderImportPreview(headerRow, rows) {
     </table>
   `;
 
-  // 鍓?琛岄瑙?  previewDiv.innerHTML = `
-    <h4>鏁版嵁棰勮锛堝墠5鏉★級</h4>
+  // 前5行预览
+  previewDiv.innerHTML = `
+    <h4>数据预览（前5条）</h4>
     <div style="overflow-x:auto;">
       <table style="font-size:12px;border-collapse:collapse;width:100%;">
         <tr>${headerRow.map(h => `<th style="padding:4px 8px;border:1px solid #ddd;background:#f5f5f5;">${h || ''}</th>`).join('')}</tr>
@@ -2612,53 +2633,54 @@ function renderImportPreview(headerRow, rows) {
         `).join('')}
       </table>
     </div>
-    ${rows.length > 5 ? `<p style="font-size:12px;color:#999;">... 鍏?${rows.length} 鏉?/p>` : ''}
+    ${rows.length > 5 ? `<p style="font-size:12px;color:#999;">... 共 ${rows.length} 条</p>` : ''}
   `;
 
-  // 姝ラ3锛氱収鐗囧尮閰嶉瑙?  const photoMatchDiv = document.getElementById('importPhotoMatch');
+  // 步骤3：照片匹配预览
+  const photoMatchDiv = document.getElementById('importPhotoMatch');
   if (importPhotoFiles.length > 0) {
     photoMatchDiv.innerHTML = `
-      <h4>鐓х墖鍖归厤</h4>
-      <p style="font-size:13px;color:#666;">绯荤粺灏嗗皾璇曟寜鏂囦欢鍚嶈嚜鍔ㄥ尮閰嶇収鐗囧埌瀵瑰簲浠诲姟銆傛湭鍖归厤鐨勭収鐗囧皢鍦ㄦ楠?涓垪鍑恒€?/p>
+      <h4>照片匹配</h4>
+      <p style="font-size:13px;color:#666;">系统将尝试按文件名自动匹配照片到对应任务。未匹配的照片将在步骤4中列出。</p>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
         ${importPhotoFiles.slice(0, 20).map(p => `
           <div style="font-size:11px;padding:4px 8px;background:#f0f0f0;border-radius:4px;">${p.name}</div>
         `).join('')}
-        ${importPhotoFiles.length > 20 ? `<div style="font-size:11px;padding:4px 8px;">... 鍏?${importPhotoFiles.length} 寮?/div>` : ''}
+        ${importPhotoFiles.length > 20 ? `<div style="font-size:11px;padding:4px 8px;">... 共 ${importPhotoFiles.length} 张</div>` : ''}
       </div>
     `;
   } else {
-    photoMatchDiv.innerHTML = '<div class="no-data">ZIP 涓棤鐓х墖鏂囦欢</div>';
+    photoMatchDiv.innerHTML = '<div class="no-data">ZIP 中无照片文件</div>';
   }
 }
 
 function confirmImport() {
   const creator = document.getElementById('importCreator').value.trim();
-  if (!creator) { alert('璇疯緭鍏ュ垱寤轰汉濮撳悕'); return; }
+  if (!creator) { alert('请输入创建人姓名'); return; }
 
-  // 璇诲彇瀛楁鏄犲皠
+  // 读取字段映射
   const mapping = {};
   document.querySelectorAll('[id^="importMap"]').forEach(sel => {
     const idx = parseInt(sel.id.replace('importMap', ''));
     if (sel.value) mapping[sel.value] = idx;
   });
 
-  if (!mapping['闂鎻忚堪']) {
-    alert('璇疯嚦灏戝皢涓€鍒楁槧灏勪负"闂鎻忚堪"');
+  if (!mapping['问题描述']) {
+    alert('请至少将一列映射为"问题描述"');
     gotoImportStep(2);
     return;
   }
 
   let importedCount = 0;
   importParsedRows.forEach(row => {
-    const descIdx = mapping['闂鎻忚堪'];
+    const descIdx = mapping['问题描述'];
     const description = row[descIdx] ? String(row[descIdx]).trim() : '';
     if (!description) return;
 
-    const pilesIdx = mapping['妗╁彿'];
+    const pilesIdx = mapping['桩号'];
     const piles = pilesIdx != null && row[pilesIdx] ? String(row[pilesIdx]).trim() : '';
-    const categoryIdx = mapping['鐥呭鍒嗙被'];
-    const category = categoryIdx != null && row[categoryIdx] ? String(row[categoryIdx]).trim() : '鍏朵粬';
+    const categoryIdx = mapping['病害分类'];
+    const category = categoryIdx != null && row[categoryIdx] ? String(row[categoryIdx]).trim() : '其他';
 
     const now = new Date();
     const yy = String(now.getFullYear()).slice(2);
@@ -2668,10 +2690,10 @@ function confirmImport() {
     const taskNumber = `${yy}${mm}${dd}-${String(existingCount + importedCount + 1).padStart(2, '0')}`;
     const taskId = 'TASK-' + String(allTasks.length + importedCount + 1).padStart(3, '0');
 
-    // 灏濊瘯鍖归厤鐓х墖
+    // 尝试匹配照片
     const matchedPhotos = importPhotoFiles.filter(p => p.name.includes(piles) || p.name.includes(taskNumber));
     const beforeImages = matchedPhotos.length > 0
-      ? matchedPhotos.map((_, i) => `images/${taskId}_缁翠慨鍓峗${i + 1}.jpg`)
+      ? matchedPhotos.map((_, i) => `images/${taskId}_维修前_${i + 1}.jpg`)
       : [];
 
     const newTask = {
@@ -2679,7 +2701,7 @@ function confirmImport() {
       number: taskNumber,
       piles: piles,
       description: description,
-      dispatcher: '瀵煎叆',
+      dispatcher: '导入',
       assignee: '',
       dispatched_at: now.toISOString(),
       deadline: null,
@@ -2688,10 +2710,10 @@ function confirmImport() {
       is_overdue: false,
       category: category,
       images: { before: beforeImages, during: [], after: [] },
-      notes: '[鎵归噺瀵煎叆]',
+      notes: '[批量导入]',
       reviews: {
-        level1: { reviewer: '榛勭懢鏂?, result: null, reviewed_at: null, comment: '', images: [] },
-        level2: { reviewer: '閭逛匠椋?, result: null, reviewed_at: null, comment: '', images: [] }
+        level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+        level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
       },
       accepted_at: null,
       creator: creator
@@ -2708,7 +2730,7 @@ function confirmImport() {
   renderCharts();
   initExportFields();
   closeImportModal();
-  alert(`鎴愬姛瀵煎叆 ${importedCount} 鏉′换鍔°€俙);
+  alert(`成功导入 ${importedCount} 条任务。`);
 }
 function initExportFields() {
   const grid = document.getElementById('fieldGrid');
@@ -2733,12 +2755,12 @@ function presetAllFields() {
   document.querySelectorAll('#fieldGrid input[type=checkbox]').forEach(cb => { cb.checked = true; });
 }
 
-// ============ 瀛楁妯℃澘 ============
+// ============ 字段模板 ============
 function saveFieldTemplate() {
-  const name = prompt('璇疯緭鍏ユā鏉垮悕绉帮細');
+  const name = prompt('请输入模板名称：');
   if (!name || !name.trim()) return;
   const selected = getSelectedFields();
-  if (selected.length === 0) { alert('璇疯嚦灏戦€夋嫨涓€涓瓧娈?); return; }
+  if (selected.length === 0) { alert('请至少选择一个字段'); return; }
 
   const templates = JSON.parse(localStorage.getItem('export_field_templates') || '{}');
   templates[name.trim()] = selected;
@@ -2750,12 +2772,12 @@ function applyFieldTemplate(fields) {
   document.querySelectorAll('#fieldGrid input[type=checkbox]').forEach(cb => {
     cb.checked = fields.includes(cb.dataset.key);
   });
-  alert('妯℃澘宸插簲鐢?);
+  alert('模板已应用');
 }
 
 function deleteFieldTemplate(name, event) {
   event.stopPropagation();
-  if (!confirm(`纭畾鍒犻櫎妯℃澘 "${name}"锛焋)) return;
+  if (!confirm(`确定删除模板 "${name}"？`)) return;
   const templates = JSON.parse(localStorage.getItem('export_field_templates') || '{}');
   delete templates[name];
   localStorage.setItem('export_field_templates', JSON.stringify(templates));
@@ -2769,12 +2791,12 @@ function renderExportTemplates() {
   if (names.length === 0) { row.innerHTML = ''; return; }
   row.innerHTML = names.map(n => `
     <span class="template-chip" onclick="applyFieldTemplate(${JSON.stringify(templates[n]).replace(/"/g, '&quot;')})">
-      ${n} <span class="del-tpl" onclick="(function(e){deleteFieldTemplate('${n.replace(/'/g, "\\'")}',e)})(event)">脳</span>
+      ${n} <span class="del-tpl" onclick="(function(e){deleteFieldTemplate('${n.replace(/'/g, "\\'")}',e)})(event)">×</span>
     </span>
   `).join('');
 }
 
-// ============ 鐓х墖鍕鹃€変笌缃《 ============
+// ============ 照片勾选与置顶 ============
 function initPhotoSelectionMap() {
   selectedPhotoMap = {};
   pinnedPhotoMap = {};
@@ -2797,14 +2819,14 @@ function renderPhotoCheckPanel() {
     const taskNo = task.number || task.id;
     html += `<h3 style="margin-top:14px;">${taskNo} - ${task.piles || ''} ${task.location || ''}</h3>`;
     ['before','during','after'].forEach(group => {
-      const labelMap = { before: '缁翠慨鍓?, during: '缁翠慨涓?, after: '缁翠慨鍚? };
+      const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
       const arr = (task.images && task.images[group]) ? task.images[group] : [];
       const groupId = `${task.id}_${group}`;
       html += `<div class="photo-collapse open" id="collapse_${groupId}">`;
       html += `<div class="photo-collapse-header" onclick="togglePhotoCollapse('${groupId}')">`;
-      html += `<span>${labelMap[group]}锛?{arr.length}寮狅級</span>`;
-      html += `<span class="select-all" onclick="event.stopPropagation();toggleSelectAll('${task.id}','${group}')">鍏ㄩ€?鍙栨秷</span>`;
-      html += `<span class="arrow">鈻?/span>`;
+      html += `<span>${labelMap[group]}（${arr.length}张）</span>`;
+      html += `<span class="select-all" onclick="event.stopPropagation();toggleSelectAll('${task.id}','${group}')">全选/取消</span>`;
+      html += `<span class="arrow">▶</span>`;
       html += `</div>`;
       html += `<div class="photo-collapse-body"><div class="photo-grid">`;
       arr.forEach((img, i) => {
@@ -2814,7 +2836,7 @@ function renderPhotoCheckPanel() {
         html += `<div class="photo-grid-item${selected}" id="photo_item_${task.id}_${group}_${i}">`;
         html += `<input type="checkbox" class="photo-check" ${selected ? 'checked' : ''} onchange="togglePhotoItem('${task.id}','${group}',${i}, this.checked)">`;
         html += `<img src="${src}" alt="${labelMap[group]}">`;
-        html += `<button class="star-btn${pinned}" onclick="event.stopPropagation();pinPhoto('${task.id}','${group}',${i})" title="璁句负缃《">鈽?/button>`;
+        html += `<button class="star-btn${pinned}" onclick="event.stopPropagation();pinPhoto('${task.id}','${group}',${i})" title="设为置顶">★</button>`;
         html += `</div>`;
       });
       html += `</div></div></div>`;
@@ -2870,7 +2892,7 @@ function pinPhoto(taskId, group, index) {
   } else {
     pinnedPhotoMap[taskId][group] = index;
   }
-  // 鏇存柊鏄熸爣鏍峰紡
+  // 更新星标样式
   const task = allTasks.find(t => t.id === taskId);
   const arr = (task && task.images && task.images[group]) ? task.images[group] : [];
   arr.forEach((_, i) => {
@@ -2931,25 +2953,25 @@ function getFieldValue(task, fieldKey, idx) {
     case 'assignee': return task.assignee || '';
     case 'deadline': return task.deadline ? formatFullTime(task.deadline) : '';
     case 'completed_at': return task.completed_at ? formatFullTime(task.completed_at) : '';
-    case 'before_photos': return photoCfg.before.map(p => p.split('/').pop()).join('銆?);
-    case 'during_photos': return photoCfg.during.map(p => p.split('/').pop()).join('銆?);
-    case 'after_photos': return photoCfg.after.map(p => p.split('/').pop()).join('銆?);
+    case 'before_photos': return photoCfg.before.map(p => p.split('/').pop()).join('、');
+    case 'during_photos': return photoCfg.during.map(p => p.split('/').pop()).join('、');
+    case 'after_photos': return photoCfg.after.map(p => p.split('/').pop()).join('、');
     case 'notes': return task.notes || '';
     case 'review_l1': {
       const r1 = task.reviews?.level1;
       if (!r1 || !r1.result) return '';
-      return r1.result === 'approved' ? `閫氳繃 (${r1.reviewer})` : `閫€鍥?(${r1.reviewer})`;
+      return r1.result === 'approved' ? `通过 (${r1.reviewer})` : `退回 (${r1.reviewer})`;
     }
     case 'review_l2': {
       const r2 = task.reviews?.level2;
       if (!r2 || !r2.result) return '';
-      return r2.result === 'approved' ? `閫氳繃 (${r2.reviewer})` : `閫€鍥?(${r2.reviewer})`;
+      return r2.result === 'approved' ? `通过 (${r2.reviewer})` : `退回 (${r2.reviewer})`;
     }
     case 'acceptance': {
       const r1 = task.reviews?.level1;
       const r2 = task.reviews?.level2;
-      if (r1?.result === 'approved' && r2?.result === 'approved') return '閫氳繃';
-      if (r1?.result === 'rejected' || r2?.result === 'rejected') return '閫€鍥炴暣鏀?;
+      if (r1?.result === 'approved' && r2?.result === 'approved') return '通过';
+      if (r1?.result === 'rejected' || r2?.result === 'rejected') return '退回整改';
       return '';
     }
     default: return '';
@@ -2961,18 +2983,18 @@ function getFieldLabel(key) {
   return f ? f.label : key;
 }
 
-// ============ 瀵煎嚭鎵ц ============
+// ============ 导出执行 ============
 async function confirmExport() {
   const btn = document.getElementById('btnConfirmExport');
   btn.disabled = true;
-  btn.textContent = '瀵煎嚭涓?..';
+  btn.textContent = '导出中...';
 
   const selectedFields = getSelectedFields();
 
   if (selectedFields.length === 0) {
-    alert('璇疯嚦灏戦€夋嫨涓€涓鍑哄瓧娈?);
+    alert('请至少选择一个导出字段');
     btn.disabled = false;
-    btn.textContent = '纭瀵煎嚭';
+    btn.textContent = '确认导出';
     return;
   }
 
@@ -2986,11 +3008,11 @@ async function confirmExport() {
     }
   } catch (err) {
     console.error(err);
-    alert('瀵煎嚭澶辫触锛? + err.message);
+    alert('导出失败：' + err.message);
   }
 
   btn.disabled = false;
-  btn.textContent = '纭瀵煎嚭';
+  btn.textContent = '确认导出';
   closeExportModal();
 }
 
@@ -3005,34 +3027,34 @@ async function exportExcel(selectedFields) {
   const ws1 = XLSX.utils.aoa_to_sheet(rows);
 
   const stats = [
-    ['鐘舵€?, '鏁伴噺'],
-    ['寰呭搷搴?, allTasks.filter(t => t.status === 'pending').length],
-    ['瓒呮椂', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length],
-    ['澶勭悊涓?, allTasks.filter(t => t.status === 'processing').length],
-    ['寰呮牳楠?, allTasks.filter(t => t.status === 'pending_review').length],
-    ['宸插畬鎴?, allTasks.filter(t => t.status === 'completed').length],
-    ['瓒呮椂', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length]
+    ['状态', '数量'],
+    ['待响应', allTasks.filter(t => t.status === 'pending').length],
+    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length],
+    ['处理中', allTasks.filter(t => t.status === 'processing').length],
+    ['待核验', allTasks.filter(t => t.status === 'pending_review').length],
+    ['已完成', allTasks.filter(t => t.status === 'completed').length],
+    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length]
   ];
   const ws2 = XLSX.utils.aoa_to_sheet(stats);
 
   const catMap = {};
-  allTasks.forEach(t => { const c = t.category || '鏈垎绫?; catMap[c] = (catMap[c] || 0) + 1; });
-  const catRows = [['鍒嗙被', '鏁伴噺'], ...Object.entries(catMap)];
+  allTasks.forEach(t => { const c = t.category || '未分类'; catMap[c] = (catMap[c] || 0) + 1; });
+  const catRows = [['分类', '数量'], ...Object.entries(catMap)];
   const ws3 = XLSX.utils.aoa_to_sheet(catRows);
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws1, '浠诲姟娓呭崟');
-  XLSX.utils.book_append_sheet(wb, ws2, '鐘舵€佺粺璁?);
-  XLSX.utils.book_append_sheet(wb, ws3, '鍒嗙被缁熻');
+  XLSX.utils.book_append_sheet(wb, ws1, '任务清单');
+  XLSX.utils.book_append_sheet(wb, ws2, '状态统计');
+  XLSX.utils.book_append_sheet(wb, ws3, '分类统计');
 
-  XLSX.writeFile(wb, '鍏绘姢浠诲姟鐪嬫澘_瀵煎嚭.xlsx');
+  XLSX.writeFile(wb, '养护任务看板_导出.xlsx');
 }
 
 async function exportPdf(selectedFields, format) {
   const { jsPDF } = window.jspdf;
   const zip = new JSZip();
   const isSettlement = format === 'pdf-settlement';
-  const titleText = isSettlement ? '鍏绘姢宸℃煡闂鐧昏琛紙缁撶畻鐗堬級' : '鍏绘姢宸℃煡闂鐧昏琛?;
+  const titleText = isSettlement ? '养护巡查问题登记表（结算版）' : '养护巡查问题登记表';
 
   for (let i = 0; i < allTasks.length; i++) {
     const task = allTasks[i];
@@ -3050,8 +3072,8 @@ async function exportPdf(selectedFields, format) {
 
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`缂栧彿锛?{taskNo}`, margin, y);
-    doc.text(`[浜岀淮鐮? ${BASE_URL}?task=${task.id}]`, pageW - margin - 50, y - 2);
+    doc.text(`编号：${taskNo}`, margin, y);
+    doc.text(`[二维码: ${BASE_URL}?task=${task.id}]`, pageW - margin - 50, y - 2);
     y += 7;
 
     doc.setDrawColor(200, 200, 200);
@@ -3070,7 +3092,7 @@ async function exportPdf(selectedFields, format) {
       doc.setFont(undefined, 'bold');
       doc.text(label, margin, y);
       doc.setFont(undefined, 'normal');
-      doc.text(value || '鈥?, margin + labelW, y, { maxWidth: valueW });
+      doc.text(value || '—', margin + labelW, y, { maxWidth: valueW });
       doc.setDrawColor(220, 220, 220);
       doc.line(margin, y + 2, pageW - margin, y + 2);
       y += lineH;
@@ -3080,19 +3102,19 @@ async function exportPdf(selectedFields, format) {
       y += 4;
       doc.setFontSize(11);
       doc.setFont(undefined, 'bold');
-      doc.text('鐜板満鐓х墖', margin, y);
+      doc.text('现场照片', margin, y);
       y += 7;
 
       const photoCfg = getExportPhotoConfigForTask(task);
       ['before', 'during', 'after'].forEach(group => {
-        const labelMap = { before: '缁翠慨鍓?, during: '缁翠慨涓?, after: '缁翠慨鍚? };
+        const labelMap = { before: '维修前', during: '维修中', after: '维修后' };
         const photos = photoCfg[group] || [];
         if (y > 260) { doc.addPage(); y = 15; }
         doc.setFontSize(10);
         doc.setFont(undefined, 'bold');
-        doc.text(`${labelMap[group]}锛歚, margin, y);
+        doc.text(`${labelMap[group]}：`, margin, y);
         doc.setFont(undefined, 'normal');
-        doc.text(photos.length > 0 ? photos.map(p => p.split('/').pop()).join('銆?) : '鏃?, margin + 22, y);
+        doc.text(photos.length > 0 ? photos.map(p => p.split('/').pop()).join('、') : '无', margin + 22, y);
         y += 6;
       });
     }
@@ -3100,14 +3122,14 @@ async function exportPdf(selectedFields, format) {
     if (y > 270) { doc.addPage(); y = 15; }
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text(`瀵煎嚭鏃堕棿锛?{formatFullTime(new Date().toISOString())}  |  鍗楀钩鑱旂粶绾块珮閫熷湡寤哄吇鎶, margin, 285);
+    doc.text(`导出时间：${formatFullTime(new Date().toISOString())}  |  南平联络线高速土建养护`, margin, 285);
 
     const pdfBlob = doc.output('blob');
-    zip.file(`${taskNo}_鐧昏琛?pdf`, pdfBlob);
+    zip.file(`${taskNo}_登记表.pdf`, pdfBlob);
   }
 
   const zipBlob = await zip.generateAsync({ type: 'blob' });
-  downloadBlob(zipBlob, '鍏绘姢浠诲姟鐧昏琛╛PDF.zip');
+  downloadBlob(zipBlob, '养护任务登记表_PDF.zip');
 }
 
 async function exportZip(selectedFields) {
@@ -3125,11 +3147,11 @@ async function exportZip(selectedFields) {
 
     doc.setFontSize(16);
     doc.setFont(undefined, 'bold');
-    doc.text('鍏绘姢宸℃煡闂鐧昏琛?, margin, y);
+    doc.text('养护巡查问题登记表', margin, y);
     y += 8;
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`缂栧彿锛?{taskNo}`, margin, y);
+    doc.text(`编号：${taskNo}`, margin, y);
     y += 7;
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, 210 - margin, y);
@@ -3141,12 +3163,12 @@ async function exportZip(selectedFields) {
       doc.setFont(undefined, 'bold');
       doc.text(getFieldLabel(f), margin, y);
       doc.setFont(undefined, 'normal');
-      doc.text(getFieldValue(task, f, i + 1) || '鈥?, margin + 32, y);
+      doc.text(getFieldValue(task, f, i + 1) || '—', margin + 32, y);
       y += 7;
     });
 
     const pdfBlob = doc.output('blob');
-    folder.file(`${taskNo}_鐧昏琛?pdf`, pdfBlob);
+    folder.file(`${taskNo}_登记表.pdf`, pdfBlob);
 
     const photoCfg = getExportPhotoConfigForTask(task);
     const allPhotos = [
@@ -3160,7 +3182,7 @@ async function exportZip(selectedFields) {
       return parts[parts.length - 1] + '\t' + p;
     }).join('\n');
     if (photoList) {
-      folder.file('鐓х墖娓呭崟.txt', `鐓х墖璺緞鍒楄〃锛歕n${photoList}\n\n娉細鐓х墖涓虹浉瀵硅矾寰勶紝璇峰湪婧愮洰褰曚腑鏌ユ壘銆俙);
+      folder.file('照片清单.txt', `照片路径列表：\n${photoList}\n\n注：照片为相对路径，请在源目录中查找。`);
     }
 
     for (const photoPath of allPhotos) {
@@ -3171,12 +3193,12 @@ async function exportZip(selectedFields) {
           const fname = photoPath.split('/').pop();
           folder.file(fname, blob);
         }
-      } catch (e) { /* 璺宠繃鏃犳硶鍔犺浇鐨勫浘鐗?*/ }
+      } catch (e) { /* 跳过无法加载的图片 */ }
     }
   }
 
   const zipBlob = await zip.generateAsync({ type: 'blob' });
-  downloadBlob(zipBlob, '鍏绘姢浠诲姟鐧昏琛╛鏂囦欢鍖?zip');
+  downloadBlob(zipBlob, '养护任务登记表_文件包.zip');
 }
 
 function downloadBlob(blob, filename) {
@@ -3190,14 +3212,14 @@ function downloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-// ============ 鍒犻櫎浠诲姟 ============
+// ============ 删除任务 ============
 function deleteTask(taskId) {
   const task = allTasks.find(t => t.id === taskId);
   if (!task) return;
   const taskNo = task.number || task.id;
-  if (!confirm(`纭畾鍒犻櫎浠诲姟銆?{taskNo}銆嶅悧锛熸鎿嶄綔涓嶅彲鎾ら攢銆俙)) return;
+  if (!confirm(`确定删除任务「${taskNo}」吗？此操作不可撤销。`)) return;
   allTasks = allTasks.filter(t => t.id !== taskId);
-  // 浠庢湰鍦板瓨鍌ㄤ腑绉婚櫎
+  // 从本地存储中移除
   const local = loadLocalTasks();
   delete local[taskId];
   saveLocalTasks(local);
@@ -3208,11 +3230,11 @@ function deleteTask(taskId) {
   initExportFields();
 }
 
-// ============ 寰幆浠诲姟绠＄悊 ============
+// ============ 循环任务管理 ============
 let circularTasks = [];
 
-const INTERVAL_LABELS = { weekly: '姣忓懆', monthly: '姣忔湀' };
-const WEEKDAY_LABELS = { 1: '鍛ㄤ竴', 2: '鍛ㄤ簩', 3: '鍛ㄤ笁', 4: '鍛ㄥ洓', 5: '鍛ㄤ簲', 6: '鍛ㄥ叚', 7: '鍛ㄦ棩' };
+const INTERVAL_LABELS = { weekly: '每周', monthly: '每月' };
+const WEEKDAY_LABELS = { 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六', 7: '周日' };
 
 function updateCircDayUI() {
   const interval = document.querySelector('input[name="circInterval"]:checked').value;
@@ -3223,7 +3245,7 @@ function updateCircDayUI() {
 function openCircularModal() {
   requireAuth(function() {
     document.getElementById('circTitle').value = '';
-    document.getElementById('circCategory').value = '妗ユ';
+    document.getElementById('circCategory').value = '桥梁';
     document.getElementById('circLocation').value = '';
     document.getElementById('circDescription').value = '';
     document.getElementById('circAssignee').value = '';
@@ -3240,7 +3262,7 @@ function closeCircularModal() {
 
 function submitCircularTask() {
   const title = document.getElementById('circTitle').value.trim();
-  if (!title) { alert('璇疯緭鍏ヤ换鍔℃爣棰?); return; }
+  if (!title) { alert('请输入任务标题'); return; }
   const interval = document.querySelector('input[name="circInterval"]:checked').value;
   const dayOfWeek = interval === 'weekly' ? parseInt(document.getElementById('circDayOfWeek').value) : undefined;
   const dayOfMonth = interval === 'monthly' ? parseInt(document.getElementById('circDayOfMonth').value) : undefined;
@@ -3267,20 +3289,20 @@ function submitCircularTask() {
 function renderCircularTasks() {
   const container = document.getElementById('circularList');
   if (!circularTasks || circularTasks.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:16px;color:#bbb;font-size:13px;">鏆傛棤瀹氭湡宸℃煡浠诲姟锛岀偣鍑讳笂鏂规寜閽坊鍔?/div>';
+    container.innerHTML = '<div style="text-align:center;padding:16px;color:#bbb;font-size:13px;">暂无定期巡查任务，点击上方按钮添加</div>';
     return;
   }
 
   container.innerHTML = circularTasks.map(ct => {
     let freqText = '';
     if (ct.interval === 'weekly') {
-      freqText = `姣?{WEEKDAY_LABELS[ct.day_of_week] || '鍛ㄤ竴'}`;
+      freqText = `每${WEEKDAY_LABELS[ct.day_of_week] || '周一'}`;
     } else if (ct.interval === 'monthly') {
-      freqText = `姣忔湀${ct.day_of_month || 1}鍙穈;
+      freqText = `每月${ct.day_of_month || 1}号`;
     } else {
-      freqText = '姣忓ぉ';
+      freqText = '每天';
     }
-    const lastGen = ct.last_generated ? `涓婃鐢熸垚锛?{formatTime(ct.last_generated)}` : '';
+    const lastGen = ct.last_generated ? `上次生成：${formatTime(ct.last_generated)}` : '';
     const statusClass = ct.enabled ? 'enabled' : '';
     const cardClass = ct.enabled ? '' : 'disabled';
 
@@ -3288,11 +3310,11 @@ function renderCircularTasks() {
       <div class="circular-card ${cardClass}">
         <div class="circular-info">
           <div class="circular-title">${ct.title}</div>
-          <div class="circular-detail">${freqText} 路 ${ct.category || ''} 路 ${ct.location || ''} 路 ${ct.assignee || ''} 路 ${lastGen}</div>
+          <div class="circular-detail">${freqText} · ${ct.category || ''} · ${ct.location || ''} · ${ct.assignee || ''} · ${lastGen}</div>
         </div>
         <div class="circular-actions">
-          <div class="circular-toggle ${statusClass}" onclick="requireAuth(function(){toggleCircularTask('${ct.id}')})" title="${ct.enabled ? '鍏抽棴' : '寮€鍚?}"></div>
-          <button class="circular-delete" onclick="requireAuth(function(){deleteCircularTask('${ct.id}')})" title="鍒犻櫎">脳</button>
+          <div class="circular-toggle ${statusClass}" onclick="requireAuth(function(){toggleCircularTask('${ct.id}')})" title="${ct.enabled ? '关闭' : '开启'}"></div>
+          <button class="circular-delete" onclick="requireAuth(function(){deleteCircularTask('${ct.id}')})" title="删除">×</button>
         </div>
       </div>
     `;
@@ -3310,14 +3332,15 @@ function toggleCircularTask(id) {
 function deleteCircularTask(id) {
   const ct = circularTasks.find(c => c.id === id);
   if (!ct) return;
-  if (!confirm(`纭畾鍒犻櫎瀹氭湡宸℃煡銆?{ct.title}銆嶅悧锛焋)) return;
+  if (!confirm(`确定删除定期巡查「${ct.title}」吗？`)) return;
   circularTasks = circularTasks.filter(c => c.id !== id);
   renderCircularTasks();
   syncDataJson();
 }
 
 function generateCircularTasks() {
-  // 浠庡凡鍚敤鐨勫惊鐜ā鏉跨敓鎴愬埌鏈熶换鍔?  const now = new Date();
+  // 从已启用的循环模板生成到期任务
+  const now = new Date();
   let generated = 0;
 
   circularTasks.forEach(ct => {
@@ -3331,7 +3354,7 @@ function generateCircularTasks() {
       const dayOfWeek = ct.day_of_week || 1;
       const currentDay = now.getDay(); // 0=Sunday
       const mappedDay = currentDay === 0 ? 7 : currentDay;
-      // 濡傛灉浠婂ぉ灏辨槸鐩爣鏄熸湡锛屼笖鏈懆杩樻湭鐢熸垚
+      // 如果今天就是目标星期，且本周还未生成
       if (mappedDay === dayOfWeek) {
         const lastGenDay = lastGen.getDay();
         const lastMapped = lastGenDay === 0 ? 7 : lastGenDay;
@@ -3357,7 +3380,7 @@ function generateCircularTasks() {
         piles: '',
         location: ct.location || '',
         description: ct.description || ct.title,
-        dispatcher: '浣?,
+        dispatcher: '你',
         assignee: ct.assignee || '',
         dispatched_at: now.toISOString(),
         deadline: null,
@@ -3366,13 +3389,13 @@ function generateCircularTasks() {
         is_overdue: false,
         category: ct.category || '',
         images: { before: [], during: [], after: [] },
-        notes: `[瀹氭湡浠诲姟锛?{ct.title}]`,
+        notes: `[定期任务：${ct.title}]`,
         reviews: {
-          level1: { reviewer: '榛勭懢鏂?, result: null, reviewed_at: null, comment: '', images: [] },
-          level2: { reviewer: '閭逛匠椋?, result: null, reviewed_at: null, comment: '', images: [] }
+          level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
+          level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
         },
         accepted_at: null,
-        creator: '绯荤粺锛堝畾鏈熶换鍔★級'
+        creator: '系统（定期任务）'
       };
       allTasks.unshift(newTask);
       ct.last_generated = now.toISOString();
@@ -3391,14 +3414,16 @@ function generateCircularTasks() {
 }
 
 function syncDataJson() {
-  // 娉ㄦ剰锛氭鍑芥暟浠呭湪绾墠绔紨绀烘椂浣跨敤锛屽疄闄呭簲鐢遍涔﹀悓姝ヨ剼鏈淮鎶?  // 姝ゅ鏇存柊 JS 鍐呭瓨涓殑 circularTasks锛屼笉鍐欏洖鏂囦欢锛堟枃浠剁敱椋炰功鍚屾鑴氭湰绠＄悊锛?}
+  // 注意：此函数仅在纯前端演示时使用，实际应由飞书同步脚本维护
+  // 此处更新 JS 内存中的 circularTasks，不写回文件（文件由飞书同步脚本管理）
+}
 
-// ============ 鍚姩 ============
+// ============ 启动 ============
 detectRole();
 loadData();
 setInterval(loadData, 30000);
 
-// ============ 绉诲姩绔Е鎺?============
+// ============ 移动端触控 ============
 (function() {
   let startX = 0, startY = 0;
   let pulling = false, pullDist = 0;
@@ -3417,12 +3442,13 @@ setInterval(loadData, 30000);
     const dx = Math.abs(e.touches[0].clientX - startX);
     const dy = e.touches[0].clientY - startY;
 
-    // 妯悜婊戝姩锛氶樆姝?    if (dx > dy && dx > 30) {
+    // 横向滑动：阻止
+    if (dx > dy && dx > 30) {
       e.preventDefault();
       return;
     }
 
-    // 绾靛悜涓嬫媺鍒锋柊锛氫粎鍦ㄩ〉闈㈤《閮ㄦ椂瑙﹀彂
+    // 纵向下拉刷新：仅在页面顶部时触发
     if (dy > dx && dy > 20 && window.scrollY <= 5) {
       pullDist = e.touches[0].clientY - startY;
       if (pullDist > 20) {
