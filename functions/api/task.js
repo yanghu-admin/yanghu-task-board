@@ -14,7 +14,8 @@ function ghHeaders(token) {
   };
 }
 function b64decode(b64) {
-  const norm = b64.replace(/-/g, '+').replace(/_/g, '/');
+  // GitHub 返回的 base64 含换行与（可能的）URL-safe 变体，必须全部清理，否则 atob 抛 InvalidCharacterError
+  const norm = String(b64).replace(/[^A-Za-z0-9+/]/g, '');
   const bin = atob(norm);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
