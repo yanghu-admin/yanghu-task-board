@@ -1,0 +1,9 @@
+{
+  "name": "yanghu-task-board",
+  "version": "1.0.0",
+  "private": true,
+  "description": "养护任务跟踪看板：HTML 前端 + EdgeOne 边缘函数（写入 GitHub 仓库 data.json 实现自动发布）",
+  "scripts": {
+    "build": "mkdir -p dist && cp index.html dist/ && cp data.json dist/ 2>/dev/null || true"
+  }
+}
