@@ -1,0 +1,8 @@
+# 养护看板 · Python 运行依赖
+# 安装：pip install -r requirements.txt
+# 运行环境：Python >= 3.10（本项目使用 3.13）
+
+requests>=2.31        # 飞书 / 企业微信 HTTP 调用
+flask>=3.0            # wework_bot_relay.py / wework_to_feishu_relay.py 中继服务
+Pillow>=10.0          # photo_watermark.py 照片水印
+pycryptodome>=3.19    # wework_to_feishu_relay.py 企业微信消息 AES 解密

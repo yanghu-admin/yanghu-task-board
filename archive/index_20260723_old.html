@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>养护任务跟踪看板</title>
 <!-- CDN 依赖 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -16,9 +16,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     background: #f5f5f5;
     color: #333;
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    overscroll-behavior: none; overscroll-behavior-x: none; touch-action: pan-y;
-    overflow-x: hidden;
+    padding-bottom: 80px;
     -webkit-font-smoothing: antialiased;
   }
   .header {
@@ -138,36 +136,15 @@
   .submit-entry a:hover { box-shadow: 0 4px 12px rgba(41,128,185,0.35); }
   .submit-entry a:active { transform: scale(0.98); }
 
-  #pullIndicator { text-align: center; padding: 0 0 8px; font-size: 13px; color: #999; opacity: 0; transition: opacity 0.2s; }
-  #pullIndicator.ready { color: #3498db; }
-  #pullIndicator .arrow { display: inline-block; transition: transform 0.3s; }
-  #pullIndicator.ready .arrow { transform: rotate(180deg); }
-  /* 领导摘要栏 */
-  .leader-banner {
-    margin: 12px 16px 8px; padding: 14px 18px;
-    background: linear-gradient(135deg, #1a3a5c 0%, #1f4d7a 100%);
-    border-radius: 12px; color: #fff;
-    box-shadow: 0 2px 8px rgba(26,58,92,0.2);
-    border-left: 4px solid #c9a84c;
-  }
-  .leader-banner .banner-title {
-    font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 6px;
-  }
-  .leader-banner .banner-summary {
-    font-size: 15px; font-weight: 600; line-height: 1.5; color: #fff;
-  }
-  .leader-banner .banner-highlight { color: #c9a84c; font-weight: 700; }
-
-  .stats-bar { display: flex; justify-content: space-around; background: #1a3a5c; margin: 8px 16px 12px; border-radius: 12px; padding: 14px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .stats-bar { display: flex; justify-content: space-around; background: #fff; margin: 12px 16px; border-radius: 12px; padding: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-item { text-align: center; flex: 1; }
-  .stat-num { font-size: 24px; font-weight: 700; }
-  .stat-label { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 3px; font-weight: 500; }
-  .stat-num.total { color: #c9a84c; }
-  .stat-num.pending { color: #f0a050; }
-  .stat-num.processing { color: #5dade2; }
-  .stat-num.review { color: #c39bdb; }
-  .stat-num.completed { color: #58d68d; }
+  .stat-num { font-size: 22px; font-weight: 700; }
+  .stat-label { font-size: 11px; color: #999; margin-top: 2px; }
+  .stat-num.total { color: #333; }
+  .stat-num.pending { color: #f39c12; }
+  .stat-num.processing { color: #3498db; }
+  .stat-num.review { color: #9b59b6; }
+  .stat-num.completed { color: #27ae60; }
   .stat-num.overdue { color: #e74c3c; }
 
   .chart-section {
@@ -177,22 +154,14 @@
     background: #fff; border-radius: 12px; padding: 16px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     flex: 1 1 300px; min-width: 280px; max-width: 100%;
-    display: flex; flex-direction: column;
   }
-  .chart-card h3 { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 10px; text-align: center; }
-  .chart-wrap { position: relative; width: 100%; flex: 1; min-height: 200px; max-height: 240px; }
-  .chart-wrap canvas { width: 100% !important; height: 100% !important; }
-  .chart-caption {
-    text-align: center; font-size: 12px; color: #1a3a5c; margin-top: 8px;
-    padding: 6px 10px; background: rgba(26,58,92,0.05); border-radius: 6px;
-    font-weight: 500; line-height: 1.4;
-  }
-  .chart-caption::before { content: '「'; color: #c9a84c; }
-  .chart-caption::after { content: '」'; color: #c9a84c; }
+  .chart-card h3 { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 12px; text-align: center; }
+  .chart-wrap { position: relative; width: 100%; max-height: 260px; }
+  .chart-wrap canvas { width: 100% !important; height: auto !important; }
 
-  .filter-bar { display: flex; gap: 8px; margin: 0 16px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 0 4px; position: sticky; top: 70px; z-index: 99; background: #f5f5f5; }
+  .filter-bar { display: flex; gap: 8px; margin: 0; padding: 10px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; position: sticky; top: 0; z-index: 100; background: #f5f5f5; }
   .filter-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; color: #666; cursor: pointer; transition: all 0.2s; }
-  .filter-btn.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  .filter-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
 
   .task-card { background: #fff; margin: 0 16px 10px; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
   .task-card.overdue { border-left: 4px solid #e74c3c; }
@@ -231,7 +200,10 @@
   .status-pending { background: #fef3e2; color: #e67e22; }
   .status-processing { background: #e8f4fd; color: #2980b9; }
   .status-review { background: #f0e6f6; color: #8e44ad; }
+  .status-completed-work { background: #e6f7ff; color: #0097a7; }
   .status-completed { background: #e8f8f0; color: #27ae60; }
+  .status-defect { background: #fff3e0; color: #ef6c00; }
+  .status-archived { background: #f5f5f5; color: #9e9e9e; }
   .status-overdue { background: #fde8e8; color: #e74c3c; }
   .status-rejected { background: #fef0e6; color: #d35400; }
 
@@ -254,6 +226,7 @@
   .review-status .approved { color: #27ae60; }
   .review-status .rejected { color: #e74c3c; }
   .review-status .pending-text { color: #9b59b6; }
+  .defect-countdown { margin-top: 4px; font-weight: 600; color: #ef6c00; }
 
   .no-data { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
   .last-update { text-align: center; font-size: 11px; color: #bbb; padding: 20px 16px; }
@@ -481,14 +454,11 @@
   }
   @media (prefers-color-scheme: dark) {
     body { background: #1a1a2e; color: #eee; }
-    .leader-banner { background: linear-gradient(135deg, #0d1f35 0%, #122a45 100%); border-left-color: #c9a84c; }
-    .leader-banner .banner-summary { color: #eee; }
-    .stats-bar { background: #0d1f35; }
-    .stat-num.total { color: #c9a84c; }
-    .stat-label { color: rgba(255,255,255,0.5); }
+    .stats-bar { background: #2a2a3e; }
+    .stat-num.total { color: #eee; }
+    .stat-label { color: #888; }
     .filter-btn { background: #2a2a3e; border-color: #444; color: #aaa; }
-    .filter-btn.active { background: #1a3a5c; border-color: #1a3a5c; color: #fff; }
-    .filter-bar { background: #1a1a2e; }
+    .filter-btn.active { background: #3498db; border-color: #3498db; color: #fff; }
     .task-card { background: #2a2a3e; }
     .task-desc { color: #aaa; }
     .task-meta { color: #888; }
@@ -500,7 +470,6 @@
     .review-status { background: #3a3a4e; }
     .chart-card { background: #2a2a3e; }
     .chart-card h3 { color: #aaa; }
-    .chart-caption { background: rgba(201,168,76,0.08); color: #c9a84c; }
     .modal-box { background: #2a2a3e; color: #eee; }
     .modal-box h3 { color: #aaa; border-color: #444; }
     .format-opt { border-color: #555; color: #aaa; }
@@ -861,13 +830,7 @@
     .import-excel-preview { border-color: #444; }
     .import-excel-preview td { border-color: #333; }
   }
-  .user-name-display { color: #aaa; font-size: 13px; margin-right: 10px; display: none; white-space: nowrap; }
-  .badge-btn { background: linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; font-size:13px; padding:6px 14px; border-radius:20px; border:none; cursor:default; display:none; white-space:nowrap; font-weight:600; letter-spacing:1px; }
-  .btn-new-task { font-size:13px !important; padding:6px 14px !important; } /* 缩小按钮 */
 </style>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -880,9 +843,7 @@
       <p>南平联络线高速土建养护<span class="closed-loop-badge">闭环管理</span></p>
     </div>
     <div class="header-right" id="headerRight">
-      <span class="user-name-display" id="userNameDisplay"></span>
       <button class="btn-new-task" id="btnNewTask" onclick="openNewTaskModal()">+ 新建任务</button>
-      <span class="badge-btn" id="badgeBtn">闭环管理</span>
       <button class="btn-import" id="btnImport" onclick="openImportModal()">导入</button>
       <button class="btn-export" id="btnExport" onclick="openExportModal()">导出</button>
       <button class="btn-share" id="btnShare" onclick="openShareModal()">分享</button>
@@ -890,18 +851,14 @@
     </div>
   </div>
 
-  <div id="pullIndicator"><span class="arrow">↓</span> 下拉刷新</div>
-
-  <div class="leader-banner" id="leaderBanner" style="display:none">
-    <div class="banner-title">管养态势</div>
-    <div class="banner-summary" id="bannerSummary"></div>
-  </div>
-
   <div class="stats-bar" id="statsBar">
     <div class="stat-item"><div class="stat-num pending" id="statPending">0</div><div class="stat-label">待响应</div></div>
+    <div class="stat-item"><div class="stat-num overdue" id="statOverdue">0</div><div class="stat-label">超时</div></div>
     <div class="stat-item"><div class="stat-num processing" id="statProcessing">0</div><div class="stat-label">处理中</div></div>
-    <div class="stat-item"><div class="stat-num review" id="statReview">0</div><div class="stat-label">待核验</div></div>
+    <div class="stat-item"><div class="stat-num completed-work" id="statCompletedWork">0</div><div class="stat-label">已完工</div></div>
     <div class="stat-item"><div class="stat-num completed" id="statCompleted">0</div><div class="stat-label">已完成</div></div>
+    <div class="stat-item"><div class="stat-num defect" id="statDefect">0</div><div class="stat-label">缺陷责任期</div></div>
+    <div class="stat-item"><div class="stat-num archived" id="statArchived">0</div><div class="stat-label">已归档</div></div>
     <div class="stat-item"><div class="stat-num total" id="statTotal">0</div><div class="stat-label">总任务数</div></div>
   </div>
 
@@ -909,17 +866,14 @@
     <div class="chart-card">
       <h3>病害分类分布</h3>
       <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
-      <div class="chart-caption" id="pieCaption"></div>
     </div>
     <div class="chart-card">
       <h3>各状态数量</h3>
       <div class="chart-wrap"><canvas id="chartBar"></canvas></div>
-      <div class="chart-caption" id="barCaption"></div>
     </div>
     <div class="chart-card">
       <h3>月度趋势</h3>
       <div class="chart-wrap"><canvas id="chartLine"></canvas></div>
-      <div class="chart-caption" id="lineCaption"></div>
     </div>
   </div>
 
@@ -933,9 +887,12 @@
 
   <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-filter="pending">待响应</button>
+    <button class="filter-btn" data-filter="overdue">超时</button>
     <button class="filter-btn" data-filter="processing">处理中</button>
-    <button class="filter-btn" data-filter="pending_review">待核验</button>
+    <button class="filter-btn" data-filter="completed_work">已完工</button>
     <button class="filter-btn" data-filter="completed">已完成</button>
+    <button class="filter-btn" data-filter="defect_period">缺陷责任期</button>
+    <button class="filter-btn" data-filter="archived">已归档</button>
     <button class="filter-btn" data-filter="all">全部</button>
   </div>
 
@@ -954,7 +911,7 @@
 <div class="admin-login-overlay" id="adminLoginOverlay">
   <div class="admin-login-box">
     <h2>身份验证</h2>
-    <p>输入密钥以登录操作</p>
+    <p>输入密钥以激活操作权限（管理员 / 发布者）</p>
     <input type="password" id="adminKeyInput" placeholder="请输入密钥">
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn-cancel" onclick="closeAdminLogin()">取消</button>
@@ -998,13 +955,13 @@
       <div class="hint">最少 1 张，支持多张</div>
     </div>
     <div class="form-group">
-      <label>问题描述 <span style="color:#e74c3c;">*</span></label>
-      <textarea id="newDescription" placeholder="一句话描述病害问题（系统将自动匹配桩号、分类等信息）" oninput="autoExtractFromDescription()"></textarea>
+      <label>桩号</label>
+      <input type="text" id="newPiles" placeholder="例如 K12+300（支持水印照片OCR自动提取）">
+      <div class="hint" id="ocrHint" style="display:none;"></div>
     </div>
     <div class="form-group">
-      <label>桩号</label>
-      <input type="text" id="newPiles" placeholder="自动从问题描述中提取，也可手动输入（例如 K12+300）">
-      <div class="hint" id="ocrHint" style="display:none;"></div>
+      <label>问题描述 <span style="color:#e74c3c;">*</span></label>
+      <textarea id="newDescription" placeholder="一句话描述病害问题"></textarea>
     </div>
     <div class="form-group">
       <label>病害分类</label>
@@ -1021,6 +978,10 @@
         <option value="检修道">检修道</option>
         <option value="其他">其他</option>
       </select>
+    </div>
+    <div class="form-group">
+      <label>位置</label>
+      <input type="text" id="newLocation" placeholder="例如 右侧护栏">
     </div>
     <div class="form-group">
       <label>创建人</label>
@@ -1248,32 +1209,6 @@
 // ============ 权限体系 ============
 const ADMIN_KEY = 'yh2026';
 const PUBLISHER_KEYS = { 'hjw2026': '黄瑾文', 'cxh2026': '陈晓辉' };
-const USER_CAPABILITIES = {
-  '邹佳飞': { canCreate: true, canAccept: false, hasBadge: true },
-  '黄瑾文': { canCreate: true, canAccept: true, hasBadge: true },
-  '巫小强': { canCreate: false, canAccept: false, hasBadge: true },
-  '李志福': { canCreate: false, canAccept: false, hasBadge: true },
-  '陈晓辉': { canCreate: true, canAccept: true, hasBadge: false },
-  '郑新龙': { canCreate: true, canAccept: true, hasBadge: false },
-  '马俊杰': { canCreate: true, canAccept: true, hasBadge: false },
-  '叶昌通': { canCreate: false, canAccept: true, hasBadge: false },
-};
-let USER_CAN_CREATE = false;
-let USER_CAN_ACCEPT = false;
-let USER_HAS_BADGE = false;
-
-function applyCapability(name) {
-  const cap = USER_CAPABILITIES[name];
-  if (cap) {
-    USER_CAN_CREATE = cap.canCreate;
-    USER_CAN_ACCEPT = cap.canAccept;
-    USER_HAS_BADGE = cap.hasBadge;
-  } else {
-    USER_CAN_CREATE = false;
-    USER_CAN_ACCEPT = false;
-    USER_HAS_BADGE = false;
-  }
-}
 const SHARE_HMAC_SECRET = 'yanghu_share_secret_2026';
 let USER_ROLE = 'visitor'; // admin | publisher | visitor
 let USER_NAME = '';
@@ -1310,57 +1245,31 @@ function detectRole() {
   if (storedKey === ADMIN_KEY) {
     USER_ROLE = 'admin';
     USER_NAME = '管理员';
-    applyCapability('邹佳飞');
   } else if (storedKey && PUBLISHER_KEYS[storedKey]) {
     USER_ROLE = 'publisher';
     USER_NAME = PUBLISHER_KEYS[storedKey];
-    applyCapability(USER_NAME);
-  } else if (storedKey) {
-    USER_ROLE = 'worker';
-    USER_NAME = storedKey;
-    applyCapability(USER_NAME);
   }
 
-  applyCapability(USER_NAME);
   updateAuthUI();
 }
 
 function updateAuthUI() {
-  const isAnyAuth = (USER_ROLE !== 'visitor');
   const isAdmin = (USER_ROLE === 'admin');
+  const canPublish = (USER_ROLE === 'admin' || USER_ROLE === 'publisher');
   const banner = document.getElementById('readonlyBanner');
   const btnNewTask = document.getElementById('btnNewTask');
   const btnImport = document.getElementById('btnImport');
   const btnExport = document.getElementById('btnExport');
   const btnShare = document.getElementById('btnShare');
   const btnLogout = document.getElementById('btnLogout');
-  const badge = document.querySelector('.closed-loop-badge');
-  const badgeBtn = document.getElementById('badgeBtn');
-  const userNameDisplay = document.getElementById('userNameDisplay');
-  const chartSection = document.querySelector('.chart-section');
-  const circularSection = document.querySelector('.circular-section');
 
-  if (chartSection) chartSection.style.display = (USER_ROLE === 'admin' || USER_ROLE === 'publisher') ? '' : 'none';
-  if (circularSection) circularSection.style.display = (USER_ROLE === 'admin' || USER_ROLE === 'publisher') ? '' : 'none';
-
-  if (isAnyAuth) {
+  if (canPublish) {
     banner.classList.remove('show');
-    // 新建任务按钮：USER_CAN_CREATE 控制
-    btnNewTask.style.display = USER_CAN_CREATE ? '' : 'none';
-    // 导入/导出/分享：仅 admin
+    btnNewTask.style.display = '';
     btnImport.style.display = isAdmin ? '' : 'none';
     btnExport.style.display = isAdmin ? '' : 'none';
     btnShare.style.display = isAdmin ? '' : 'none';
     btnLogout.style.display = '';
-    // 闭环管理徽章（header-left p内的）：USER_HAS_BADGE 控制
-    if (badge) badge.style.display = USER_HAS_BADGE ? '' : 'none';
-    // 徽章按钮（header-right替换新建任务位置）：没有新建任务但有badge的人（巫小强/李志福）
-    if (badgeBtn) badgeBtn.style.display = (!USER_CAN_CREATE && USER_HAS_BADGE) ? '' : 'none';
-    // 用户名显示
-    if (userNameDisplay) {
-      userNameDisplay.style.display = '';
-      userNameDisplay.textContent = USER_NAME || '未登录';
-    }
   } else {
     banner.innerHTML = '只读模式，操作需验证　<a href="javascript:void(0)" onclick="showAdminLogin()" style="color:#856404;text-decoration:underline;font-weight:700;">验证身份</a>';
     banner.classList.add('show');
@@ -1369,14 +1278,21 @@ function updateAuthUI() {
     btnExport.style.display = 'none';
     btnShare.style.display = 'none';
     btnLogout.style.display = 'none';
-    if (badge) badge.style.display = 'none';
-    if (badgeBtn) badgeBtn.style.display = 'none';
-    if (userNameDisplay) { userNameDisplay.style.display = 'none'; userNameDisplay.textContent = ''; }
   }
 
+  // 重新渲染任务卡片以更新操作按钮
   if (allTasks.length > 0) {
     const activeFilter = document.querySelector('.filter-btn.active');
     applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  }
+}
+
+function requireAuth(callback) {
+  if (USER_ROLE === 'admin' || USER_ROLE === 'publisher') {
+    callback();
+  } else {
+    window._pendingAuthCallback = callback;
+    showAdminLogin();
   }
 }
 
@@ -1388,43 +1304,28 @@ function showAdminLogin() {
 
 function submitAdminKey() {
   const input = document.getElementById('adminKeyInput').value.trim();
-  if (!input) {
-    document.getElementById('adminKeyError').textContent = '请输入密钥';
-    document.getElementById('adminKeyError').style.display = 'block';
-    return;
-  }
   if (input === ADMIN_KEY) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'admin';
     USER_NAME = '管理员';
-    applyCapability('邹佳飞');
   } else if (PUBLISHER_KEYS[input]) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'publisher';
     USER_NAME = PUBLISHER_KEYS[input];
-    applyCapability(USER_NAME);
   } else {
-    // 任意密钥可作为普通员工登录，可以新建任务
-    localStorage.setItem('admin_key', input);
-    USER_ROLE = 'worker';
-    USER_NAME = input;
-    applyCapability(input);
+    document.getElementById('adminKeyError').style.display = 'block';
+    return;
   }
   document.getElementById('adminLoginOverlay').classList.remove('show');
   updateAuthUI();
+  // 重新渲染任务列表，使操作按钮（确认接单等）根据新角色立即显示
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  updateStatsFromTasks();
   if (window._pendingAuthCallback) {
     const cb = window._pendingAuthCallback;
     window._pendingAuthCallback = null;
     setTimeout(cb, 100);
-  }
-}
-
-function requireAuth(callback) {
-  if (USER_ROLE === 'admin' || USER_ROLE === 'publisher' || USER_ROLE === 'worker') {
-    callback();
-  } else {
-    window._pendingAuthCallback = callback;
-    showAdminLogin();
   }
 }
 
@@ -1437,12 +1338,13 @@ function logout() {
   localStorage.removeItem('admin_key');
   USER_ROLE = 'visitor';
   USER_NAME = '';
-  USER_CAN_CREATE = false;
-  USER_CAN_ACCEPT = false;
-  USER_HAS_BADGE = false;
   updateAuthUI();
+  // 重新渲染，隐藏操作按钮
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
 }
 
+// ============ 分享 Token ============
 function generateShareToken(name, expireDays) {
   const expireMs = Date.now() + expireDays * 86400000;
   const expireTs = Math.floor(expireMs / 1000);
@@ -1537,9 +1439,11 @@ let newTaskPhotos = [];     // 新建任务暂存照片 dataURL
 
 const STATUS_MAP = {
   pending: { label: '待响应', cls: 'status-pending' },
-  processing: { label: '处理中', cls: 'status-processing' },
-  pending_review: { label: '待核验', cls: 'status-review' },
+  processing: { label: '维修中', cls: 'status-processing' },
+  completed_work: { label: '已完工', cls: 'status-completed-work' },
   completed: { label: '已完成', cls: 'status-completed' },
+  defect_period: { label: '缺陷责任期', cls: 'status-defect' },
+  archived: { label: '已归档', cls: 'status-archived' },
   rejected: { label: '需整改', cls: 'status-rejected' }
 };
 
@@ -1584,13 +1488,20 @@ function formatFullTime(isoStr) {
 }
 
 function getStatusInfo(task) {
+  // 缺陷责任期和已归档不显示超时标签
+  if (task.is_overdue && task.status !== 'completed' && task.status !== 'defect_period' && task.status !== 'archived') {
+    return { label: '已超时', cls: 'status-overdue' };
+  }
   return STATUS_MAP[task.status] || { label: '未知', cls: '' };
 }
 
 function getStatusBorder(task) {
+  if (task.is_overdue && task.status !== 'completed' && task.status !== 'defect_period' && task.status !== 'archived') return 'overdue';
   if (task.status === 'rejected') return 'rejected';
-  if (task.status === 'pending_review') return 'review';
+  if (task.status === 'completed_work') return 'completed-work';
   if (task.status === 'completed') return 'completed';
+  if (task.status === 'defect_period') return 'defect';
+  if (task.status === 'archived') return 'archived';
   if (task.status === 'processing') return 'processing';
   return 'pending';
 }
@@ -1836,25 +1747,52 @@ function renderImageSlot(label, groupKey, images, taskId) {
 }
 
 function renderReviewStatus(task) {
+  // 待响应、维修中阶段不显示核验信息
+  if (task.status === 'pending' || task.status === 'processing') return '';
+
   const r = task.reviews;
-  if (!r) return '';
+  if (!r) {
+    // 已完工但没有核验记录，显示空核验区
+    if (task.status === 'completed_work') {
+      return '<div class="review-status"><div>一级核验（黄瑾文）：<span class="pending-text">待核验</span></div></div>';
+    }
+    return '';
+  }
+
   let html = '<div class="review-status">';
+
+  // 一级核验
   if (r.level1) {
     const s = r.level1.result === 'approved' ? '<span class="approved">已通过</span>' : r.level1.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
     html += `<div>一级核验（${r.level1.reviewer || '黄瑾文'}）：${s}</div>`;
     if (r.level1.images && r.level1.images.length > 0) {
       html += '<div class="review-images">' + r.level1.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
     }
+  } else if (task.status === 'completed_work') {
+    // 已完工但一级核验未开始
+    html += '<div>一级核验（黄瑾文）：<span class="pending-text">待核验</span></div>';
   }
-  if (r.level2) {
-    const s = r.level2.result === 'approved' ? '<span class="approved">已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
-    html += `<div>二级核验（${r.level2.reviewer || '邹佳飞'}）：${s}`;
-    if (r.level2.comment) html += ` · ${r.level2.comment}`;
-    html += '</div>';
-    if (r.level2.images && r.level2.images.length > 0) {
-      html += '<div class="review-images">' + r.level2.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
+
+  // 二级核验：仅在一级核验已通过后才显示
+  if (r.level1 && r.level1.result === 'approved') {
+    if (r.level2) {
+      const s = r.level2.result === 'approved' ? '<span class="approved">已通过</span>' : r.level2.result === 'rejected' ? '<span class="rejected">退回</span>' : '<span class="pending-text">待核验</span>';
+      html += `<div>二级核验（${r.level2.reviewer || '邹佳飞'}）：${s}`;
+      if (r.level2.comment) html += ` · ${r.level2.comment}`;
+      html += '</div>';
+      if (r.level2.images && r.level2.images.length > 0) {
+        html += '<div class="review-images">' + r.level2.images.map(img => `<img src="${img}" class="review-thumb" onclick="openLightbox('${img}')">`).join('') + '</div>';
+      }
+    } else {
+      html += '<div>二级核验（邹佳飞）：<span class="pending-text">待核验</span></div>';
     }
   }
+
+  // 缺陷责任期倒计时
+  if (task.status === 'defect_period' && task.defect_start) {
+    html += `<div class="defect-countdown">缺陷责任期剩余：${calcDefectRemaining(task)}</div>`;
+  }
+
   html += '</div>';
   return html;
 }
@@ -1865,7 +1803,6 @@ function acceptTask(taskId) {
   task.accepted_at = new Date().toISOString();
   task.accepted_by = USER_NAME;
   task.status = 'processing';
-  syncTaskToLocal(task);
   updateStatsFromTasks();
   renderCharts();
   const activeFilter = document.querySelector('.filter-btn.active');
@@ -1882,6 +1819,8 @@ function renderTasks(tasks) {
     const statusInfo = getStatusInfo(task);
     const borderCls = getStatusBorder(task);
     const taskNo = task.number || task.id;
+    const overdueTag = task.is_overdue && task.status !== 'completed' && task.status !== 'defect_period' && task.status !== 'archived' ? '<span class="overdue-tag">已超时</span>' : '';
+    const deadlineStr = task.deadline ? `限时：${formatTime(task.deadline)}` : '';
     const completedStr = task.completed_at ? `完成：${formatTime(task.completed_at)}` : '';
     const assigneeStr = task.assignee ? `→ ${task.assignee}` : '';
     const acceptedStr = task.accepted_at ? `接单：${formatTime(task.accepted_at)} ${task.accepted_by ? '(' + task.accepted_by + ')' : ''}` : '';
@@ -1889,14 +1828,14 @@ function renderTasks(tasks) {
     const feishuUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblI0tKOoMy4fyX6&view=vewEUvl6zO&field_fldqydSFQ5=${encodeURIComponent(taskNo)}`;
     const reviewUrl = `https://my.feishu.cn/base/EwJqbhQMbaU3XhsnTJ7cHcgFn7g?table=tblBh8mjI3BiDLmh&view=vewGUjc8Gh&field_fld2YuOhjx=${encodeURIComponent(taskNo)}`;
 
-    const canAct = USER_CAN_ACCEPT;
+    const canAct = (USER_ROLE === 'admin' || USER_ROLE === 'publisher');
     let actionBtn = '';
     if (canAct) {
       if (task.status === 'pending') {
         actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">确认接单</button>`;
       } else if (task.status === 'processing') {
         actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
-      } else if (task.status === 'pending_review') {
+      } else if (task.status === 'completed_work') {
         const r = task.reviews || {};
         const l1 = r.level1;
         const l2 = r.level2;
@@ -1905,10 +1844,12 @@ function renderTasks(tasks) {
         } else if (l1.result === 'approved' && (!l2 || (l2.result !== 'approved' && l2.result !== 'rejected'))) {
           actionBtn = `<a class="review-btn level2" onclick="requireAuth(function(){window.open('${reviewUrl}&field_fldZue54PZ=${encodeURIComponent('二级核验')}','_blank')})" style="cursor:pointer;">二级核验</a>`;
         }
+      } else if (task.status === 'completed' && USER_ROLE === 'admin') {
+        actionBtn = `<button class="accept-btn" onclick="enterDefectPeriod('${task.id}')">进入缺陷责任期</button>`;
       }
     }
     let deleteBtn = '';
-    if (USER_ROLE === 'admin' || USER_NAME === '邹佳飞') {
+    if (USER_ROLE === 'admin') {
       deleteBtn = `<button class="btn-danger" style="font-size:11px;padding:4px 10px;border-radius:6px;" onclick="requireAuth(function(){deleteTask('${task.id}')})">删除</button>`;
     }
 
@@ -1937,7 +1878,9 @@ function renderTasks(tasks) {
           <span>${task.dispatcher || '你'} ${assigneeStr}</span>
           <span>${formatTime(task.dispatched_at)}</span>
           ${acceptedStr ? `<span>${acceptedStr}</span>` : ''}
+          ${deadlineStr ? `<span>${deadlineStr}</span>` : ''}
           ${completedStr ? `<span>${completedStr}</span>` : ''}
+          ${overdueTag}
         </div>
         <div class="image-section">
           <div class="image-label">现场照片</div>
@@ -1947,7 +1890,7 @@ function renderTasks(tasks) {
             <div>${renderImageSlot('维修后', 'after', afterPhotos, task.id)}</div>
           </div>
         </div>
-        ${task.status !== 'pending' ? renderReviewStatus(task) : ''}
+        ${renderReviewStatus(task)}
         ${actionBtn || deleteBtn ? `<div class="task-card-footer">${actionBtn}${deleteBtn}</div>` : ''}
       </div>
     `;
@@ -1960,13 +1903,17 @@ function updateStats(stats) {
   document.getElementById('statTotal').textContent = stats.total || 0;
   document.getElementById('statPending').textContent = stats.pending || 0;
   document.getElementById('statProcessing').textContent = stats.processing || 0;
-  document.getElementById('statReview').textContent = stats.pending_review || 0;
+  document.getElementById('statCompletedWork').textContent = stats.completed_work || 0;
   document.getElementById('statCompleted').textContent = stats.completed || 0;
+  document.getElementById('statDefect').textContent = stats.defect_period || 0;
+  document.getElementById('statArchived').textContent = stats.archived || 0;
+  document.getElementById('statOverdue').textContent = stats.overdue || 0;
 }
 
 function applyFilter(filter) {
   let filtered;
   if (filter === 'all') filtered = allTasks;
+  else if (filter === 'overdue') filtered = allTasks.filter(t => t.is_overdue && t.status !== 'completed' && t.status !== 'defect_period' && t.status !== 'archived');
   else filtered = allTasks.filter(t => t.status === filter);
   renderTasks(filtered);
 }
@@ -1980,31 +1927,33 @@ function renderCharts() {
   });
   const catLabels = Object.keys(catMap);
   const catData = Object.values(catMap);
-  // 蓝金主题色板（深到浅，与政务风格统一）
-  const catColors = ['#1a3a5c','#1f4d7a','#2c5f8a','#3d7ab5','#5dade2','#85c1e9','#aed6f1','#c9a84c','#7fb3d8','#5499c7','#2e86c1'];
+  const catColors = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#95a5a6','#f1c40f','#00bcd4'];
 
   if (chartInstances.pie) chartInstances.pie.destroy();
   chartInstances.pie = new Chart(document.getElementById('chartPie'), {
     type: 'pie',
     data: {
       labels: catLabels,
-      datasets: [{ data: catData, backgroundColor: catColors.slice(0, catLabels.length), borderColor: '#fff', borderWidth: 2 }]
+      datasets: [{ data: catData, backgroundColor: catColors.slice(0, catLabels.length) }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8, usePointStyle: true, pointStyleWidth: 8 } } }
+      maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }
     }
   });
 
-  const statLabels = ['待响应','处理中','待核验','已完成'];
-  const statColors = ['#f0a050','#5dade2','#c39bdb','#58d68d'];
+  const statLabels = ['待响应','超时','维修中','已完工','已完成','缺陷责任期','已归档'];
+  const statColors = ['#f39c12','#e74c3c','#3498db','#0097a7','#27ae60','#ef6c00','#9e9e9e'];
   const stats = allTasks.length ? [
     allTasks.filter(t => t.status === 'pending').length,
+    allTasks.filter(t => t.is_overdue && t.status !== 'completed' && t.status !== 'defect_period' && t.status !== 'archived').length,
     allTasks.filter(t => t.status === 'processing').length,
-    allTasks.filter(t => t.status === 'pending_review').length,
-    allTasks.filter(t => t.status === 'completed').length
-  ] : [0,0,0,0];
+    allTasks.filter(t => t.status === 'completed_work').length,
+    allTasks.filter(t => t.status === 'completed').length,
+    allTasks.filter(t => t.status === 'defect_period').length,
+    allTasks.filter(t => t.status === 'archived').length
+  ] : [0,0,0,0,0,0,0];
 
   if (chartInstances.bar) chartInstances.bar.destroy();
   chartInstances.bar = new Chart(document.getElementById('chartBar'), {
@@ -2014,11 +1963,11 @@ function renderCharts() {
       datasets: [{ data: stats, backgroundColor: statColors, borderRadius: 6, barThickness: 32 }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 }, color: '#666' }, grid: { color: 'rgba(0,0,0,0.05)' } },
-        x: { ticks: { font: { size: 11 }, color: '#666' }, grid: { display: false } }
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+        x: { ticks: { font: { size: 11 } } }
       }
     }
   });
@@ -2042,113 +1991,19 @@ function renderCharts() {
       datasets: [{
         label: '任务数',
         data: monthData.length ? monthData : [0],
-        borderColor: '#c9a84c', backgroundColor: 'rgba(201,168,76,0.08)',
-        fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#c9a84c', borderWidth: 2.5
+        borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.1)',
+        fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#3498db'
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 }, color: '#666' }, grid: { color: 'rgba(0,0,0,0.05)' } },
-        x: { ticks: { font: { size: 11 }, color: '#666' }, grid: { display: false } }
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+        x: { ticks: { font: { size: 11 } } }
       }
     }
   });
-
-  // 图表点评（处长视角）
-  if (catLabels.length > 0) {
-    const topCat = catLabels[catData.indexOf(Math.max(...catData))];
-    document.getElementById('pieCaption').textContent = `${topCat}为当前重点攻坚方向，集中力量优先处置`;
-  }
-  const pendingCount = stats[0];
-  const reviewCount = stats[2];
-  document.getElementById('barCaption').textContent = reviewCount > 0
-    ? `${reviewCount}项待核验，质量把控流程正常运行中`
-    : '各环节流转顺畅，未出现积压';
-  document.getElementById('lineCaption').textContent = months.length > 1
-    ? `近${months.length}个月趋势平稳，建议保持当前节奏`
-    : '数据积累中，持续追踪即可';
-  updateLeaderSummary();
-}
-
-// ============ 领导摘要（处长式战略语言） ============
-function updateLeaderSummary() {
-  const banner = document.getElementById('leaderBanner');
-  const summary = document.getElementById('bannerSummary');
-  if (!banner || !summary) return;
-
-  const total = allTasks.length;
-  const pending = allTasks.filter(t => t.status === 'pending').length;
-  const processing = allTasks.filter(t => t.status === 'processing').length;
-  const review = allTasks.filter(t => t.status === 'pending_review').length;
-  const completed = allTasks.filter(t => t.status === 'completed').length;
-  const rejected = allTasks.filter(t => t.status === 'rejected').length;
-
-  if (total === 0) {
-    banner.style.display = 'none';
-    return;
-  }
-  banner.style.display = 'block';
-
-  // 处长式断言：问题导向 + 概念升华
-  if (pending + processing + review === 0) {
-    summary.innerHTML = `当前管养任务<span class="banner-highlight">全部清零</span>，${completed}项病害处置完毕，态势完全受控。`;
-  } else if (pending > 0) {
-    summary.innerHTML = `共<span class="banner-highlight">${total}处</span>病害纳入管养，其中<span class="banner-highlight">${pending}处待响应</span>，${processing}处正在处置，总体可控。`;
-  } else if (review > 0) {
-    summary.innerHTML = `${processing}处在处置中，<span class="banner-highlight">${review}处待核验</span>，当前重点是把好质量关。`;
-  } else if (rejected > 0) {
-    summary.innerHTML = `${processing}处处置中，<span class="banner-highlight">${rejected}处需返工</span>，已责令相关责任人限期整改。`;
-  } else {
-    summary.innerHTML = `${completed}处已完成处置，剩余${processing}处按计划推进中，预计本周收尾。`;
-  }
-}
-
-// ============ 本地持久化 ============
-const LS_KEY = 'yanghu_local_tasks';
-
-function loadLocalTasks() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveLocalTasks(map) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(map)); } catch {}
-}
-
-function mergeLocalIntoAllTasks() {
-  const local = loadLocalTasks();
-  const localIds = Object.keys(local);
-  if (localIds.length === 0) return;
-
-  // 合并：本地任务覆盖服务器任务的状态字段
-  allTasks = allTasks.map(task => {
-    const localTask = local[task.id];
-    if (!localTask) return task;
-    // 保留服务器字段，仅用本地覆盖状态/接单/核验等运行时字段
-    const merged = { ...localTask };
-    // 保留服务器的 images 和 reviews 结构（本地可能不完整）
-    if (task.images) merged.images = task.images;
-    if (task.reviews) merged.reviews = task.reviews;
-    return merged;
-  });
-
-  // 添加仅在本地存在的任务（用户新建的）
-  const serverIds = new Set(allTasks.map(t => t.id));
-  localIds.forEach(id => {
-    if (!serverIds.has(id)) {
-      allTasks.unshift(local[id]);
-    }
-  });
-}
-
-function syncTaskToLocal(task) {
-  const local = loadLocalTasks();
-  local[task.id] = task;
-  saveLocalTasks(local);
 }
 
 // ============ 数据加载 ============
@@ -2180,7 +2035,6 @@ function loadData(isRetry = false) {
         }
         return task;
       });
-      mergeLocalIntoAllTasks();
       circularTasks = data.circular_tasks || [];
       renderCircularTasks();
       generateCircularTasks();
@@ -2199,20 +2053,7 @@ function loadData(isRetry = false) {
         document.getElementById('taskList').innerHTML = '<div class="no-data">正在加载数据...</div>';
         setTimeout(() => loadData(true), delay);
       } else {
-        // 服务器数据加载失败，尝试从本地加载
-        const local = loadLocalTasks();
-        const localTasks = Object.values(local);
-        if (localTasks.length > 0) {
-          allTasks = localTasks;
-          updateStatsFromTasks();
-          const activeFilter = document.querySelector('.filter-btn.active');
-          applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
-          renderCharts();
-          initExportFields();
-          document.getElementById('lastUpdate').textContent = '最后更新：本地缓存';
-        } else {
-          document.getElementById('taskList').innerHTML = '<div class="no-data" style="cursor:pointer" onclick="loadData()">无法加载数据，点击重试</div>';
-        }
+        document.getElementById('taskList').innerHTML = '<div class="no-data" style="cursor:pointer" onclick="loadData()">无法加载数据，点击重试</div>';
       }
     });
 }
@@ -2269,6 +2110,7 @@ function openNewTaskModal() {
     document.getElementById('newPiles').value = '';
     document.getElementById('newDescription').value = '';
     document.getElementById('newCategory').value = '路面';
+    document.getElementById('newLocation').value = '';
     const savedCreator = localStorage.getItem('yanghu_creator') || '';
     document.getElementById('newCreator').value = USER_NAME || savedCreator;
     document.getElementById('ocrHint').style.display = 'none';
@@ -2342,57 +2184,6 @@ function tryOcrOnPhotos() {
   }
 }
 
-// 从问题描述中自动提取桩号、分类等信息（处长式智能匹配）
-const AUTO_EXTRACT_MAP = {
-  '路面': ['路面', '裂缝', '坑槽', '车辙', '拥包', '沉陷', '松散', '龟裂', '网裂', '横缝', '纵缝', '唧浆', '翻浆', '错台', '麻面'],
-  '边坡': ['边坡', '滑坡', '塌方', '挡墙', '护坡', '落石', '崩塌'],
-  '交安': ['护栏', '标线', '标志', '信号', '警示', '防眩', '轮廓标', '隔离栅', '减速带', '凸起路标'],
-  '水沟': ['水沟', '排水', '边沟', '截水沟', '急流槽', '涵管', '泄水孔'],
-  '涵洞': ['涵洞', '盖板涵', '圆管涵', '箱涵', '拱涵'],
-  '桥梁': ['桥梁', '桥面', '桥墩', '伸缩缝', '支座', '梁体', '桥台', '桥栏'],
-  '隧道': ['隧道', '衬砌', '渗水', '照面', '通风', '洞门', '仰拱'],
-  '绿化': ['绿化', '树木', '草坪', '修剪', '补植', '杂草', '枯死'],
-  '消防': ['消防', '灭火', '消火栓', '灭火器', '消防栓'],
-  '检修道': ['检修', '通道', '步道']
-};
-
-function autoExtractFromDescription() {
-  const desc = document.getElementById('newDescription').value;
-  if (!desc || desc.length < 2) return;
-
-  // 1. 自动匹配桩号（仅当桩号为空时）
-  const pilesInput = document.getElementById('newPiles');
-  if (!pilesInput.value.trim()) {
-    const pilePatterns = [
-      /(?:桩号[：:]\s*)?([A-Z]{0,2}K\d{1,4}\+\d{2,4}(?:\.\d+)?)/gi,
-      /([A-Z]{0,2}K\d{1,4}\+\d{2,4}(?:\.\d+)?)/gi
-    ];
-    for (const pat of pilePatterns) {
-      const match = desc.match(pat);
-      if (match) {
-        pilesInput.value = match[0].replace(/^桩号[：:]\s*/i, '').toUpperCase();
-        document.getElementById('ocrHint').textContent = '已从描述中自动提取桩号';
-        document.getElementById('ocrHint').style.display = 'block';
-        break;
-      }
-    }
-  }
-
-  // 2. 自动匹配病害分类（仅当为默认"路面"时）
-  const catSelect = document.getElementById('newCategory');
-  if (catSelect.value === '路面') {
-    for (const [cat, keywords] of Object.entries(AUTO_EXTRACT_MAP)) {
-      if (cat === '路面') continue; // 已经是路面
-      for (const kw of keywords) {
-        if (desc.includes(kw)) {
-          catSelect.value = cat;
-          return;
-        }
-      }
-    }
-  }
-}
-
 function submitNewTask() {
   const description = document.getElementById('newDescription').value.trim();
   if (!description) { alert('请输入问题描述'); return; }
@@ -2400,6 +2191,7 @@ function submitNewTask() {
 
   const piles = document.getElementById('newPiles').value.trim();
   const category = document.getElementById('newCategory').value;
+  const location = document.getElementById('newLocation').value.trim();
   let creator = document.getElementById('newCreator').value.trim();
 
   if (!creator) { alert('请输入创建人姓名'); return; }
@@ -2422,12 +2214,15 @@ function submitNewTask() {
     id: taskId,
     number: taskNumber,
     piles: piles,
+    location: location,
     description: description,
     dispatcher: '你',
     assignee: '',
     dispatched_at: now.toISOString(),
+    deadline: null,
     status: 'pending',
     completed_at: null,
+    is_overdue: false,
     category: category,
     images: {
       before: newTaskPhotos.map((_, i) => `images/${taskId}_维修前_${i+1}.jpg`),
@@ -2444,7 +2239,6 @@ function submitNewTask() {
   };
 
   allTasks.unshift(newTask);
-  syncTaskToLocal(newTask);
   updateStatsFromTasks();
   const activeFilter = document.querySelector('.filter-btn.active');
   applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
@@ -2452,7 +2246,7 @@ function submitNewTask() {
   initExportFields();
 
   closeNewTaskModal();
-  alert(`任务 ${taskNumber} 已创建。`);
+  alert(`任务 ${taskNumber} 已创建。请通知管理员同步到飞书。`);
 }
 
 function updateStatsFromTasks() {
@@ -2460,277 +2254,52 @@ function updateStatsFromTasks() {
     total: allTasks.length,
     pending: allTasks.filter(t => t.status === 'pending').length,
     processing: allTasks.filter(t => t.status === 'processing').length,
-    pending_review: allTasks.filter(t => t.status === 'pending_review').length,
-    completed: allTasks.filter(t => t.status === 'completed').length
+    completed_work: allTasks.filter(t => t.status === 'completed_work').length,
+    completed: allTasks.filter(t => t.status === 'completed').length,
+    defect_period: allTasks.filter(t => t.status === 'defect_period').length,
+    archived: allTasks.filter(t => t.status === 'archived').length,
+    overdue: allTasks.filter(t => t.is_overdue && t.status !== 'completed' && t.status !== 'defect_period' && t.status !== 'archived').length
   };
   updateStats(stats);
 }
 
-// ============ 导入模态框 ============
-let importZipData = null;  // 解析后的 ZIP 内容
-let importParsedRows = []; // 解析后的 Excel 行
-let importPhotoFiles = []; // ZIP 中的照片文件
+// 缺陷责任期帮助函数
+function calcDefectRemaining(task) {
+  if (!task.defect_start) return '未开始';
+  const start = new Date(task.defect_start);
+  const days = task.defect_days || 30; // 默认30天缺陷责任期
+  const end = new Date(start);
+  end.setDate(end.getDate() + days);
+  const now = new Date();
+  const remaining = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+  if (remaining <= 0) return '已到期';
+  return `${remaining} 天`;
+}
 
+function enterDefectPeriod(taskId) {
+  requireAuth(function() {
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task || task.status !== 'completed') return;
+    task.status = 'defect_period';
+    task.defect_start = new Date().toISOString();
+    task.defect_days = task.defect_days || 30;
+    updateAllStats();
+    renderCharts();
+    const activeFilter = document.querySelector('.filter-btn.active');
+    applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  });
+}
+
+// ============ 导入模态框 ============
 function openImportModal() {
   requireAuth(function() {
-    resetImportState();
     document.getElementById('importModal').classList.add('show');
     document.body.style.overflow = 'hidden';
   });
 }
-
 function closeImportModal() {
   document.getElementById('importModal').classList.remove('show');
   document.body.style.overflow = '';
-  resetImportState();
-}
-
-function resetImportState() {
-  importZipData = null;
-  importParsedRows = [];
-  importPhotoFiles = [];
-  document.getElementById('importZipContents').style.display = 'none';
-  document.getElementById('importZipContents').innerHTML = '';
-  document.getElementById('btnImportNext1').style.display = 'none';
-  document.getElementById('importUploadZone').classList.remove('dragover');
-  document.getElementById('importZipInput').value = '';
-  gotoImportStep(1);
-}
-
-function gotoImportStep(step) {
-  // 更新步骤指示器
-  for (let i = 1; i <= 4; i++) {
-    const el = document.getElementById('importStep' + i);
-    const conn = document.getElementById('importConn' + i);
-    if (el) el.classList.toggle('active', i <= step);
-    if (conn) conn.classList.toggle('active', i < step);
-  }
-  // 切换内容区
-  for (let i = 1; i <= 4; i++) {
-    const el = document.getElementById('importContent' + i);
-    if (el) el.classList.toggle('active', i === step);
-  }
-}
-
-function handleImportDrop(event) {
-  event.preventDefault();
-  event.currentTarget.classList.remove('dragover');
-  const files = event.dataTransfer.files;
-  if (files.length > 0) processImportZip(files[0]);
-}
-
-function handleImportZip(event) {
-  const files = event.target.files;
-  if (files.length > 0) processImportZip(files[0]);
-}
-
-async function processImportZip(file) {
-  if (!file.name.toLowerCase().endsWith('.zip')) {
-    alert('请上传 .zip 格式的文件');
-    return;
-  }
-
-  const contentsDiv = document.getElementById('importZipContents');
-  contentsDiv.style.display = 'block';
-  contentsDiv.innerHTML = '<div class="no-data">正在解析 ZIP 文件...</div>';
-
-  try {
-    const zip = await JSZip.loadAsync(file);
-    const excelFiles = [];
-    const photoFiles = [];
-
-    // 遍历 ZIP 内容
-    const fileList = [];
-    zip.forEach((relativePath, zipEntry) => {
-      if (zipEntry.dir) return;
-      const name = relativePath.split('/').pop();
-      const ext = name.split('.').pop().toLowerCase();
-      if (['xlsx', 'xls'].includes(ext)) {
-        excelFiles.push({ path: relativePath, name, entry: zipEntry });
-      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
-        photoFiles.push({ path: relativePath, name, entry: zipEntry });
-      }
-    });
-
-    if (excelFiles.length === 0) {
-      contentsDiv.innerHTML = '<div class="no-data">ZIP 中未找到 Excel 文件（.xlsx/.xls）</div>';
-      return;
-    }
-
-    // 解析第一个 Excel 文件
-    const excelData = await excelFiles[0].entry.async('arraybuffer');
-    const workbook = XLSX.read(excelData, { type: 'array' });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-    // 过滤空行，第一行为表头
-    const headerRow = rows.find(r => r && r.some(c => c));
-    if (!headerRow) {
-      contentsDiv.innerHTML = '<div class="no-data">Excel 文件为空或无法解析</div>';
-      return;
-    }
-
-    importParsedRows = rows.slice(rows.indexOf(headerRow) + 1).filter(r => r && r.some(c => c));
-    importPhotoFiles = photoFiles;
-    importZipData = { zip, excelFiles, photoFiles, headerRow };
-
-    // 显示解析结果
-    contentsDiv.innerHTML = `
-      <div style="padding:12px;background:#e8f5e9;border-radius:8px;margin-bottom:8px;">
-        <strong>解析成功</strong><br>
-        Excel: ${excelFiles[0].name}（${importParsedRows.length} 条记录）<br>
-        照片: ${photoFiles.length} 张
-      </div>
-    `;
-    document.getElementById('btnImportNext1').style.display = 'inline-block';
-
-    // 步骤2：预览 Excel
-    renderImportPreview(headerRow, importParsedRows);
-  } catch (err) {
-    contentsDiv.innerHTML = `<div class="no-data">解析失败：${err.message}</div>`;
-  }
-}
-
-function renderImportPreview(headerRow, rows) {
-  const previewDiv = document.getElementById('importExcelPreview');
-  const mappingDiv = document.getElementById('importFieldMapping');
-
-  if (rows.length === 0) {
-    previewDiv.innerHTML = '<div class="no-data">没有可导入的数据</div>';
-    mappingDiv.innerHTML = '';
-    return;
-  }
-
-  // 表头字段映射
-  const fieldOptions = ['桩号', '问题描述', '病害分类', '创建人'];
-  mappingDiv.innerHTML = `
-    <h4>字段映射</h4>
-    <table style="width:100%;font-size:13px;">
-      <tr><th>Excel 列</th><th>映射为</th></tr>
-      ${headerRow.map((h, i) => {
-        const val = h ? String(h) : '';
-        const matched = fieldOptions.find(f => val.includes(f)) || '';
-        return `<tr>
-          <td>${val || '(空)'}</td>
-          <td><select id="importMap${i}" style="width:100%;padding:4px;">
-            <option value="">-- 忽略 --</option>
-            ${fieldOptions.map(f => `<option value="${f}" ${f === matched ? 'selected' : ''}>${f}</option>`).join('')}
-          </select></td>
-        </tr>`;
-      }).join('')}
-    </table>
-  `;
-
-  // 前5行预览
-  previewDiv.innerHTML = `
-    <h4>数据预览（前5条）</h4>
-    <div style="overflow-x:auto;">
-      <table style="font-size:12px;border-collapse:collapse;width:100%;">
-        <tr>${headerRow.map(h => `<th style="padding:4px 8px;border:1px solid #ddd;background:#f5f5f5;">${h || ''}</th>`).join('')}</tr>
-        ${rows.slice(0, 5).map(row => `
-          <tr>${row.map(c => `<td style="padding:4px 8px;border:1px solid #ddd;">${c != null ? String(c).substring(0, 30) : ''}</td>`).join('')}</tr>
-        `).join('')}
-      </table>
-    </div>
-    ${rows.length > 5 ? `<p style="font-size:12px;color:#999;">... 共 ${rows.length} 条</p>` : ''}
-  `;
-
-  // 步骤3：照片匹配预览
-  const photoMatchDiv = document.getElementById('importPhotoMatch');
-  if (importPhotoFiles.length > 0) {
-    photoMatchDiv.innerHTML = `
-      <h4>照片匹配</h4>
-      <p style="font-size:13px;color:#666;">系统将尝试按文件名自动匹配照片到对应任务。未匹配的照片将在步骤4中列出。</p>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-        ${importPhotoFiles.slice(0, 20).map(p => `
-          <div style="font-size:11px;padding:4px 8px;background:#f0f0f0;border-radius:4px;">${p.name}</div>
-        `).join('')}
-        ${importPhotoFiles.length > 20 ? `<div style="font-size:11px;padding:4px 8px;">... 共 ${importPhotoFiles.length} 张</div>` : ''}
-      </div>
-    `;
-  } else {
-    photoMatchDiv.innerHTML = '<div class="no-data">ZIP 中无照片文件</div>';
-  }
-}
-
-function confirmImport() {
-  const creator = document.getElementById('importCreator').value.trim();
-  if (!creator) { alert('请输入创建人姓名'); return; }
-
-  // 读取字段映射
-  const mapping = {};
-  document.querySelectorAll('[id^="importMap"]').forEach(sel => {
-    const idx = parseInt(sel.id.replace('importMap', ''));
-    if (sel.value) mapping[sel.value] = idx;
-  });
-
-  if (!mapping['问题描述']) {
-    alert('请至少将一列映射为"问题描述"');
-    gotoImportStep(2);
-    return;
-  }
-
-  let importedCount = 0;
-  importParsedRows.forEach(row => {
-    const descIdx = mapping['问题描述'];
-    const description = row[descIdx] ? String(row[descIdx]).trim() : '';
-    if (!description) return;
-
-    const pilesIdx = mapping['桩号'];
-    const piles = pilesIdx != null && row[pilesIdx] ? String(row[pilesIdx]).trim() : '';
-    const categoryIdx = mapping['病害分类'];
-    const category = categoryIdx != null && row[categoryIdx] ? String(row[categoryIdx]).trim() : '其他';
-
-    const now = new Date();
-    const yy = String(now.getFullYear()).slice(2);
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const existingCount = allTasks.filter(t => t.number && t.number.startsWith(yy + mm + dd + '-')).length;
-    const taskNumber = `${yy}${mm}${dd}-${String(existingCount + importedCount + 1).padStart(2, '0')}`;
-    const taskId = 'TASK-' + String(allTasks.length + importedCount + 1).padStart(3, '0');
-
-    // 尝试匹配照片
-    const matchedPhotos = importPhotoFiles.filter(p => p.name.includes(piles) || p.name.includes(taskNumber));
-    const beforeImages = matchedPhotos.length > 0
-      ? matchedPhotos.map((_, i) => `images/${taskId}_维修前_${i + 1}.jpg`)
-      : [];
-
-    const newTask = {
-      id: taskId,
-      number: taskNumber,
-      piles: piles,
-      description: description,
-      dispatcher: '导入',
-      assignee: '',
-      dispatched_at: now.toISOString(),
-      deadline: null,
-      status: 'pending',
-      completed_at: null,
-      is_overdue: false,
-      category: category,
-      images: { before: beforeImages, during: [], after: [] },
-      notes: '[批量导入]',
-      reviews: {
-        level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
-        level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
-      },
-      accepted_at: null,
-      creator: creator
-    };
-
-    allTasks.unshift(newTask);
-    syncTaskToLocal(newTask);
-    importedCount++;
-  });
-
-  updateStatsFromTasks();
-  const activeFilter = document.querySelector('.filter-btn.active');
-  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
-  renderCharts();
-  initExportFields();
-  closeImportModal();
-  alert(`成功导入 ${importedCount} 条任务。`);
 }
 function initExportFields() {
   const grid = document.getElementById('fieldGrid');
@@ -3029,11 +2598,12 @@ async function exportExcel(selectedFields) {
   const stats = [
     ['状态', '数量'],
     ['待响应', allTasks.filter(t => t.status === 'pending').length],
-    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length],
-    ['处理中', allTasks.filter(t => t.status === 'processing').length],
-    ['待核验', allTasks.filter(t => t.status === 'pending_review').length],
+    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed' && t.status !== 'defect_period' && t.status !== 'archived').length],
+    ['维修中', allTasks.filter(t => t.status === 'processing').length],
+    ['已完工', allTasks.filter(t => t.status === 'completed_work').length],
     ['已完成', allTasks.filter(t => t.status === 'completed').length],
-    ['超时', allTasks.filter(t => t.is_overdue && t.status !== 'completed').length]
+    ['缺陷责任期', allTasks.filter(t => t.status === 'defect_period').length],
+    ['已归档', allTasks.filter(t => t.status === 'archived').length]
   ];
   const ws2 = XLSX.utils.aoa_to_sheet(stats);
 
@@ -3219,10 +2789,6 @@ function deleteTask(taskId) {
   const taskNo = task.number || task.id;
   if (!confirm(`确定删除任务「${taskNo}」吗？此操作不可撤销。`)) return;
   allTasks = allTasks.filter(t => t.id !== taskId);
-  // 从本地存储中移除
-  const local = loadLocalTasks();
-  delete local[taskId];
-  saveLocalTasks(local);
   updateStatsFromTasks();
   const activeFilter = document.querySelector('.filter-btn.active');
   applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
@@ -3422,64 +2988,6 @@ function syncDataJson() {
 detectRole();
 loadData();
 setInterval(loadData, 30000);
-
-// ============ 移动端触控 ============
-(function() {
-  let startX = 0, startY = 0;
-  let pulling = false, pullDist = 0;
-  const threshold = 80;
-  const body = document.body;
-
-  document.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 1) {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  document.addEventListener('touchmove', function(e) {
-    if (e.touches.length !== 1) return;
-    const dx = Math.abs(e.touches[0].clientX - startX);
-    const dy = e.touches[0].clientY - startY;
-
-    // 横向滑动：阻止
-    if (dx > dy && dx > 30) {
-      e.preventDefault();
-      return;
-    }
-
-    // 纵向下拉刷新：仅在页面顶部时触发
-    if (dy > dx && dy > 20 && window.scrollY <= 5) {
-      pullDist = e.touches[0].clientY - startY;
-      if (pullDist > 20) {
-        pulling = true;
-        body.style.transform = `translateY(${Math.min(pullDist * 0.4, 100)}px)`;
-        body.style.transition = 'none';
-        const indicator = document.getElementById('pullIndicator');
-        if (indicator) {
-          indicator.style.opacity = Math.min(pullDist / threshold, 1);
-          if (pullDist > threshold) indicator.classList.add('ready');
-          else indicator.classList.remove('ready');
-        }
-      }
-    }
-  }, { passive: false });
-
-  document.addEventListener('touchend', function() {
-    if (pulling) {
-      pulling = false;
-      body.style.transition = 'transform 0.3s ease';
-      body.style.transform = 'translateY(0)';
-      const indicator = document.getElementById('pullIndicator');
-      if (indicator) indicator.classList.remove('ready');
-      if (pullDist > threshold) {
-        loadData();
-        if (indicator) indicator.style.opacity = '0';
-      }
-    }
-    pullDist = 0;
-  });
-})();
 </script>
 
 </body>
