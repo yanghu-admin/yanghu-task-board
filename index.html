@@ -864,6 +864,70 @@
   .user-name-display { color: #aaa; font-size: 13px; margin-right: 10px; display: none; white-space: nowrap; }
   .badge-btn { background: linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; font-size:13px; padding:6px 14px; border-radius:20px; border:none; cursor:default; display:none; white-space:nowrap; font-weight:600; letter-spacing:1px; }
   .btn-new-task { font-size:13px !important; padding:6px 14px !important; } /* 缩小按钮 */
+
+  /* ========== 智能派单 - 任务单（工单） ========== */
+  .wo-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2000; justify-content: center; align-items: center; overflow-y: auto; padding: 16px; }
+  .wo-modal-overlay.show { display: flex; }
+  .wo-modal { background: #fff; border-radius: 14px; padding: 22px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #333; }
+  .wo-modal h2 { margin: 0 0 18px 0; font-size: 18px; color: #1a3a5c; border-bottom: 1px solid #eee; padding-bottom: 12px; }
+  .wo-modal h3 { margin: 0 0 12px 0; font-size: 15px; color: #555; }
+  .wo-modal .form-group { margin-bottom: 14px; }
+  .wo-modal .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; font-weight: 500; }
+  .wo-modal .form-group input, .wo-modal .form-group textarea, .wo-modal .form-group select { width: 100%; padding: 9px 12px; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; color: #333; font-size: 13px; box-sizing: border-box; }
+  .wo-modal .form-group textarea { min-height: 80px; resize: vertical; }
+  .wo-modal .form-row { display: flex; gap: 12px; }
+  .wo-modal .form-row .form-group { flex: 1; }
+  .wo-modal .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee; }
+  .wo-modal .btn-cancel { padding: 8px 20px; background: #f5f5f5; color: #666; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .wo-modal .btn-cancel:hover { background: #eee; }
+  .wo-modal .btn-submit { padding: 8px 20px; background: linear-gradient(135deg,#1a3a5c,#2980b9); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .wo-modal .btn-submit:hover { opacity: 0.9; }
+  .wo-modal .btn-danger { padding: 8px 20px; background: #e74c3c; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .wo-modal .btn-danger:hover { background: #c0392b; }
+
+  .wo-detail-modal { background: #fff; border-radius: 14px; padding: 22px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #333; }
+  .wo-detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #eee; }
+  .wo-detail-id { font-size: 20px; font-weight: 700; color: #2980b9; letter-spacing: 0.5px; }
+  .wo-detail-status { display: flex; gap: 8px; align-items: center; }
+  .wo-status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .wo-status-badge.generated { background: rgba(149,165,166,0.15); color: #7f8c8d; }
+  .wo-status-badge.accepted { background: rgba(39,174,96,0.15); color: #27ae60; }
+  .wo-status-badge.rejected { background: rgba(231,76,60,0.15); color: #e74c3c; }
+  .wo-status-badge.completed { background: rgba(52,152,219,0.15); color: #2980b9; }
+  .wo-status-badge.voided { background: rgba(231,76,60,0.15); color: #e74c3c; text-decoration: line-through; }
+  .wo-field-row { display: flex; margin-bottom: 8px; font-size: 13px; line-height: 1.6; }
+  .wo-field-label { width: 120px; flex-shrink: 0; color: #888; font-weight: 500; }
+  .wo-field-value { color: #333; flex: 1; }
+  .wo-field-value.priority-urgent { color: #e74c3c; font-weight: 600; }
+  .wo-field-value.priority-important { color: #f39c12; font-weight: 600; }
+  .wo-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid #eee; }
+  .wo-section-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 10px; }
+  .wo-routing-item { background: #f8f9fa; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; border-left: 3px solid #3498db; }
+  .wo-routing-item.accepted { border-left-color: #27ae60; }
+  .wo-routing-item.rejected { border-left-color: #e74c3c; }
+  .wo-sign-img { max-width: 200px; border-radius: 6px; border: 1px solid #ddd; margin-top: 6px; }
+  .wo-detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee; }
+
+  .btn-wo-view { font-size: 12px; padding: 5px 12px; border-radius: 6px; background: #fff; color: #2980b9; border: 1px solid #2980b9; cursor: pointer; margin-right: 4px; }
+  .btn-wo-view:hover { background: #eaf4fb; }
+  .btn-wo-secondary { font-size: 12px; padding: 5px 12px; border-radius: 6px; background: #f39c12; color: #fff; border: none; cursor: pointer; margin-right: 4px; }
+  .btn-wo-secondary:hover { background: #e67e22; }
+
+  @media print {
+    body * { visibility: hidden; }
+    #woPrintArea, #woPrintArea * { visibility: visible; }
+    #woPrintArea { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #000; font-family: "SimSun",serif; padding: 0; }
+    #woPrintArea .print-header { text-align: center; margin-bottom: 16px; }
+    #woPrintArea .print-header h1 { font-size: 18px; margin: 0 0 4px 0; color: #000; }
+    #woPrintArea .print-header .print-no { font-size: 13px; color: #333; }
+    #woPrintArea .print-info { font-size: 13px; line-height: 2; margin-bottom: 14px; }
+    #woPrintArea .print-info .pi-row { display: flex; }
+    #woPrintArea .print-info .pi-label { width: 6em; flex-shrink: 0; font-weight: bold; }
+    #woPrintArea .print-cutter { border-top: 1px dashed #999; margin: 20px 0; position: relative; }
+    #woPrintArea .print-cutter::after { content: "✂ 裁剪线 ✂"; position: absolute; left: 50%; top: -10px; transform: translateX(-50%); background: #fff; padding: 0 10px; font-size: 11px; color: #999; }
+    #woPrintArea .print-footer { text-align: center; font-size: 11px; color: #666; margin-top: 12px; }
+    @page { size: A4 portrait; margin: 15mm; }
+  }
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1249,14 +1313,14 @@
 const ADMIN_KEY = 'yh2026';
 const PUBLISHER_KEYS = { 'hjw2026': '黄瑾文', 'cxh2026': '陈晓辉' };
 const USER_CAPABILITIES = {
-  '邹佳飞': { canCreate: true, canAccept: false, hasBadge: true },
-  '黄瑾文': { canCreate: true, canAccept: true, hasBadge: true },
-  '巫小强': { canCreate: false, canAccept: false, hasBadge: true },
-  '李志福': { canCreate: false, canAccept: false, hasBadge: true },
-  '陈晓辉': { canCreate: true, canAccept: true, hasBadge: false },
-  '郑新龙': { canCreate: true, canAccept: true, hasBadge: false },
-  '马俊杰': { canCreate: true, canAccept: true, hasBadge: false },
-  '叶昌通': { canCreate: false, canAccept: true, hasBadge: false },
+  '邹佳飞': { canCreate: true, canAccept: true, hasBadge: true },   // 管理员：可建单、可签收
+  '黄瑾文': { canCreate: true, canAccept: true, hasBadge: true },   // 技术员：可建单、可签收、可二级流转
+  '巫小强': { canCreate: false, canAccept: false, hasBadge: true },  // 主管领导：只看
+  '李志福': { canCreate: false, canAccept: false, hasBadge: true },  // 分管领导：只看
+  '陈晓辉': { canCreate: true, canAccept: true, hasBadge: false },   // 养护站长：可建单、可签收、可二级流转
+  '郑新龙': { canCreate: true, canAccept: true, hasBadge: false },   // 副站长：可签收
+  '马俊杰': { canCreate: true, canAccept: true, hasBadge: false },   // 内业：可建单、可签收（接收内业指派）
+  '叶昌通': { canCreate: false, canAccept: true, hasBadge: false },  // 班组带班：可签收
 };
 let USER_CAN_CREATE = false;
 let USER_CAN_ACCEPT = false;
@@ -1866,16 +1930,8 @@ function renderReviewStatus(task) {
 }
 
 function acceptTask(taskId) {
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task || task.status !== 'pending') return;
-  task.accepted_at = new Date().toISOString();
-  task.accepted_by = USER_NAME;
-  task.status = 'processing';
-  syncTaskToServer(task);
-  updateStatsFromTasks();
-  renderCharts();
-  const activeFilter = document.querySelector('.filter-btn.active');
-  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+  // 2026-07-24：接单入口改为打开任务单（工单）弹窗，由派单人确认后再生成/流转
+  wo_openModal(taskId);
 }
 
 function renderTasks(tasks) {
@@ -1897,11 +1953,17 @@ function renderTasks(tasks) {
 
     const canAct = USER_CAN_ACCEPT;
     let actionBtn = '';
+    const hasWorkOrder = (task.work_orders && task.work_orders.length > 0);
+    const latestWO = hasWorkOrder ? task.work_orders[task.work_orders.length - 1] : null;
     if (canAct) {
       if (task.status === 'pending') {
-        actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">确认接单</button>`;
+        actionBtn = `<button class="accept-btn" onclick="acceptTask('${task.id}')">生成任务单</button>`;
       } else if (task.status === 'processing') {
-        actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
+        if (hasWorkOrder) {
+          actionBtn = `<button class="btn-wo-view" onclick="wo_viewDetail('${task.id}','${latestWO.work_order_id}')">查看任务单</button>`;
+        } else {
+          actionBtn = `<a class="submit-photo-btn" href="${feishuUrl}" target="_blank">提交照片</a>`;
+        }
       } else if (task.status === 'pending_review') {
         const r = task.reviews || {};
         const l1 = r.level1;
@@ -2199,6 +2261,7 @@ function loadData(isRetry = false) {
             level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
           };
         }
+        if (!Array.isArray(task.work_orders)) task.work_orders = [];
         return task;
       });
       mergeLocalIntoAllTasks();
@@ -3455,6 +3518,405 @@ function syncDataJson() {
   // 此处更新 JS 内存中的 circularTasks，不写回文件（文件由飞书同步脚本管理）
 }
 
+// ============ 智能派单 - 任务单（工单）管理 ============
+const DISPATCH_UNIT = '南平联络线公司过程养护部';
+const WO_PRIORITY_LABEL = { urgent: '紧急', important: '重要', normal: '一般' };
+const WO_PRIORITY_HOURS = { urgent: 4, important: 24, normal: 72 };
+
+// 默认路由：根据病害分类推荐第一经办人
+const WORK_ORDER_ROUTING = {
+  '交安':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '护栏':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '路面':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '裂缝':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '坑槽':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '边坡':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙'] },
+  '水沟':      { primary: '陈晓辉', canSecondaryTo: ['黄瑾文', '叶昌通', '郑新龙', '马俊杰'] },
+  '桥梁':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '隧道':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] },
+  '检修道':    { primary: '陈晓辉', canSecondaryTo: ['黄瑾文', '叶昌通', '郑新龙', '马俊杰'] },
+  '其他':      { primary: '黄瑾文', canSecondaryTo: ['陈晓辉', '叶昌通', '郑新龙', '马俊杰'] }
+};
+
+// 处理要求模板库（按病害分类）
+const WORK_REQUIREMENT_TEMPLATES = {
+  '交安': '按JTG D81《公路交通安全设施设计规范》及养护技术规范，及时修复或更换受损设施，确保线形顺直、连接牢固、反光性能达标。',
+  '护栏': '更换波形护栏板及受损立柱，立柱埋深、高度符合原设计，连接螺栓齐全紧固，线形顺直。',
+  '路面': '按JTG 5142-2019《公路沥青路面养护技术规范》对应章节处治，压实度、平整度满足要求。',
+  '裂缝': '按JTG 5142-2019标准，宽度<5mm用密封胶灌缝，宽度≥5mm开槽后灌缝+贴缝带，施工温度≥5℃。',
+  '坑槽': '按JTG 5142-2019第6章，采用冷补料或热拌料修补，压实度≥95%，养生后开放交通。',
+  '边坡': '按JTG 5150-2020标准，恢复边坡防护，确保排水畅通、坡面稳定，必要时加固。',
+  '水沟': '清理堵塞、修复破损沟体，确保排水断面和纵坡满足设计要求，无渗漏。',
+  '桥梁': '按JTG 5120-2021《公路桥涵养护规范》对应章节处置，确保结构安全和耐久性。',
+  '隧道': '按JTG H12《公路隧道养护技术规范》处治，确保照明、通风、消防及结构安全。',
+  '检修道': '修复检修道破损部位，恢复平整和承载能力，标线清晰。',
+  '其他': '按相关养护技术规范执行，确保质量达标、行车安全和现场文明施工。'
+};
+
+// 可签收人员（与老板确认的规则一致）
+const WO_ACCEPTABLE_USERS = ['邹佳飞', '黄瑾文', '陈晓辉', '马俊杰', '郑新龙', '叶昌通'];
+// 可发起二级流转人员
+const WO_CAN_SECONDARY_DISPATCH = ['黄瑾文', '陈晓辉'];
+
+function wo_getRouting(diseaseCat) {
+  return WORK_ORDER_ROUTING[diseaseCat] || WORK_ORDER_ROUTING['其他'];
+}
+
+function wo_generateId() {
+  const now = new Date();
+  const yyyymm = now.getFullYear().toString() + (now.getMonth()+1).toString().padStart(2,'0');
+  const suffix = Date.now().toString(36).slice(-4).toUpperCase();
+  return 'GD-' + yyyymm + '-' + suffix;
+}
+
+function wo_ensureTaskOrders(task) {
+  if (!Array.isArray(task.work_orders)) task.work_orders = [];
+  return task.work_orders;
+}
+
+function wo_openModal(taskId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task) return;
+  // 管理员邹佳飞可把任务直接指派给内业马俊杰；其他人员默认按病害路由
+  let defaultAssignee = '';
+  if (USER_NAME === '邹佳飞') {
+    defaultAssignee = '马俊杰';
+  } else {
+    const routing = wo_getRouting(task.category || '其他');
+    defaultAssignee = routing.primary;
+  }
+  document.getElementById('woTaskId').value = taskId;
+  document.getElementById('woDispatchUnit').value = DISPATCH_UNIT;
+  document.getElementById('woMaintenanceUnit').value = defaultAssignee;
+  document.getElementById('woPilesLoc').value = (task.piles || '') + ' ' + (task.location || '');
+  document.getElementById('woDiseaseCat').value = task.category || '其他';
+  document.getElementById('woProblemDesc').value = task.description || '';
+  document.getElementById('woRequirement').value = WORK_REQUIREMENT_TEMPLATES[task.category] || WORK_REQUIREMENT_TEMPLATES['其他'];
+  // 默认完成期限：按优先级计算
+  const priority = 'important';
+  const dl = new Date();
+  dl.setHours(dl.getHours() + WO_PRIORITY_HOURS[priority]);
+  document.getElementById('woDeadline').value = dl.toISOString().slice(0, 10);
+  document.getElementById('woSource').value = '日常巡查';
+  document.getElementById('woPriority').value = priority;
+  document.getElementById('woWorkloadLevel').value = '小型';
+  document.getElementById('woModalTitle').textContent = '生成养护工作任务单';
+  document.getElementById('woPlanText').value = '';
+  // 现场照片
+  const photosGrid = document.getElementById('woPhotosGrid');
+  const taskPhotos = getPhotosForDisplay(task, 'before').concat(getPhotosForDisplay(task, 'during'), getPhotosForDisplay(task, 'after'));
+  if (taskPhotos.length > 0) {
+    photosGrid.innerHTML = taskPhotos.map(p => '<img src="' + photoSrc(p) + '" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" onerror="this.style.display=\'none\'">').join('');
+    document.getElementById('woPhotosArea').style.display = 'block';
+  } else {
+    photosGrid.innerHTML = '';
+    document.getElementById('woPhotosArea').style.display = 'none';
+  }
+  document.getElementById('woOverlay').classList.add('show');
+}
+
+function wo_closeModal() {
+  document.getElementById('woOverlay').classList.remove('show');
+}
+
+function wo_insertTemplate() {
+  const cat = document.getElementById('woDiseaseCat').value;
+  document.getElementById('woPlanText').value = WORK_REQUIREMENT_TEMPLATES[cat] || WORK_REQUIREMENT_TEMPLATES['其他'];
+}
+
+function wo_submitWorkOrder() {
+  const taskId = document.getElementById('woTaskId').value;
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task) return;
+  const maintenanceUnit = document.getElementById('woMaintenanceUnit').value.trim();
+  if (!maintenanceUnit) { alert('请填写养护单位'); return; }
+  const now = new Date();
+  const dt = formatFullTime(now);
+  const priority = document.getElementById('woPriority').value;
+  const newWO = {
+    work_order_id: wo_generateId(),
+    task_id: taskId,
+    dispatch_unit: document.getElementById('woDispatchUnit').value,
+    maintenance_unit: maintenanceUnit,
+    dispatched_at: dt,
+    piles_location: document.getElementById('woPilesLoc').value,
+    disease_category: document.getElementById('woDiseaseCat').value,
+    problem_description: document.getElementById('woProblemDesc').value,
+    work_requirement: document.getElementById('woRequirement').value,
+    deadline: document.getElementById('woDeadline').value,
+    source: document.getElementById('woSource').value,
+    priority: priority,
+    workload_level: document.getElementById('woWorkloadLevel').value,
+    issuer: USER_NAME || '系统',
+    plan_text: document.getElementById('woPlanText').value,
+    accepted_by: '',
+    accepted_at: '',
+    accept_deadline: '',
+    sign_log: '',
+    work_order_status: '已生成',
+    parent_work_order_id: null,
+    secondary_dispatches: [],
+    completion_photos: [],
+    acceptance_result: ''
+  };
+  wo_ensureTaskOrders(task);
+  task.work_orders.push(newWO);
+  // 任务状态改为处理中（任务单已生成并已派单）
+  task.accepted_at = now.toISOString();
+  task.accepted_by = USER_NAME;
+  task.status = 'processing';
+  syncTaskToServer(task);
+  wo_closeModal();
+  updateStatsFromTasks();
+  renderCharts();
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_viewDetail(taskId, workOrderId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) { alert('未找到任务单'); return; }
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) { alert('未找到任务单'); return; }
+  const priorityCls = wo.priority === 'urgent' ? 'priority-urgent' : (wo.priority === 'important' ? 'priority-important' : '');
+  const priorityLabel = WO_PRIORITY_LABEL[wo.priority] || wo.priority;
+  const statusClsMap = { '已生成': 'generated', '已签收': 'accepted', '已拒签': 'rejected', '已完成': 'completed', '已作废': 'voided' };
+  const statusCls = statusClsMap[wo.work_order_status] || 'generated';
+
+  let secListHtml = '';
+  if (wo.secondary_dispatches && wo.secondary_dispatches.length > 0) {
+    secListHtml = '<div class="wo-section"><div class="wo-section-title">二级流转记录</div>' +
+      wo.secondary_dispatches.map(sd =>
+        `<div class="wo-routing-item${sd.status === 'accepted' ? ' accepted' : (sd.status === 'rejected' ? ' rejected' : '')}">
+          <strong>${sd.from} → ${sd.to}</strong> (${sd.dispatch_time})
+          <div>${sd.note || ''} | 状态: ${sd.status || '待处理'}</div>
+          ${sd.sign_log ? '<div>签收: '+sd.sign_log+'</div>' : ''}
+        </div>`
+      ).join('') +
+    '</div>';
+  }
+
+  const canAccept = WO_ACCEPTABLE_USERS.includes(USER_NAME);
+  const canSecDispatch = WO_CAN_SECONDARY_DISPATCH.includes(USER_NAME);
+  const isAdmin = USER_ROLE === 'admin';
+  const isCurrentMaintainer = USER_NAME === wo.maintenance_unit;
+
+  let actionsHtml = '<div class="wo-detail-actions">';
+  if (wo.work_order_status === '已生成' && (isCurrentMaintainer || isAdmin || canAccept)) {
+    actionsHtml += `<button class="btn-submit" onclick="wo_acceptOrder('${taskId}','${wo.work_order_id}')">确认签收</button>`;
+  }
+  if (wo.work_order_status === '已生成' && (isCurrentMaintainer || isAdmin)) {
+    actionsHtml += `<button class="btn-cancel" onclick="wo_rejectOrder('${taskId}','${wo.work_order_id}')">拒签</button>`;
+  }
+  if (wo.work_order_status === '已签收' && (isCurrentMaintainer || (canSecDispatch && isAdmin))) {
+    actionsHtml += `<button class="btn-wo-secondary" onclick="wo_openSecModal('${taskId}','${wo.work_order_id}')">二级流转</button>`;
+  }
+  if (wo.work_order_status === '已签收' && isCurrentMaintainer) {
+    actionsHtml += `<button class="btn-submit" onclick="wo_openCompleteModal('${taskId}','${wo.work_order_id}')">标记完成</button>`;
+  }
+  if (isAdmin && wo.work_order_status !== '已作废') {
+    actionsHtml += `<button class="btn-danger" onclick="wo_voidOrder('${taskId}','${wo.work_order_id}')">作废</button>`;
+  }
+  actionsHtml += `<button class="btn-cancel" onclick="wo_printOrder('${taskId}','${wo.work_order_id}')">打印任务单</button>`;
+  actionsHtml += `<button class="btn-cancel" onclick="wo_closeDetail()">关闭</button>`;
+  actionsHtml += '</div>';
+
+  const html = `
+    <div class="wo-detail-header">
+      <div class="wo-detail-id">${wo.work_order_id}</div>
+      <div class="wo-detail-status"><span class="wo-status-badge ${statusCls}">${wo.work_order_status}</span></div>
+    </div>
+    <div class="wo-field-row"><span class="wo-field-label">派工单位</span><span class="wo-field-value">${wo.dispatch_unit}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">养护单位</span><span class="wo-field-value">${wo.maintenance_unit}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">桩号位置</span><span class="wo-field-value">${wo.piles_location}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">病害分类</span><span class="wo-field-value">${wo.disease_category}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">问题描述</span><span class="wo-field-value">${wo.problem_description}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">处理要求</span><span class="wo-field-value">${wo.work_requirement}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">要求完成时间</span><span class="wo-field-value">${wo.deadline}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">任务来源</span><span class="wo-field-value">${wo.source}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">优先级</span><span class="wo-field-value ${priorityCls}">${priorityLabel}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">工作量等级</span><span class="wo-field-value">${wo.workload_level}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">派单人</span><span class="wo-field-value">${wo.issuer}</span></div>
+    <div class="wo-field-row"><span class="wo-field-label">派单时间</span><span class="wo-field-value">${wo.dispatched_at}</span></div>
+    ${wo.plan_text ? '<div class="wo-section"><div class="wo-section-title">养护方案</div><div class="wo-field-value">'+wo.plan_text+'</div></div>' : ''}
+    ${wo.accepted_by ? '<div class="wo-field-row"><span class="wo-field-label">签收人</span><span class="wo-field-value">'+wo.accepted_by+'</span></div>' : ''}
+    ${wo.accepted_at ? '<div class="wo-field-row"><span class="wo-field-label">签收时间</span><span class="wo-field-value">'+wo.accepted_at+'</span></div>' : ''}
+    ${wo.sign_log ? '<div class="wo-field-row"><span class="wo-field-label">签收备注</span><span class="wo-field-value">'+wo.sign_log+'</span></div>' : ''}
+    ${wo.acceptance_result ? '<div class="wo-section"><div class="wo-section-title">验收结论</div><div class="wo-field-value">'+wo.acceptance_result+'</div></div>' : ''}
+    ${secListHtml}
+    ${actionsHtml}
+  `;
+  document.getElementById('woDetailContent').innerHTML = html;
+  document.getElementById('woDetailOverlay').classList.add('show');
+}
+
+function wo_closeDetail() {
+  document.getElementById('woDetailOverlay').classList.remove('show');
+}
+
+function wo_saveTask(task) {
+  syncTaskToServer(task);
+}
+
+function wo_acceptOrder(taskId, workOrderId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  const now = new Date();
+  wo.accepted_by = USER_NAME;
+  wo.accepted_at = formatFullTime(now);
+  const adl = new Date(now.getTime() + 24*60*60*1000);
+  wo.accept_deadline = formatFullTime(adl);
+  wo.work_order_status = '已签收';
+  wo_saveTask(task);
+  wo_viewDetail(taskId, workOrderId);
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_rejectOrder(taskId, workOrderId) {
+  const reason = prompt('请输入拒签原因：');
+  if (!reason) return;
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  const now = new Date();
+  wo.sign_log = '拒签(' + formatFullTime(now) + '): ' + reason;
+  wo.work_order_status = '已拒签';
+  wo_saveTask(task);
+  wo_viewDetail(taskId, workOrderId);
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_openSecModal(taskId, workOrderId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  document.getElementById('woSecTaskId').value = taskId;
+  document.getElementById('woSecWorkOrderId').value = workOrderId;
+  const routing = wo_getRouting(wo.disease_category || '其他');
+  // 二级流转目标：副站长、内业、班组带班、其他职工
+  const defaults = ['郑新龙', '马俊杰', '叶昌通'];
+  const options = Array.from(new Set(defaults.concat(routing.canSecondaryTo || [])));
+  const sel = document.getElementById('woSecTarget');
+  sel.innerHTML = options.map(name => '<option value="'+name+'">'+name+'</option>').join('');
+  document.getElementById('woSecNote').value = '';
+  document.getElementById('woSecOverlay').classList.add('show');
+}
+
+function wo_closeSecModal() {
+  document.getElementById('woSecOverlay').classList.remove('show');
+}
+
+function wo_doSecondaryDispatch() {
+  const taskId = document.getElementById('woSecTaskId').value;
+  const workOrderId = document.getElementById('woSecWorkOrderId').value;
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  const target = document.getElementById('woSecTarget').value;
+  const note = document.getElementById('woSecNote').value;
+  const now = new Date();
+  const dt = formatFullTime(now);
+  const secDispatch = {
+    from: wo.maintenance_unit,
+    to: target,
+    dispatch_time: dt,
+    note: note,
+    status: 'pending'
+  };
+  wo.secondary_dispatches.push(secDispatch);
+  wo.maintenance_unit = target;
+  wo.work_order_status = '已生成';
+  wo.accepted_by = '';
+  wo.accepted_at = '';
+  wo_saveTask(task);
+  wo_closeSecModal();
+  wo_viewDetail(taskId, workOrderId);
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_openCompleteModal(taskId, workOrderId) {
+  document.getElementById('woCompleteTaskId').value = taskId;
+  document.getElementById('woCompleteId').value = workOrderId;
+  document.getElementById('woAcceptanceResult').value = '';
+  document.getElementById('woCompleteOverlay').classList.add('show');
+}
+
+function wo_closeCompleteModal() {
+  document.getElementById('woCompleteOverlay').classList.remove('show');
+}
+
+function wo_doComplete() {
+  const taskId = document.getElementById('woCompleteTaskId').value;
+  const workOrderId = document.getElementById('woCompleteId').value;
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  wo.acceptance_result = document.getElementById('woAcceptanceResult').value.trim();
+  wo.work_order_status = '已完成';
+  // 同步把任务状态推进到待核验
+  task.status = 'pending_review';
+  wo_saveTask(task);
+  wo_closeCompleteModal();
+  wo_viewDetail(taskId, workOrderId);
+  updateStatsFromTasks();
+  renderCharts();
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_voidOrder(taskId, workOrderId) {
+  if (!confirm('确定要作废任务单 ' + workOrderId + ' 吗？')) return;
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  wo.work_order_status = '已作废';
+  wo_saveTask(task);
+  wo_viewDetail(taskId, workOrderId);
+  const activeFilter = document.querySelector('.filter-btn.active');
+  applyFilter(activeFilter ? activeFilter.dataset.filter : 'all');
+}
+
+function wo_printOrder(taskId, workOrderId) {
+  const task = allTasks.find(t => t.id === taskId);
+  if (!task || !task.work_orders) return;
+  const wo = task.work_orders.find(w => w.work_order_id === workOrderId);
+  if (!wo) return;
+  const priorityLabel = WO_PRIORITY_LABEL[wo.priority] || wo.priority;
+  const printArea = document.getElementById('woPrintArea');
+  const halfHtml = `
+    <div style="border:1px solid #000; padding:12px; margin-bottom:10px;">
+      <div class="print-header"><h1>养护工作任务单</h1><div class="print-no">编号：${wo.work_order_id}</div></div>
+      <div class="print-info">
+        <div class="pi-row"><span class="pi-label">派工单位：</span><span>${wo.dispatch_unit}</span></div>
+        <div class="pi-row"><span class="pi-label">养护单位：</span><span>${wo.maintenance_unit}</span></div>
+        <div class="pi-row"><span class="pi-label">桩号位置：</span><span>${wo.piles_location}</span></div>
+        <div class="pi-row"><span class="pi-label">病害分类：</span><span>${wo.disease_category}</span></div>
+        <div class="pi-row"><span class="pi-label">问题描述：</span><span>${wo.problem_description}</span></div>
+        <div class="pi-row"><span class="pi-label">处理要求：</span><span>${wo.work_requirement}</span></div>
+        <div class="pi-row"><span class="pi-label">完成时间：</span><span>${wo.deadline}</span></div>
+        <div class="pi-row"><span class="pi-label">任务来源：</span><span>${wo.source}</span></div>
+        <div class="pi-row"><span class="pi-label">优先级：</span><span style="color:${wo.priority==='urgent'?'#e74c3c':(wo.priority==='important'?'#f39c12':'#333')};font-weight:700;">${priorityLabel}</span></div>
+        <div class="pi-row"><span class="pi-label">派单时间：</span><span>${wo.dispatched_at}</span></div>
+        <div class="pi-row"><span class="pi-label">签收人：</span><span>${wo.accepted_by || '___________'}</span></div>
+        <div class="pi-row"><span class="pi-label">签收时间：</span><span>${wo.accepted_at || '___________'}</span></div>
+      </div>
+    </div>
+  `;
+  printArea.innerHTML = halfHtml + '<div class="print-cutter"></div>' + halfHtml +
+    '<div class="print-footer">电子工单 | 签收有效期24小时 | 生成时间：' + wo.dispatched_at + '</div>';
+  setTimeout(() => { window.print(); }, 300);
+}
+
 // ============ 启动 ============
 detectRole();
 loadData();
@@ -3518,6 +3980,96 @@ setInterval(loadData, 30000);
   });
 })();
 </script>
+
+<!-- 智能派单 - 生成任务单模态框 -->
+<div class="wo-modal-overlay" id="woOverlay">
+  <div class="wo-modal">
+    <h2 id="woModalTitle">生成养护工作任务单</h2>
+    <input type="hidden" id="woTaskId">
+    <div class="form-row">
+      <div class="form-group"><label>派工单位</label><input type="text" id="woDispatchUnit" value="南平联络线公司过程养护部" readonly></div>
+      <div class="form-group"><label>养护单位 <span style="color:#e74c3c">*</span></label><input type="text" id="woMaintenanceUnit" readonly></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>桩号位置</label><input type="text" id="woPilesLoc" readonly></div>
+      <div class="form-group"><label>病害分类</label><input type="text" id="woDiseaseCat" readonly></div>
+    </div>
+    <div class="form-group"><label>问题描述</label><textarea id="woProblemDesc" placeholder="请描述病害详情"></textarea></div>
+    <div class="form-group"><label>处理要求（技术规范）</label><textarea id="woRequirement" placeholder="自动预填技术规范要求"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>要求完成时间</label><input type="date" id="woDeadline"></div>
+      <div class="form-group"><label>任务来源</label><select id="woSource"><option value="日常巡查">日常巡查</option><option value="专项检查">专项检查</option><option value="应急抢险">应急抢险</option><option value="上级交办">上级交办</option><option value="信访投诉">信访投诉</option><option value="其他">其他</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>优先级</label>
+        <select id="woPriority">
+          <option value="urgent">紧急</option>
+          <option value="important" selected>重要</option>
+          <option value="normal">一般</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>工作量等级</label>
+        <select id="woWorkloadLevel">
+          <option value="小型">小型</option>
+          <option value="中型">中型</option>
+          <option value="大型">大型</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="wo_closeModal()">取消</button>
+      <button class="btn-submit" onclick="wo_submitWorkOrder()">确认派单</button>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #eee;">
+      <h3 style="margin:0 0 12px 0;font-size:15px;color:#555;">养护方案</h3>
+      <textarea id="woPlanText" placeholder="直接在此填写养护方案，或点击引用规范模板..." style="width:100%;min-height:100px;background:#fafafa;border:1px solid #ddd;border-radius:8px;color:#333;padding:10px;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+      <button type="button" class="btn-cancel" onclick="wo_insertTemplate()" style="margin-top:6px;font-size:12px;">引用规范模板</button>
+    </div>
+    <div id="woPhotosArea" style="margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
+      <label style="font-size:13px;color:#666;font-weight:500;">现场照片</label>
+      <div id="woPhotosGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 智能派单 - 任务单详情模态框 -->
+<div class="wo-modal-overlay" id="woDetailOverlay">
+  <div class="wo-detail-modal" id="woDetailContent"></div>
+</div>
+
+<!-- 智能派单 - 二级流转弹窗 -->
+<div class="wo-modal-overlay" id="woSecOverlay">
+  <div class="wo-modal">
+    <h2>工单二级流转</h2>
+    <input type="hidden" id="woSecTaskId">
+    <input type="hidden" id="woSecWorkOrderId">
+    <div class="form-group"><label>目标经办人</label><select id="woSecTarget"></select></div>
+    <div class="form-group"><label>流转说明</label><textarea id="woSecNote" placeholder="请说明流转原因和处理要点"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="wo_closeSecModal()">取消</button>
+      <button class="btn-submit" onclick="wo_doSecondaryDispatch()">确认流转</button>
+    </div>
+  </div>
+</div>
+
+<!-- 智能派单 - 标记完成弹窗 -->
+<div class="wo-modal-overlay" id="woCompleteOverlay">
+  <div class="wo-modal">
+    <h2>标记任务单完成</h2>
+    <input type="hidden" id="woCompleteTaskId">
+    <input type="hidden" id="woCompleteId">
+    <div class="form-group"><label>验收结论</label><textarea id="woAcceptanceResult" placeholder="填写验收结论..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="wo_closeCompleteModal()">取消</button>
+      <button class="btn-submit" onclick="wo_doComplete()">确认完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打印区域（隐藏） -->
+<div id="woPrintArea" style="display:none;"></div>
 
 </body>
 </html>
