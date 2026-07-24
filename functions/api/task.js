@@ -86,7 +86,9 @@ export async function onRequestPost({ request, env }) {
     if (!db.tasks) db.tasks = [];
     const idx = task.id ? db.tasks.findIndex(t => t.id === task.id) : -1;
     if (idx >= 0) {
-      db.tasks[idx] = Object.assign({}, db.tasks[idx], task);
+      const existing = db.tasks[idx];
+      if (task.work_orders === undefined && existing.work_orders !== undefined) task.work_orders = existing.work_orders;
+      db.tasks[idx] = Object.assign({}, existing, task);
     } else {
       task.id = task.id || ('TASK-' + Date.now());
       task.status = task.status || 'pending';
