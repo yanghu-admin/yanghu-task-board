@@ -3519,7 +3519,7 @@ function syncDataJson() {
 }
 
 // ============ 智能派单 - 任务单（工单）管理 ============
-const DISPATCH_UNIT = '南平联络线公司过程养护部';
+const DISPATCH_UNIT = '南平联络线公司工程养护部';
 const WO_PRIORITY_LABEL = { urgent: '紧急', important: '重要', normal: '一般' };
 const WO_PRIORITY_HOURS = { urgent: 4, important: 24, normal: 72 };
 
@@ -3987,7 +3987,7 @@ setInterval(loadData, 30000);
     <h2 id="woModalTitle">生成养护工作任务单</h2>
     <input type="hidden" id="woTaskId">
     <div class="form-row">
-      <div class="form-group"><label>派工单位</label><input type="text" id="woDispatchUnit" value="南平联络线公司过程养护部" readonly></div>
+      <div class="form-group"><label>派工单位</label><input type="text" id="woDispatchUnit" value="南平联络线公司工程养护部" readonly></div>
       <div class="form-group"><label>养护单位 <span style="color:#e74c3c">*</span></label><input type="text" id="woMaintenanceUnit" readonly></div>
     </div>
     <div class="form-row">
