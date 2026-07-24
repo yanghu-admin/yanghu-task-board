@@ -3557,6 +3557,8 @@ const WORK_REQUIREMENT_TEMPLATES = {
 const WO_ACCEPTABLE_USERS = ['邹佳飞', '黄瑾文', '陈晓辉', '马俊杰', '郑新龙', '叶昌通'];
 // 可发起二级流转人员
 const WO_CAN_SECONDARY_DISPATCH = ['黄瑾文', '陈晓辉'];
+// 管理员邹佳飞一般把任务推给以下三人（生成任务单时可选，默认马俊杰）
+const ZOU_ASSIGN_TARGETS = ['黄瑾文', '陈晓辉', '马俊杰'];
 
 function wo_getRouting(diseaseCat) {
   return WORK_ORDER_ROUTING[diseaseCat] || WORK_ORDER_ROUTING['其他'];
@@ -3577,17 +3579,27 @@ function wo_ensureTaskOrders(task) {
 function wo_openModal(taskId) {
   const task = allTasks.find(t => t.id === taskId);
   if (!task) return;
-  // 管理员邹佳飞可把任务直接指派给内业马俊杰；其他人员默认按病害路由
+  // 管理员邹佳飞一般把任务推给 黄瑾文、陈晓辉、马俊杰 三人；其他人员默认按病害路由
   let defaultAssignee = '';
+  let muTargets = [];
   if (USER_NAME === '邹佳飞') {
+    muTargets = ZOU_ASSIGN_TARGETS.slice();
     defaultAssignee = '马俊杰';
   } else {
     const routing = wo_getRouting(task.category || '其他');
     defaultAssignee = routing.primary;
+    muTargets = [defaultAssignee];
   }
   document.getElementById('woTaskId').value = taskId;
   document.getElementById('woDispatchUnit').value = DISPATCH_UNIT;
-  document.getElementById('woMaintenanceUnit').value = defaultAssignee;
+  const muSel = document.getElementById('woMaintenanceUnit');
+  muSel.innerHTML = '';
+  muTargets.forEach(function(n) {
+    const o = document.createElement('option');
+    o.value = n; o.text = n;
+    muSel.appendChild(o);
+  });
+  muSel.value = defaultAssignee;
   document.getElementById('woPilesLoc').value = (task.piles || '') + ' ' + (task.location || '');
   document.getElementById('woDiseaseCat').value = task.category || '其他';
   document.getElementById('woProblemDesc').value = task.description || '';
@@ -3988,7 +4000,7 @@ setInterval(loadData, 30000);
     <input type="hidden" id="woTaskId">
     <div class="form-row">
       <div class="form-group"><label>派工单位</label><input type="text" id="woDispatchUnit" value="南平联络线公司工程养护部" readonly></div>
-      <div class="form-group"><label>养护单位 <span style="color:#e74c3c">*</span></label><input type="text" id="woMaintenanceUnit" readonly></div>
+      <div class="form-group"><label>养护单位 <span style="color:#e74c3c">*</span></label><select id="woMaintenanceUnit" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:14px;"></select></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>桩号位置</label><input type="text" id="woPilesLoc" readonly></div>
