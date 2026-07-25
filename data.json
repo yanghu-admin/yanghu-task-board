@@ -3,6 +3,39 @@
   "last_updated": "2026-07-19T23:52:21.000000+08:00",
   "tasks": [
     {
+      "piles": "K66+666",
+      "location": "微信sink模拟桩号",
+      "description": "EdgeOneTaskSink cookie+multipart实测",
+      "category": "交安",
+      "assignee": "",
+      "dispatcher": "微信中枢",
+      "creator": "微信中枢",
+      "status": "pending",
+      "id": "TASK-1784951011864",
+      "images": {
+        "before": [],
+        "during": [],
+        "after": []
+      },
+      "reviews": {
+        "level1": {
+          "reviewer": "黄瑾文",
+          "result": null,
+          "reviewed_at": null,
+          "comment": "",
+          "images": []
+        },
+        "level2": {
+          "reviewer": "邹佳飞",
+          "result": null,
+          "reviewed_at": null,
+          "comment": "",
+          "images": []
+        }
+      },
+      "number": "IMPORT-1784951011864"
+    },
+    {
       "id": "TASK-001",
       "piles": "K12+300",
       "location": "右侧护栏",
