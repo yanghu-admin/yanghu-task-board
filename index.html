@@ -1593,6 +1593,7 @@ function copyShareUrl() {
 const DATA_URL = '/api/data';                 // 线上由 EdgeOne 边缘函数提供实时数据
 const STATIC_DATA_FALLBACK = 'data.json';    // GitHub Pages / 离线兜底
 const API_TASK = '/api/task';                // 提交/更新任务（边缘函数）
+const API_KEY = 'yh-board-2026-a7f3k9m2x5p8q1r4'; // API鉴权密钥（2026-09-02添加，与EdgeOne环境变量API_KEY一致）
 const IMG_BASE = 'https://raw.githubusercontent.com/yanghu-admin/yanghu-task-board/master/'; // 照片实时基址
 const BASE_URL = 'https://yanghu-admin.github.io/yanghu-task-board/';
 let allTasks = [];
@@ -2224,7 +2225,7 @@ function syncTaskToServer(task) {
   const fd = new FormData();
   fd.append('id', task.id || '');
   fd.append('task_json', JSON.stringify(task));
-  fetch(API_TASK, { method: 'POST', body: fd })
+  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-API-Key': API_KEY } })
     .then(r => r.json())
     .then(r => { if (r && r.ok) loadData(); })
     .catch(() => {});
@@ -2236,7 +2237,7 @@ const MAX_RETRIES = 3;
 
 // 优先读边缘函数实时接口，失败则回退到静态 data.json（GitHub Pages / 离线）
 function fetchDataWithFallback() {
-  return fetch(DATA_URL + '?_t=' + Date.now())
+  return fetch(DATA_URL + '?_t=' + Date.now(), { headers: { 'X-API-Key': API_KEY } })
     .then(r => { if (!r.ok) throw new Error('api ' + r.status); return r.json(); })
     .catch(() => fetch(STATIC_DATA_FALLBACK + '?_t=' + Date.now())
       .then(r => { if (!r.ok) throw new Error('static ' + r.status); return r.json(); }));
@@ -2537,7 +2538,7 @@ function submitNewTask() {
   for (const f of newTaskFiles) fd.append('before', f);
   const btn = document.querySelector('#newTaskModal .btn-primary');
   if (btn) btn.disabled = true;
-  fetch(API_TASK, { method: 'POST', body: fd })
+  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-API-Key': API_KEY } })
     .then(r => r.json())
     .then(r => {
       if (btn) btn.disabled = false;
