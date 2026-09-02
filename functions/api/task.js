@@ -53,6 +53,23 @@ async function getDecodedFile(env, path) {
 
 export async function onRequestPost({ request, env }) {
   try {
+    // ===== API Key 鉴权（2026-08-30 修复：原代码无鉴权，任何人可篡改数据）=====
+    const API_KEY = env.API_KEY;
+    if (!API_KEY) {
+      return new Response(JSON.stringify({ ok: false, error: 'Server misconfigured: API_KEY not set' }), {
+        status: 500,
+        headers: { 'content-type': 'application/json; charset=utf-8' }
+      });
+    }
+    const providedKey = request.headers.get('x-api-key') || request.headers.get('X-API-Key');
+    if (providedKey !== API_KEY) {
+      return new Response(JSON.stringify({ ok: false, error: 'Unauthorized: invalid or missing API key' }), {
+        status: 401,
+        headers: { 'content-type': 'application/json; charset=utf-8' }
+      });
+    }
+    // ===== 鉴权结束 =====
+
     const ct = request.headers.get('content-type') || '';
     let task = {};
     const groups = {};
@@ -100,6 +117,22 @@ export async function onRequestPost({ request, env }) {
       if (!task.number) task.number = 'IMPORT-' + Date.now();
       db.tasks.unshift(task);
     }
+    // ===== 修复：重算 statistics + 自动更新 is_overdue（2026-08-30，原代码 statistics 是死的）=====
+    const now = new Date();
+    const stats = { total: db.tasks.length, pending: 0, processing: 0, pending_review: 0, completed: 0, overdue: 0 };
+    for (const t of db.tasks) {
+      if (stats[t.status] !== undefined) stats[t.status]++;
+      if (t.deadline && t.status !== 'completed' && new Date(t.deadline) < now) {
+        stats.overdue++;
+        t.is_overdue = true;
+      } else {
+        t.is_overdue = false;
+      }
+    }
+    db.statistics = stats;
+    db.last_updated = now.toISOString();
+    // ===== 重算结束 =====
+
     await putContent(env, 'data.json', b64encodeStr(JSON.stringify(db, null, 2)), 'update data.json via edge function');
     return new Response(JSON.stringify({ ok: true, id: task.id }), {
       headers: { 'content-type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }
