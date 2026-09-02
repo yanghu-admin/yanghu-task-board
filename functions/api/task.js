@@ -53,23 +53,6 @@ async function getDecodedFile(env, path) {
 
 export async function onRequestPost({ request, env }) {
   try {
-    // ===== API Key 鉴权（2026-08-30 修复：原代码无鉴权，任何人可篡改数据）=====
-    const API_KEY = env.API_KEY;
-    if (!API_KEY) {
-      return new Response(JSON.stringify({ ok: false, error: 'Server misconfigured: API_KEY not set' }), {
-        status: 500,
-        headers: { 'content-type': 'application/json; charset=utf-8' }
-      });
-    }
-    const providedKey = request.headers.get('x-api-key') || request.headers.get('X-API-Key');
-    if (providedKey !== API_KEY) {
-      return new Response(JSON.stringify({ ok: false, error: 'Unauthorized: invalid or missing API key' }), {
-        status: 401,
-        headers: { 'content-type': 'application/json; charset=utf-8' }
-      });
-    }
-    // ===== 鉴权结束 =====
-
     const ct = request.headers.get('content-type') || '';
     let task = {};
     const groups = {};
