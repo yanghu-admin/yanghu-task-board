@@ -2,13 +2,22 @@
 // 新建或更新任务：上传照片到飞书附件、写入飞书多维表格
 // 替换原来的GitHub data.json方案
 // 前端以 multipart 提交：字段 task_json（任务对象 JSON）+ before/during/after（照片文件）
+// 注意：本版本不使用KV存储，用模块级变量缓存token（实例内有效）
+// 环境变量：FEISHU_APP_ID、FEISHU_APP_SECRET、FEISHU_BASE_TOKEN、FEISHU_TABLE_ID、ADMIN_KEY
 
-const FEISHU_BASE_TOKEN = 'PG1NbgKG7ae8HGsXKVFcGp1MnBh';
-const FEISHU_TABLE_ID = 'tbl7w9jy83w5rJUS';
+const DEFAULT_BASE_TOKEN = 'PG1NbgKG7ae8HGsXKVFcGp1MnBh';
+const DEFAULT_TABLE_ID = 'tbl7w9jy83w5rJUS';
+const DEFAULT_ADMIN_KEY = 'yh2026';
+
+// 模块级缓存（边缘函数实例内有效，实例重启后失效）
+let cachedToken = null;
+let cachedTokenTime = 0;
+const TOKEN_CACHE_TTL = 110 * 60 * 1000; // 110分钟
 
 async function getFeishuToken(env) {
-  const cachedToken = await env.KV.get('feishu:tenant_token');
-  if (cachedToken) return cachedToken;
+  if (cachedToken && (Date.now() - cachedTokenTime < TOKEN_CACHE_TTL)) {
+    return cachedToken;
+  }
 
   const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
     method: 'POST',
@@ -18,9 +27,9 @@ async function getFeishuToken(env) {
   const data = await res.json();
   if (data.code !== 0) throw new Error('Feishu token error: ' + data.msg);
 
-  const token = data.tenant_access_token;
-  await env.KV.put('feishu:tenant_token', token, { expirationTtl: 6600 });
-  return token;
+  cachedToken = data.tenant_access_token;
+  cachedTokenTime = Date.now();
+  return cachedToken;
 }
 
 // 上传文件到飞书附件
@@ -29,7 +38,7 @@ async function uploadAttachment(env, token, file, fileName) {
   const formData = new FormData();
   formData.append('file_name', fileName);
   formData.append('parent_type', 'bitable');
-  formData.append('parent_node', env.FEISHU_BASE_TOKEN || FEISHU_BASE_TOKEN);
+  formData.append('parent_node', env.FEISHU_BASE_TOKEN || DEFAULT_BASE_TOKEN);
   formData.append('size', String(bytes.length));
   formData.append('file', new Blob([bytes], { type: file.type || 'application/octet-stream' }), fileName);
 
@@ -105,9 +114,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     // 服务端鉴权：检查 X-Admin-Key 请求头
-    // 前端硬编码的 ADMIN_KEY 仅用于UI显示控制，真正的写入鉴权在这里
     const adminKey = request.headers.get('X-Admin-Key') || request.headers.get('x-admin-key');
-    const expectedKey = env.ADMIN_KEY || 'yh2026'; // 默认值兼容旧版，部署时应配置环境变量
+    const expectedKey = env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
     if (!adminKey || adminKey !== expectedKey) {
       return new Response(JSON.stringify({ ok: false, error: 'Unauthorized: 无效的管理员密钥' }), {
         status: 401,
@@ -116,8 +124,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     const token = await getFeishuToken(env);
-    const baseToken = env.FEISHU_BASE_TOKEN || FEISHU_BASE_TOKEN;
-    const tableId = env.FEISHU_TABLE_ID || FEISHU_TABLE_ID;
+    const baseToken = env.FEISHU_BASE_TOKEN || DEFAULT_BASE_TOKEN;
+    const tableId = env.FEISHU_TABLE_ID || DEFAULT_TABLE_ID;
 
     // 上传照片到飞书附件
     const photoFileTokens = [];
