@@ -1,30 +1,33 @@
 // EdgeOne Pages Function — GET /api/data
 // 从飞书多维表格获取养护任务数据，返回前端需要的JSON格式
 // 替换原来的GitHub data.json方案
+// 注意：本版本不使用KV存储，用模块级变量缓存token（实例内有效）
+// 环境变量：FEISHU_APP_ID、FEISHU_APP_SECRET、FEISHU_BASE_TOKEN、FEISHU_TABLE_ID
 
-const FEISHU_BASE_TOKEN = 'PG1NbgKG7ae8HGsXKVFcGp1MnBh'; // 新表格（应用创建，有完全控制权）
-const FEISHU_TABLE_ID = 'tbl7w9jy83w5rJUS'; // 养护任务跟踪看板
+const DEFAULT_BASE_TOKEN = 'PG1NbgKG7ae8HGsXKVFcGp1MnBh';
+const DEFAULT_TABLE_ID = 'tbl7w9jy83w5rJUS';
+
+// 模块级缓存（边缘函数实例内有效，实例重启后失效）
+let cachedToken = null;
+let cachedTokenTime = 0;
+const TOKEN_CACHE_TTL = 110 * 60 * 1000; // 110分钟
 
 async function getFeishuToken(env) {
-  // 先查缓存
-  const cachedToken = await env.KV.get('feishu:tenant_token');
-  if (cachedToken) return cachedToken;
+  if (cachedToken && (Date.now() - cachedTokenTime < TOKEN_CACHE_TTL)) {
+    return cachedToken;
+  }
 
-  // 调用飞书API获取token
-  const appId = env.FEISHU_APP_ID;
-  const appSecret = env.FEISHU_APP_SECRET;
   const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ app_id: appId, app_secret: appSecret })
+    body: JSON.stringify({ app_id: env.FEISHU_APP_ID, app_secret: env.FEISHU_APP_SECRET })
   });
   const data = await res.json();
   if (data.code !== 0) throw new Error('Feishu token error: ' + data.msg);
 
-  const token = data.tenant_access_token;
-  // 缓存110分钟（飞书token有效期约2小时）
-  await env.KV.put('feishu:tenant_token', token, { expirationTtl: 6600 });
-  return token;
+  cachedToken = data.tenant_access_token;
+  cachedTokenTime = Date.now();
+  return cachedToken;
 }
 
 // 飞书富文本字段转纯文本
@@ -49,7 +52,7 @@ function attachmentsToUrls(value) {
     name: att.name,
     size: att.size,
     type: att.mime_type || att.type,
-    url: `/api/img?token=${att.file_token}` // 通过边缘函数代理访问
+    url: `/api/img?token=${att.file_token}`
   }));
 }
 
@@ -137,11 +140,11 @@ function calculateStats(tasks) {
   return stats;
 }
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ env }) {
   try {
     const token = await getFeishuToken(env);
-    const baseToken = env.FEISHU_BASE_TOKEN || FEISHU_BASE_TOKEN;
-    const tableId = env.FEISHU_TABLE_ID || FEISHU_TABLE_ID;
+    const baseToken = env.FEISHU_BASE_TOKEN || DEFAULT_BASE_TOKEN;
+    const tableId = env.FEISHU_TABLE_ID || DEFAULT_TABLE_ID;
 
     // 从飞书获取所有记录（分页）
     let allRecords = [];
