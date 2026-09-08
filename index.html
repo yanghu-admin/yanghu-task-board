@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>养护任务跟踪看板</title>
+<!-- PWA：添加到主屏幕 / 桌面图标 -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#16213E">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="南联养护">
 <!-- CDN 依赖 -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -1672,7 +1679,7 @@ function getPinnedPhoto(task, group) {
   return (idx >= 0 && idx < arr.length) ? arr[idx] : null;
 }
 
-function photoSrc(p){ if(!p) return p; return p.startsWith('http') ? p : (IMG_BASE + p); }
+function photoSrc(p){ if(!p) return p; if(p.startsWith('http') || p.startsWith('/api/')) return p; return (IMG_BASE + p); }
 
 function getPhotosForDisplay(task, group) {
   const arr = (task.images && task.images[group]) ? task.images[group] : [];
@@ -2225,7 +2232,7 @@ function syncTaskToServer(task) {
   const fd = new FormData();
   fd.append('id', task.id || '');
   fd.append('task_json', JSON.stringify(task));
-  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-API-Key': API_KEY } })
+  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-Admin-Key': ADMIN_KEY } })
     .then(r => r.json())
     .then(r => { if (r && r.ok) loadData(); })
     .catch(() => {});
@@ -2237,10 +2244,44 @@ const MAX_RETRIES = 3;
 
 // 优先读边缘函数实时接口，失败则回退到静态 data.json（GitHub Pages / 离线）
 function fetchDataWithFallback() {
-  return fetch(DATA_URL + '?_t=' + Date.now(), { headers: { 'X-API-Key': API_KEY } })
+  return fetch(DATA_URL + '?_t=' + Date.now(), { headers: { 'X-Admin-Key': ADMIN_KEY } })
     .then(r => { if (!r.ok) throw new Error('api ' + r.status); return r.json(); })
     .catch(() => fetch(STATIC_DATA_FALLBACK + '?_t=' + Date.now())
       .then(r => { if (!r.ok) throw new Error('static ' + r.status); return r.json(); }));
+}
+
+// 飞书数据格式转换为前端格式
+function convertFeishuTask(task) {
+  if (!task) return task;
+  // 如果已经是前端格式（有images对象），直接返回
+  if (task.images && typeof task.images === 'object' && !Array.isArray(task.images)) return task;
+
+  const converted = {
+    id: task.id || task.record_id || ('FS-' + Date.now()),
+    number: task.work_order || task.number || '',
+    piles: task.pile_number || task.piles || '',
+    description: task.description || '',
+    creator: task.responsible || task.creator || '',
+    status: task.status || 'pending',
+    disease_category: task.disease_category || '',
+    dispatched_at: task.dispatch_time || task.dispatched_at || null,
+    completed_at: task.complete_time || task.completed_at || null,
+    deadline: task.deadline || null,
+    accept_time: task.accept_time || null,
+    work_orders: [],
+    images: { before: [], during: [], after: [] },
+    reviews: {
+      level1: { reviewer: task.level1_reviewer || '黄瑾文', result: task.level1_result || null, reviewed_at: null, comment: '', images: [] },
+      level2: { reviewer: task.level2_reviewer || '邹佳飞', result: task.level2_result || null, reviewed_at: null, comment: '', images: [] }
+    }
+  };
+
+  // 照片转换：飞书photos数组 -> 前端images.before
+  if (task.photos && Array.isArray(task.photos) && task.photos.length > 0) {
+    converted.images.before = task.photos.map(p => p.url || ('/api/img?token=' + p.file_token));
+  }
+
+  return converted;
 }
 
 function loadData(isRetry = false) {
@@ -2249,6 +2290,7 @@ function loadData(isRetry = false) {
     .then(data => {
       loadRetryCount = 0;
       allTasks = (data.tasks || []).map(task => {
+        task = convertFeishuTask(task);
         if (!task.images || typeof task.images === 'string') {
           task.images = { before: [], during: [], after: [] };
         } else {
@@ -2538,7 +2580,7 @@ function submitNewTask() {
   for (const f of newTaskFiles) fd.append('before', f);
   const btn = document.querySelector('#newTaskModal .btn-primary');
   if (btn) btn.disabled = true;
-  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-API-Key': API_KEY } })
+  fetch(API_TASK, { method: 'POST', body: fd, headers: { 'X-Admin-Key': ADMIN_KEY } })
     .then(r => r.json())
     .then(r => {
       if (btn) btn.disabled = false;
@@ -4083,6 +4125,19 @@ setInterval(loadData, 30000);
 
 <!-- 打印区域（隐藏） -->
 <div id="woPrintArea" style="display:none;"></div>
+
+<!-- PWA：注册 Service Worker（离线缓存） -->
+<script>
+(function () {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/service-worker.js').catch(function (e) {
+        console.error('SW 注册失败：', e);
+      });
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
