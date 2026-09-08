@@ -1,123 +1,169 @@
 // EdgeOne Pages Function — POST /api/task
-// 新建或更新任务：上传照片到 images/、写入 GitHub 仓库 data.json，实现"填报即自动发布"。
-// 前端以 multipart 提交：字段 task_json（任务对象 JSON）+ before/during/after（照片文件）。
-const OWNER = 'yanghu-admin';
-const REPO = 'yanghu-task-board';
-const BRANCH = 'master';
+// 新建或更新任务：上传照片到飞书附件、写入飞书多维表格
+// 替换原来的GitHub data.json方案
+// 前端以 multipart 提交：字段 task_json（任务对象 JSON）+ before/during/after（照片文件）
 
-function ghHeaders(token) {
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: 'application/vnd.github+json',
-    'User-Agent': 'edgeone-yanghu',
-    'Content-Type': 'application/json'
-  };
-}
-function b64decode(b64) {
-  // GitHub 返回的 base64 含换行与（可能的）URL-safe 变体，必须全部清理，否则 atob 抛 InvalidCharacterError
-  const norm = String(b64).replace(/[^A-Za-z0-9+/]/g, '');
-  const bin = atob(norm);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-function b64encodeBytes(bytes) {
-  let bin = '';
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return btoa(bin);
-}
-function b64encodeStr(str) {
-  return b64encodeBytes(new TextEncoder().encode(str));
-}
-async function getSha(env, path) {
-  const url = `https://api.github.com/repos/${env.GH_OWNER || OWNER}/${env.GH_REPO || REPO}/contents/${path}?ref=${env.GH_BRANCH || BRANCH}`;
-  const res = await fetch(url, { headers: ghHeaders(env.GITHUB_PAT) });
-  if (res.ok) { const d = await res.json(); return d.sha; }
-  return null;
-}
-async function putContent(env, path, contentB64, message) {
-  const url = `https://api.github.com/repos/${env.GH_OWNER || OWNER}/${env.GH_REPO || REPO}/contents/${path}`;
-  const sha = await getSha(env, path);
-  const body = { message, content: contentB64, branch: env.GH_BRANCH || BRANCH };
-  if (sha) body.sha = sha;
-  const res = await fetch(url, { method: 'PUT', headers: ghHeaders(env.GITHUB_PAT), body: JSON.stringify(body) });
-  if (!res.ok) { const t = await res.text(); throw new Error('GitHub PUT ' + res.status + ' ' + path + ' ' + t.slice(0, 200)); }
-}
-async function getDecodedFile(env, path) {
-  const url = `https://api.github.com/repos/${env.GH_OWNER || OWNER}/${env.GH_REPO || REPO}/contents/${path}?ref=${env.GH_BRANCH || BRANCH}`;
-  const res = await fetch(url, { headers: ghHeaders(env.GITHUB_PAT) });
-  if (!res.ok) throw new Error('GitHub GET ' + res.status + ' ' + path);
+const FEISHU_BASE_TOKEN = 'PG1NbgKG7ae8HGsXKVFcGp1MnBh';
+const FEISHU_TABLE_ID = 'tbl7w9jy83w5rJUS';
+
+async function getFeishuToken(env) {
+  const cachedToken = await env.KV.get('feishu:tenant_token');
+  if (cachedToken) return cachedToken;
+
+  const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ app_id: env.FEISHU_APP_ID, app_secret: env.FEISHU_APP_SECRET })
+  });
   const data = await res.json();
-  return b64decode(data.content);
+  if (data.code !== 0) throw new Error('Feishu token error: ' + data.msg);
+
+  const token = data.tenant_access_token;
+  await env.KV.put('feishu:tenant_token', token, { expirationTtl: 6600 });
+  return token;
+}
+
+// 上传文件到飞书附件
+async function uploadAttachment(env, token, file, fileName) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const formData = new FormData();
+  formData.append('file_name', fileName);
+  formData.append('parent_type', 'bitable');
+  formData.append('parent_node', env.FEISHU_BASE_TOKEN || FEISHU_BASE_TOKEN);
+  formData.append('size', String(bytes.length));
+  formData.append('file', new Blob([bytes], { type: file.type || 'application/octet-stream' }), fileName);
+
+  const res = await fetch('https://open.feishu.cn/open-apis/drive/v1/medias/upload_all', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
+  });
+  const data = await res.json();
+  if (data.code !== 0) throw new Error('Upload attachment error: ' + data.msg);
+  return data.data.file_token;
+}
+
+// 富文本字段转换
+function toRichText(value) {
+  if (!value) return null;
+  if (typeof value === 'string') return [{ type: 'text', text: value }];
+  return value;
+}
+
+// 转换任务对象为飞书字段格式
+function taskToFields(task, photoFileTokens) {
+  const fields = {};
+
+  if (task.work_order !== undefined) fields['工单号'] = task.work_order;
+  if (task.pile_number !== undefined) fields['桩号'] = task.pile_number;
+  if (task.description !== undefined) fields['问题描述'] = task.description;
+  if (task.responsible !== undefined) fields['责任人'] = task.responsible;
+  if (task.status !== undefined) fields['状态'] = task.status;
+  if (task.level1_reviewer !== undefined) fields['一级核验人'] = task.level1_reviewer;
+  if (task.level1_result !== undefined) fields['一级核验'] = task.level1_result;
+  if (task.level2_reviewer !== undefined) fields['二级核验人'] = task.level2_reviewer;
+  if (task.level2_result !== undefined) fields['二级核验'] = task.level2_result;
+  if (task.disease_category !== undefined) fields['病害分类'] = task.disease_category;
+
+  // 日期字段（毫秒时间戳）
+  if (task.dispatch_time) fields['派发时间'] = new Date(task.dispatch_time).getTime();
+  if (task.complete_time) fields['完成时间'] = new Date(task.complete_time).getTime();
+  if (task.deadline) fields['截止时间'] = new Date(task.deadline).getTime();
+  if (task.accept_time) fields['受理时间'] = new Date(task.accept_time).getTime();
+
+  // 照片附件字段
+  if (photoFileTokens && photoFileTokens.length > 0) {
+    fields['照片'] = photoFileTokens.map(token => ({ file_token: token }));
+  }
+
+  return fields;
 }
 
 export async function onRequestPost({ request, env }) {
   try {
     const ct = request.headers.get('content-type') || '';
     let task = {};
-    const groups = {};
+    const photoFiles = [];
+
     if (ct.includes('multipart')) {
       const fd = await request.formData();
       task = JSON.parse(fd.get('task_json') || '{}');
-      for (const g of ['before', 'during', 'after']) {
-        const fs = fd.getAll(g);
-        if (fs && fs.length) groups[g] = fs;
+
+      // 收集所有照片文件
+      for (const key of ['before', 'during', 'after', 'photos', 'photo']) {
+        const files = fd.getAll(key);
+        if (files && files.length) {
+          for (const file of files) {
+            if (file && file.size > 0) {
+              photoFiles.push({ file, name: `${key}_${Date.now()}_${photoFiles.length}.jpg` });
+            }
+          }
+        }
       }
     } else {
       task = await request.json();
     }
 
-    // 上传照片到仓库 images/
-    for (const g of Object.keys(groups)) {
-      if (!task.images) task.images = {};
-      if (!task.images[g]) task.images[g] = [];
-      for (let i = 0; i < groups[g].length; i++) {
-        const file = groups[g][i];
-        const bytes = new Uint8Array(await file.arrayBuffer());
-        const path = (task.images[g][i]) || `${g}_${Date.now()}_${i}.jpg`;
-        await putContent(env, path, b64encodeBytes(bytes), 'add image ' + path);
-        if (!task.images[g].includes(path)) task.images[g].push(path);
+    // 服务端鉴权：检查 X-Admin-Key 请求头
+    // 前端硬编码的 ADMIN_KEY 仅用于UI显示控制，真正的写入鉴权在这里
+    const adminKey = request.headers.get('X-Admin-Key') || request.headers.get('x-admin-key');
+    const expectedKey = env.ADMIN_KEY || 'yh2026'; // 默认值兼容旧版，部署时应配置环境变量
+    if (!adminKey || adminKey !== expectedKey) {
+      return new Response(JSON.stringify({ ok: false, error: 'Unauthorized: 无效的管理员密钥' }), {
+        status: 401,
+        headers: { 'content-type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    const token = await getFeishuToken(env);
+    const baseToken = env.FEISHU_BASE_TOKEN || FEISHU_BASE_TOKEN;
+    const tableId = env.FEISHU_TABLE_ID || FEISHU_TABLE_ID;
+
+    // 上传照片到飞书附件
+    const photoFileTokens = [];
+    for (const { file, name } of photoFiles) {
+      try {
+        const fileToken = await uploadAttachment(env, token, file, name);
+        photoFileTokens.push(fileToken);
+      } catch (e) {
+        console.error('Upload photo failed:', e.message);
       }
     }
 
-    // 读取仓库当前数据并合并
-    const raw = await getDecodedFile(env, 'data.json');
-    const db = JSON.parse(raw);
-    if (!db.tasks) db.tasks = [];
-    const idx = task.id ? db.tasks.findIndex(t => t.id === task.id) : -1;
-    if (idx >= 0) {
-      const existing = db.tasks[idx];
-      if (task.work_orders === undefined && existing.work_orders !== undefined) task.work_orders = existing.work_orders;
-      db.tasks[idx] = Object.assign({}, existing, task);
-    } else {
-      task.id = task.id || ('TASK-' + Date.now());
-      task.status = task.status || 'pending';
-      if (!task.images) task.images = { before: [], during: [], after: [] };
-      if (!task.reviews) task.reviews = {
-        level1: { reviewer: '黄瑾文', result: null, reviewed_at: null, comment: '', images: [] },
-        level2: { reviewer: '邹佳飞', result: null, reviewed_at: null, comment: '', images: [] }
-      };
-      if (!task.number) task.number = 'IMPORT-' + Date.now();
-      db.tasks.unshift(task);
-    }
-    // ===== 修复：重算 statistics + 自动更新 is_overdue（2026-08-30，原代码 statistics 是死的）=====
-    const now = new Date();
-    const stats = { total: db.tasks.length, pending: 0, processing: 0, pending_review: 0, completed: 0, overdue: 0 };
-    for (const t of db.tasks) {
-      if (stats[t.status] !== undefined) stats[t.status]++;
-      if (t.deadline && t.status !== 'completed' && new Date(t.deadline) < now) {
-        stats.overdue++;
-        t.is_overdue = true;
-      } else {
-        t.is_overdue = false;
+    // 转换为飞书字段格式
+    const fields = taskToFields(task, photoFileTokens);
+
+    // 如果有 task.id，更新记录；否则新建记录
+    let recordId = task.id;
+    if (recordId) {
+      // 尝试更新记录
+      const updateUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${baseToken}/tables/${tableId}/records/${recordId}`;
+      const res = await fetch(updateUrl, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const data = await res.json();
+      if (data.code !== 0) {
+        // 更新失败，可能是record_id不存在，改为新建
+        recordId = null;
       }
     }
-    db.statistics = stats;
-    db.last_updated = now.toISOString();
-    // ===== 重算结束 =====
 
-    await putContent(env, 'data.json', b64encodeStr(JSON.stringify(db, null, 2)), 'update data.json via edge function');
-    return new Response(JSON.stringify({ ok: true, id: task.id }), {
+    if (!recordId) {
+      // 新建记录
+      const createUrl = `https://open.feishu.cn/open-apis/bitable/v1/apps/${baseToken}/tables/${tableId}/records`;
+      const res = await fetch(createUrl, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const data = await res.json();
+      if (data.code !== 0) throw new Error('Create record error: ' + data.msg + ' ' + JSON.stringify(data.error || {}));
+      recordId = data.data.record.record_id;
+    }
+
+    return new Response(JSON.stringify({ ok: true, id: recordId, photos_uploaded: photoFileTokens.length }), {
       headers: { 'content-type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }
     });
   } catch (e) {
