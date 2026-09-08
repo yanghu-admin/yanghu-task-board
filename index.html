@@ -2256,13 +2256,38 @@ function convertFeishuTask(task) {
   // 如果已经是前端格式（有images对象），直接返回
   if (task.images && typeof task.images === 'object' && !Array.isArray(task.images)) return task;
 
+  // 中文状态 -> 英文状态映射
+  const STATUS_MAP = {
+    '待处理': 'pending',
+    '处理中': 'processing',
+    '待核验': 'pending_review',
+    '已完成': 'completed',
+    '已超期': 'overdue',
+    '已取消': 'cancelled'
+  };
+  // 中文核验结果 -> 英文映射
+  const REVIEW_MAP = {
+    '待核验': 'pending',
+    '通过': 'approved',
+    '不通过': 'rejected',
+    '需整改': 'needs_revision'
+  };
+
+  const rawStatus = task.status || 'pending';
+  const convertedStatus = STATUS_MAP[rawStatus] || rawStatus;
+
+  const rawL1 = task.level1_result;
+  const rawL2 = task.level2_result;
+  const convertedL1 = REVIEW_MAP[rawL1] || rawL1;
+  const convertedL2 = REVIEW_MAP[rawL2] || rawL2;
+
   const converted = {
     id: task.id || task.record_id || ('FS-' + Date.now()),
     number: task.work_order || task.number || '',
     piles: task.pile_number || task.piles || '',
     description: task.description || '',
     creator: task.responsible || task.creator || '',
-    status: task.status || 'pending',
+    status: convertedStatus,
     disease_category: task.disease_category || '',
     dispatched_at: task.dispatch_time || task.dispatched_at || null,
     completed_at: task.complete_time || task.completed_at || null,
@@ -2271,8 +2296,8 @@ function convertFeishuTask(task) {
     work_orders: [],
     images: { before: [], during: [], after: [] },
     reviews: {
-      level1: { reviewer: task.level1_reviewer || '黄瑾文', result: task.level1_result || null, reviewed_at: null, comment: '', images: [] },
-      level2: { reviewer: task.level2_reviewer || '邹佳飞', result: task.level2_result || null, reviewed_at: null, comment: '', images: [] }
+      level1: { reviewer: task.level1_reviewer || '黄瑾文', result: convertedL1, reviewed_at: null, comment: '', images: [] },
+      level2: { reviewer: task.level2_reviewer || '邹佳飞', result: convertedL2, reviewed_at: null, comment: '', images: [] }
     }
   };
 
