@@ -125,3 +125,5 @@ python wework_to_feishu_relay.py    # 企业微信→飞书中转
 ---
 
 *最后更新：2026-07-23（WorkBuddy 接管后校准）*
+
+<!-- deploy-trigger: 2026-09-10 16:51:26 -->
