@@ -1597,9 +1597,11 @@ function copyShareUrl() {
 }
 
 // ============ 全局状态 ============
-const DATA_URL = '/api/data';                 // 线上由 EdgeOne 边缘函数提供实时数据
+// API_BASE: 留空则用相对路径（前后端同域名时）；填绝对URL则跨域调用（如Cloudflare Workers）
+const API_BASE = '';  // 示例: 'https://yanghu-board.worker.workers.dev'
+const DATA_URL = API_BASE + '/api/data';                 // 线上由边缘函数提供实时数据
 const STATIC_DATA_FALLBACK = 'data.json';    // GitHub Pages / 离线兜底
-const API_TASK = '/api/task';                // 提交/更新任务（边缘函数）
+const API_TASK = API_BASE + '/api/task';                // 提交/更新任务（边缘函数）
 const API_KEY = 'yh-board-2026-a7f3k9m2x5p8q1r4'; // API鉴权密钥（2026-09-02添加，与EdgeOne环境变量API_KEY一致）
 const IMG_BASE = 'https://raw.githubusercontent.com/yanghu-admin/yanghu-task-board/master/'; // 照片实时基址
 const BASE_URL = 'https://yanghu-admin.github.io/yanghu-task-board/';
@@ -1909,7 +1911,7 @@ function renderImageSlot(label, groupKey, images, taskId) {
   }
   return images.map((img, i) => {
     const src = photoSrc(img);
-    return `<div class="image-thumb"><img src="${src}" alt="${label}" onclick="openPhotoBrowser('${taskId}','${groupKey}',${i})" loading="lazy"></div>`;
+    return `<div class="image-thumb"><img src="${src}" alt="${label}" onclick="openPhotoBrowser('${taskId}','${groupKey}',${i})" loading="lazy" style="opacity:0;transition:opacity 0.3s;" onload="this.style.opacity=1" onerror="this.style.opacity=1"></div>`;
   }).join('');
 }
 
@@ -3686,7 +3688,7 @@ function wo_openModal(taskId) {
   const photosGrid = document.getElementById('woPhotosGrid');
   const taskPhotos = getPhotosForDisplay(task, 'before').concat(getPhotosForDisplay(task, 'during'), getPhotosForDisplay(task, 'after'));
   if (taskPhotos.length > 0) {
-    photosGrid.innerHTML = taskPhotos.map(p => '<img src="' + photoSrc(p) + '" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" onerror="this.style.display=\'none\'">').join('');
+    photosGrid.innerHTML = taskPhotos.map(p => '<img src="' + photoSrc(p) + '" loading="lazy" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd;opacity:0;transition:opacity 0.3s;" onload="this.style.opacity=1" onerror="this.style.display=\'none\'">').join('');
     document.getElementById('woPhotosArea').style.display = 'block';
   } else {
     photosGrid.innerHTML = '';
@@ -3999,6 +4001,50 @@ function wo_printOrder(taskId, workOrderId) {
 
 // ============ 启动 ============
 detectRole();
+// ── 高级图片懒加载：IntersectionObserver 监听视口内图片，进入后淡入 ──
+function initLazyLoading() {
+  if (!('IntersectionObserver' in window)) {
+    console.log('[懒加载] 浏览器不支持 IntersectionObserver，使用原生 loading="lazy"');
+    return;
+  }
+  const imgObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        // 如果图片用 data-src 延迟加载，进入视口后设置 src
+        if (img.dataset.src && !img.src) {
+          img.src = img.dataset.src;
+        }
+        // 进入视口后标记，用于后续优化
+        img.classList.add('in-view');
+        imgObserver.unobserve(img);
+      }
+    });
+  }, {
+    rootMargin: '100px 0px', // 提前100px开始加载
+    threshold: 0.01
+  });
+
+  // 监听现有图片
+  document.querySelectorAll('img').forEach(img => imgObserver.observe(img));
+
+  // 监听后续动态添加的图片（MutationObserver）
+  const domObserver = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.tagName === 'IMG') {
+          imgObserver.observe(node);
+        } else if (node.querySelectorAll) {
+          node.querySelectorAll('img').forEach(img => imgObserver.observe(img));
+        }
+      });
+    });
+  });
+  domObserver.observe(document.body, { childList: true, subtree: true });
+  console.log('[懒加载] IntersectionObserver 已启动，提前100px加载图片');
+}
+
+initLazyLoading();
 loadData();
 setInterval(loadData, 30000);
 
