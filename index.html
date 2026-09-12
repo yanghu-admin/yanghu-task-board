@@ -235,6 +235,14 @@
   .review-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
   .review-images { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
   .task-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; gap: 6px; }
+  .detail-toggle { font-size: 11px; color: #2980b9; margin-left: 8px; cursor: pointer; }
+  .task-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+  .detail-section { margin-bottom: 14px; }
+  .detail-section h4 { font-size: 13px; color: #333; margin: 0 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #f0f0f0; }
+  .detail-row { display: flex; font-size: 12px; margin-bottom: 4px; line-height: 1.6; }
+  .detail-label { color: #888; min-width: 70px; flex-shrink: 0; }
+  .detail-photo-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .detail-photo-grid img { max-width: 100%; border-radius: 8px; border: 1px solid #eee; }
   .status-pending { background: #fef3e2; color: #e67e22; }
   .status-processing { background: #e8f4fd; color: #2980b9; }
   .status-review { background: #f0e6f6; color: #8e44ad; }
@@ -1318,6 +1326,7 @@
 <script>
 // ============ 权限体系 ============
 const ADMIN_KEY = 'yh2026';
+const ADMIN_KEYS = ['yh2026', 'zjf2026']; // 管理员密钥列表
 const PUBLISHER_KEYS = { 'hjw2026': '黄瑾文', 'cxh2026': '陈晓辉' };
 const USER_CAPABILITIES = {
   '邹佳飞': { canCreate: true, canAccept: true, hasBadge: true },   // 管理员：可建单、可签收
@@ -1378,7 +1387,7 @@ function detectRole() {
 
   // 2. 检查 localStorage 中是否已有认证记录
   const storedKey = localStorage.getItem('admin_key');
-  if (storedKey === ADMIN_KEY) {
+  if (ADMIN_KEYS.includes(storedKey)) {
     USER_ROLE = 'admin';
     USER_NAME = '管理员';
     applyCapability('邹佳飞');
@@ -1464,7 +1473,7 @@ function submitAdminKey() {
     document.getElementById('adminKeyError').style.display = 'block';
     return;
   }
-  if (input === ADMIN_KEY) {
+  if (ADMIN_KEYS.includes(input)) {
     localStorage.setItem('admin_key', input);
     USER_ROLE = 'admin';
     USER_NAME = '管理员';
@@ -1996,14 +2005,15 @@ function renderTasks(tasks) {
     const afterPhotos = getPhotosForDisplay(task, 'after');
 
     return `
-      <div class="task-card ${borderCls}">
+      <div class="task-card ${borderCls}" onclick="toggleTaskDetail('${task.id}')" style="cursor:pointer;">
         <div class="task-header">
           <div class="task-header-left">
             <span class="task-number">${taskNo}</span>
+            <span class="detail-toggle" id="toggle_${task.id}">点击展开详情 ▼</span>
           </div>
           <div class="task-header-right">
             <span class="task-status ${statusInfo.cls}">${statusInfo.label}</span>
-            <span class="qr-icon" onclick="openQrModal('${task.id}','${taskNo}')" title="查看二维码">
+            <span class="qr-icon" onclick="event.stopPropagation();openQrModal('${task.id}','${taskNo}')" title="查看二维码">
               <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h2v-3zm-2 5h2v4h-2v-4zm5-2h-3v2h2v2h-2v2h3v-6zm0 7v-2h-2v2h2z"/></svg>
             </span>
           </div>
@@ -2018,18 +2028,68 @@ function renderTasks(tasks) {
           ${completedStr ? `<span>${completedStr}</span>` : ''}
         </div>
         <div class="image-section">
-          <div class="image-label">现场照片</div>
+          <div class="image-label">现场照片（点击放大）</div>
           <div class="image-row">
-            <div>${renderImageSlot('维修前', 'before', beforePhotos, task.id)}</div>
-            <div>${renderImageSlot('维修中', 'during', duringPhotos, task.id)}</div>
-            <div>${renderImageSlot('维修后', 'after', afterPhotos, task.id)}</div>
+            <div onclick="event.stopPropagation();">${renderImageSlot('维修前', 'before', beforePhotos, task.id)}</div>
+            <div onclick="event.stopPropagation();">${renderImageSlot('维修中', 'during', duringPhotos, task.id)}</div>
+            <div onclick="event.stopPropagation();">${renderImageSlot('维修后', 'after', afterPhotos, task.id)}</div>
           </div>
         </div>
-        ${task.status !== 'pending' ? renderReviewStatus(task) : ''}
-        ${actionBtn || deleteBtn ? `<div class="task-card-footer">${actionBtn}${deleteBtn}</div>` : ''}
+        <div class="task-detail" id="detail_${task.id}" style="display:none;">
+          <div class="detail-section">
+            <h4>任务详情</h4>
+            <div class="detail-row"><span class="detail-label">任务编号：</span><span>${taskNo}</span></div>
+            <div class="detail-row"><span class="detail-label">桩号位置：</span><span>${task.piles || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">具体地点：</span><span>${task.location || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">故障描述：</span><span>${task.description || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">任务分类：</span><span>${task.category || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">创建人：</span><span>${task.creator || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">派单人：</span><span>${task.dispatcher || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">负责人：</span><span>${task.assignee || '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">创建时间：</span><span>${formatTime(task.dispatched_at)}</span></div>
+            ${acceptedStr ? `<div class="detail-row"><span class="detail-label">接单信息：</span><span>${acceptedStr}</span></div>` : ''}
+            ${completedStr ? `<div class="detail-row"><span class="detail-label">完成时间：</span><span>${completedStr}</span></div>` : ''}
+            ${task.notes ? `<div class="detail-row"><span class="detail-label">备注：</span><span>${task.notes}</span></div>` : ''}
+          </div>
+          <div class="detail-section">
+            <h4>维修前照片（${beforePhotos.length}张）</h4>
+            <div class="detail-photo-grid" onclick="event.stopPropagation();">
+              ${beforePhotos.length > 0 ? beforePhotos.map((img, i) => `<img src="${photoSrc(img)}" onclick="openPhotoBrowser('${task.id}','before',${i})" style="width:100%;max-width:200px;border-radius:8px;cursor:pointer;">`).join('') : '<span style="color:#999;">暂无照片</span>'}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4>维修中照片（${duringPhotos.length}张）</h4>
+            <div class="detail-photo-grid" onclick="event.stopPropagation();">
+              ${duringPhotos.length > 0 ? duringPhotos.map((img, i) => `<img src="${photoSrc(img)}" onclick="openPhotoBrowser('${task.id}','during',${i})" style="width:100%;max-width:200px;border-radius:8px;cursor:pointer;">`).join('') : '<span style="color:#999;">暂无照片</span>'}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4>维修后照片（${afterPhotos.length}张）</h4>
+            <div class="detail-photo-grid" onclick="event.stopPropagation();">
+              ${afterPhotos.length > 0 ? afterPhotos.map((img, i) => `<img src="${photoSrc(img)}" onclick="openPhotoBrowser('${task.id}','after',${i})" style="width:100%;max-width:200px;border-radius:8px;cursor:pointer;">`).join('') : '<span style="color:#999;">暂无照片</span>'}
+            </div>
+          </div>
+        </div>
+        ${task.status !== 'pending' ? `<div onclick="event.stopPropagation();">${renderReviewStatus(task)}</div>` : ''}
+        ${actionBtn || deleteBtn ? `<div class="task-card-footer" onclick="event.stopPropagation();">${actionBtn}${deleteBtn}</div>` : ''}
       </div>
     `;
   }).join('');
+}
+
+// ============ 任务详情展开/收起 ============
+function toggleTaskDetail(taskId) {
+  const detail = document.getElementById('detail_' + taskId);
+  const toggle = document.getElementById('toggle_' + taskId);
+  if (detail) {
+    if (detail.style.display === 'none') {
+      detail.style.display = 'block';
+      if (toggle) toggle.textContent = '点击收起详情 ▲';
+    } else {
+      detail.style.display = 'none';
+      if (toggle) toggle.textContent = '点击展开详情 ▼';
+    }
+  }
 }
 
 // ============ 统计与筛选 ============
